@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Descarga Archivos</title>
+  <META charset="UTF-8">
+  <style>
+    table {
+      border-collapse: collapse;
+      width: 80%;
+    }
+
+    th,
+    td {
+      border: 1px solid white;
+      padding: 6px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    td.tamano,
+    td.fecha {
+      text-align: left;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Descarga Archivos</h1>
+  <div id="div1"></div>
+    <p style="font-size: 12px">NOTAS:
+    <br>NOTA 11111111111111111111111111111111111111111111111111111
+    <br>NOTA 22222222222222222222222222222222222222222222222222222
+    <br>NOTA 33333333333333333333333333333333333333333333333333333
+    <br>NOTA 44444444444444444444444444444444444444444444444444444
+    <br>NOTA 55555555555555555555555555555555555555555555555555555
+    <br>NOTA 66666666666666666666666666666666666666666666666666666
+    <br>NOTA 77777777777777777777777777777777777777777777777777777
+    <br>NOTA 88888888888888888888888888888888888888888888888888888
+    <br>NOTA 99999999999999999999999999999999999999999999999999999
+    </p>
+  <div id="div2"></div>
+  <label for="directorio">Directorio:</label>
+  <select id="directorio" name="directorio">
+    <option value="C:\\Users\\gamad\\OneDrive\\Escritorio\\archivos">Directorio 1</option>
+    <option value="C:\\Users\\gamad\\OneDrive\\Escritorio\\archivos">Directorio 2</option>
+    <option value="C:\\Users\\gamad\\OneDrive\\Escritorio\\archivos">Directorio 3</option>
+    <option value="C:\\Users\\gamad\\OneDrive\\Escritorio\\archivos">Directorio 4</option>
+    <option value="C:\\Users\\gamad\\OneDrive\\Escritorio\\archivos">Directorio 4</option>
+  </select>
+  &nbsp;&nbsp;
+  <label for="filtro">Filtro:</label>
+  <input type="text" id="filtro" name="filtro" placeholder="Filtro de archivos" />
+
+  &nbsp;&nbsp;
+  <button onclick="listarArchivos()">Buscar</button>
+  &nbsp;&nbsp;
+  <button onclick="descargarSeleccionados()">Descargar</button>
+  &nbsp;&nbsp;
+  <button onclick="seleccionarTodos()">Seleccionar Todos</button>
+  &nbsp;&nbsp;
+  <span id="totalArchivosInfo" style="margin-left: 12px"></span>
+  &nbsp;&nbsp;
+  <div id="div3"></div>
+  &nbsp;&nbsp;
+  <div id="archivos"><!-- Aquí se mostrarán los archivos listados --></div>
+  &nbsp;&nbsp;
+  <p id="msjNoArchivos" style="display: none; color: red"> **** ¡NO SE ENCONTRARON ARCHIVOS! **** </div>
+  &nbsp;&nbsp;
+  <p id="msjEspera" style="display: none">Por favor espera... buscando archivos...</div>
+
+  <!-- Campos ocultos para el formulario de descarga -->
+  <input type="hidden" id="directorioDescarga" name="directorio" />
+  <input type="hidden" id="archivosDescarga" name="archivos" />
+
+  <script>
+    let archivosSeleccionados = [];
+
+    // Función para listar archivos
+    function listarArchivos() {
+      document.getElementById("msjEspera").style.display = "block";
+      const directorio = document.getElementById("directorio").value;
+      const filtro = document.getElementById("filtro").value;
+
+      limpiarSeleccion();
+
+      fetch(`/api/lista`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          directorio: directorio,
+          filtro: filtro,
+        }),
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(
+              "Hubo un problema al obtener la lista de archivos."
+            );
+          }
+          return response.json();
+        })
+        .then((data) => {
+            if (data.length ===0){
+                document.getElementById("msjNoArchivos").style.display = "block";
+            } else{
+              document.getElementById("msjNoArchivos").style.display = "none";
+            }
+            mostrarArchivos(data);
+        })
+        .catch((error) => {
+          console.error(error);
+        })
+        .finally(() => {
+          document.getElementById("msjEspera").style.display = "none";
+        });
+    }
+
+    // Función para mostrar archivos con formato de tabla
+    function mostrarArchivos(archivos) {
+      const archivosDiv = document.getElementById("archivos");
+      archivosDiv.innerHTML = "";
+
+      const tabla = document.createElement("table");
+
+      // Cabecera de la tabla
+      const cabecera = document.createElement("tr");
+      const headers = ["Nombre", "Size", "Fecha (DD-MM-YYYY)", "Seleccionar"];
+      headers.forEach((header) => {
+        const th = document.createElement("th");
+        th.innerText = header;
+        cabecera.appendChild(th);
+      });
+      tabla.appendChild(cabecera);
+
+      archivos.forEach((archivo) => {
+        const detalles = archivo.split("||");
+        const fila = document.createElement("tr");
+
+        const nombreCelda = document.createElement("td");
+        nombreCelda.innerText = detalles[0]; // El primer elemento es el nombre del archivo
+        fila.appendChild(nombreCelda);
+
+        const tamanoCelda = document.createElement("td");
+        tamanoCelda.className = "tamano"; 
+        tamanoCelda.innerText = detalles[1]; // El segundo elemento es el tamaño del archivo
+        fila.appendChild(tamanoCelda);
+
+        const fechaModificacionCelda = document.createElement("td");
+        fechaModificacionCelda.className = "fecha";
+        fechaModificacionCelda.innerText = detalles[2]; // El tercer elemento es la fecha de modificación del archivo
+        fila.appendChild(fechaModificacionCelda);
+
+        // Agregar checkbox para seleccionar el archivo
+        const seleccionarCelda = document.createElement("td");
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.value = detalles[0]; // El primer elemento es el nombre del archivo
+        checkbox.addEventListener("change", handleCheckboxChange);
+        seleccionarCelda.appendChild(checkbox);
+        fila.appendChild(seleccionarCelda);
+        tabla.appendChild(fila);
+      });
+
+      archivosDiv.appendChild(tabla);
+
+      const totalArchivos = archivos.length;
+      const totalArchivosInfo = document.getElementById("totalArchivosInfo");
+      totalArchivosInfo.textContent = `Archivos Encontrados: ${totalArchivos}`;
+    }
+
+    // Función para manejar el cambio de los checkboxes
+    function handleCheckboxChange(event) {
+      const checkbox = event.target;
+      const nombreArchivo = checkbox.value;
+
+      if (checkbox.checked) {
+        archivosSeleccionados.push(nombreArchivo);
+      } else {
+        const index = archivosSeleccionados.indexOf(nombreArchivo);
+        if (index !== -1) {
+          archivosSeleccionados.splice(index, 1);
+        }
+      }
+
+      // Actualizar los valores de los campos ocultos del formulario
+      document.getElementById("directorioDescarga").value =
+        document.getElementById("directorio").value;
+      document.getElementById("archivosDescarga").value = JSON.stringify(
+        archivosSeleccionados
+      );
+    }
+
+    // Función para seleccionar todos los checkboxes
+    function seleccionarTodos() {
+      const checkboxes = document.querySelectorAll("input[type='checkbox']");
+      archivosSeleccionados = []; // Limpiar la lista de archivos seleccionados
+      checkboxes.forEach((checkbox) => {
+        checkbox.checked = true;
+        archivosSeleccionados.push(checkbox.value);
+    });
+
+    // Actualizar los valores de los campos ocultos del formulario
+    document.getElementById("directorioDescarga").value =
+      document.getElementById("directorio").value;
+    document.getElementById("archivosDescarga").value = JSON.stringify(
+      archivosSeleccionados
+    );
+  }
+
+    // Función para enviar el formulario de descarga
+    function descargarSeleccionados() {
+      if (archivosSeleccionados.length === 0) {
+        alert("Selecciona al menos un archivo para descargar.");
+        return;
+      }
+      const directorio = document.getElementById("directorio").value;
+
+      if (archivosSeleccionados.length === 1) {
+        // Descargar solo un archivo
+        const archivo = archivosSeleccionados[0];
+        window.location.href = `/api/descargar?directorio=${encodeURIComponent(directorio)}&archivo=${encodeURIComponent(archivo)}`;
+      } else {
+        // Descargar varios archivos
+        const archivosParam = archivosSeleccionados.join(",");
+        window.location.href = `/api/descargar-zip?directorio=${encodeURIComponent(directorio)}&archivos=${encodeURIComponent(archivosParam)}`;
+      }
+    }
+
+    function limpiarSeleccion() {
+      const checkboxes = document.querySelectorAll("input[type='checkbox']");
+      checkboxes.forEach((checkbox) => {
+          checkbox.checked = false;
+     });
+      archivosSeleccionados = [];
+      filtro.value = "";
+
+      document.getElementById("directorioDescarga").value = "";
+      document.getElementById("archivosDescarga").value = "";
+      document.getElementById("msjNoArchivos").style.display = "none";
+
+      const archivosDiv = document.getElementById("archivos");
+      archivosDiv.textContent = ""; 
+  }
+  </script>
+</body>
+
+</html>
