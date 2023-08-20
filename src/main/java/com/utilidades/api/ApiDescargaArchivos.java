@@ -13,8 +13,8 @@ public class ApiDescargaArchivos {
     @GetMapping("/api/descargar")
     public ResponseEntity<byte[]> downloadFile(@RequestParam("directorio") String directorio, @RequestParam("archivo") String archivo) {
 
-        String envir = System.getenv("ENVIRONMENT");
-        System.out.println(": : : : INICIA DESCARGA DE ARCHIVO EN AMBIENTE: " + envir);
+        //String envir = System.getenv("ENVIRONMENT");
+        //System.out.println(": : : : INICIA DESCARGA DE ARCHIVO EN AMBIENTE: " + envir);
 
         File file = new File(directorio, archivo);
         if (file.exists()) {
@@ -24,10 +24,10 @@ public class ApiDescargaArchivos {
                 headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
                 headers.setContentDisposition(ContentDisposition.attachment().filename(file.getName()).build());
 
-                System.out.println(": : : : TERMINA DESCARGA DE ARCHIVO EN AMBIENTE: " + envir);
+                //System.out.println(": : : : TERMINA DESCARGA DE ARCHIVO EN AMBIENTE: " + envir);
                 return new ResponseEntity<>(archivoBytes, headers, HttpStatus.OK);
             } catch (IOException e) {
-                System.out.println(": : : : ERROR EN DESCARGA DE ARCHIVO EN AMBIENTE: " + envir);
+                //System.out.println(": : : : ERROR EN DESCARGA DE ARCHIVO EN AMBIENTE: " + envir);
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             }
         } else {
@@ -39,15 +39,15 @@ public class ApiDescargaArchivos {
     public ResponseEntity<byte[]> downloadFilesAsZip(@RequestParam("directorio") String directorio,@RequestParam("archivos") List<String> archivosSeleccionados) {
         List<File> archivosParaComprimir = new ArrayList<>();
 
-        String envir = System.getenv("ENVIRONMENT");
-        System.out.println(": : : : INICIA CREACIÓN DE ZIP EN AMBIENTE: " + envir);
+        //String envir = System.getenv("ENVIRONMENT");
+        //System.out.println(": : : : INICIA CREACIÓN DE ZIP EN AMBIENTE: " + envir);
         int ArchivosComprimidos = 0;
 
-        if (envir.equals("dev")) {
+        /*if (envir.equals("dev")) {
             envir = "DEV";
         } else if (envir.equals("UAT")) {
             envir = "UAT";
-        }
+        }*/
 
         for (String nombreArchivo : archivosSeleccionados) {
             File file = new File(directorio, nombreArchivo);
@@ -87,10 +87,10 @@ public class ApiDescargaArchivos {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
             headers.setContentDisposition(ContentDisposition.attachment().filename("Archivos.zip").build());
-            System.out.println(": : : : TERMINA CREACIÓN DE ZIP EN AMBIENTE: " + envir);
+            //System.out.println(": : : : TERMINA CREACIÓN DE ZIP EN AMBIENTE: " + envir);
             return new ResponseEntity<>(zipBytes, headers, HttpStatus.OK);
         } catch (IOException e) {
-            System.out.println(": : : : ERROR EN CREACIÓN DE ZIP EN AMBIENTE: " + envir);
+            //System.out.println(": : : : ERROR EN CREACIÓN DE ZIP EN AMBIENTE: " + envir);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

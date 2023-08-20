@@ -3,7 +3,7 @@ package com.utilidades.model;
 public class ListaArchivosRequest {
 
     private String directorio;
-    private String parametro;
+    private String filtro;
 
     public String getDirectorio() {
         return directorio;
@@ -11,10 +11,11 @@ public class ListaArchivosRequest {
     public void setDirectorio(String directorio) {
         this.directorio = directorio;
     }
-    public String getParametro() {
-        return parametro;
+    public String getFiltro() {
+        return filtro;
     }
-    public void setParametro(String parametro) {
-        this.parametro = parametro;
+    public void setFiltro(String filtro) {
+        this.filtro = filtro;
     }
+
 }

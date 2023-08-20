@@ -14,11 +14,11 @@ public class ApiListaDetalle {
     @PostMapping("/api/lista")
     public ResponseEntity<List<String>> listFiles(@RequestBody ListaArchivosRequest request) {
 
-        String envir = System.getenv("ENVIRONMENT");
-        System.out.println(": : : : INICIA BUSQUEDA DE ACHIVO(S) EN AMBIENTE: " + envir);
+        //String envir = System.getenv("ENVIRONMENT");
+        //System.out.println(": : : : INICIA BUSQUEDA DE ACHIVO(S) EN AMBIENTE: " + envir);
 
         String directorio = request.getDirectorio();
-        String parametro = request.getParametro();
+        String parametro = request.getFiltro();
 
         int ArchivosEncontrados = 0;
 
@@ -40,10 +40,10 @@ public class ApiListaDetalle {
                     }
                 }
                 System.out.println(": : : : ArchivosEncontrados: " + ArchivosEncontrados);
-                System.out.println(": : : : TERMINA BUSQUEDA DE ACHIVO(S) EN AMBIENTE: " + envir);
+                //System.out.println(": : : : TERMINA BUSQUEDA DE ACHIVO(S) EN AMBIENTE: " + envir);
                 return new ResponseEntity<>(matchingFiles, HttpStatus.OK);
             }
-            System.out.println(": : : : ERROR EN BUSQUEDA DE ACHIVO(S) EN AMBIENTE: " + envir);
+            //System.out.println(": : : : ERROR EN BUSQUEDA DE ACHIVO(S) EN AMBIENTE: " + envir);
             return new ResponseEntity<>(HttpStatus.OK);
         }
     }
@@ -51,7 +51,7 @@ public class ApiListaDetalle {
     private String getFormattedFileDetails(File file) {
         String nombre = file.getName();
         String tamano = getFormattedFileSize(file.length());
-        String fechaModificacion = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(file.lastModified()));
+        String fechaModificacion = new SimpleDateFormat("dd/MM/yyyy - HH:mm:ss").format(new Date(file.lastModified()));
         return nombre + "||" + tamano + "||" + fechaModificacion;
     }
 
@@ -64,6 +64,7 @@ public class ApiListaDetalle {
             fileSize /= 1024;
             unitIndex++;
         }
-        return String.format("%.2f%s", fileSize, units[unitIndex]);
+        return String.format("%.2f %s", fileSize, units[unitIndex]);
+        //return String.format("%.2f%s", fileSize, units[unitIndex]);
     }
 }
