@@ -33,7 +33,8 @@ public class ApiListaDetalle {
             List<String> matchingFiles = new ArrayList<>();
             if (files != null) {
                 for (File file : files) {
-                    if (parametro.equals("*") || file.getName().contains(parametro)) {
+                    //if (parametro.equals("*") || file.getName().contains(parametro)) {
+                    if (parametro.equals("*") || file.getName().toLowerCase().contains(parametro.toLowerCase())) {
                         String detalle = getFormattedFileDetails(file);
                         matchingFiles.add(detalle);
                         ArchivosEncontrados++;

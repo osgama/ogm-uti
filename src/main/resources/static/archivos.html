@@ -178,12 +178,13 @@
     <button onclick="listarArchivos()">Buscar</button>
     <button onclick="descargarSeleccionados()">Descargar</button>
     <button onclick="seleccionarTodos()">Seleccionar Todos</button>
+    <button onclick="limpiar()">Limpiar</button>
     &nbsp;&nbsp;
 
     <span id="totalArchivosInfo"
       style="float: right; line-height: 3rem; margin-right: 30px; font-family: Arial, sans-serif; font-weight: bold;"></span>
     <div id="div3"></div>
-    <div id="archivos" ></div>
+    <div id="archivos"></div>
 
     <p id="msjNoArchivos" class="mensaje">¡NO SE ENCONTRARON ARCHIVOS!</p>
     <p id="msjEspera" class="mensaje">Por favor espera... buscando archivos...</p>
@@ -364,24 +365,6 @@
       }
     }
 
-
-    // Función para limpiar los formularios
-    function limpiarSeleccion() {
-      const checkboxes = document.querySelectorAll("input[type='checkbox']");
-      checkboxes.forEach((checkbox) => {
-        checkbox.checked = false;
-      });
-      archivosSeleccionados = [];
-      filtro.value = "";
-
-      document.getElementById("directorioDescarga").value = "";
-      document.getElementById("archivosDescarga").value = "";
-      document.getElementById("msjNoArchivos").style.display = "none";
-
-      const archivosDiv = document.getElementById("archivos");
-      archivosDiv.textContent = "";
-    }
-
     // Función Acordeon
     function toggleAcordeon() {
       const contenidoAcordeon = document.getElementById("contenidoAcordeon");
@@ -400,6 +383,44 @@
       if (event.target !== acordeon && !acordeon.contains(event.target) &&
         event.target !== contenidoAcordeon && !contenidoAcordeon.contains(event.target)) {
         contenidoAcordeon.style.display = "none";
+      }
+    });
+
+    // Función para limpiar los formularios
+    function limpiarSeleccion() {
+      const checkboxes = document.querySelectorAll("input[type='checkbox']");
+      checkboxes.forEach((checkbox) => {
+        checkbox.checked = false;
+      });
+      archivosSeleccionados = [];
+      filtro.value = "";
+
+      document.getElementById("directorioDescarga").value = "";
+      document.getElementById("archivosDescarga").value = "";
+      document.getElementById("msjNoArchivos").style.display = "none";
+
+      const archivosDiv = document.getElementById("archivos");
+      archivosDiv.textContent = "";
+    }
+
+    // Función para limpiar los formularios
+    function limpiar() {
+      const checkboxes = document.querySelectorAll("input[type='checkbox']");
+      checkboxes.forEach((checkbox) => {
+        checkbox.checked = false;
+      });
+      archivosSeleccionados = [];
+      filtro.value = "";
+    }
+
+    // Obtén el campo de entrada de texto por su ID
+    var filtroInput = document.getElementById("filtro");
+
+    // Agrega un evento "keypress" para detectar cuando se presiona la tecla "Enter"
+    filtroInput.addEventListener("keypress", function (event) {
+      if (event.key === "Enter") {
+        // Si se presiona "Enter", ejecuta la función listarArchivos()
+        listarArchivos();
       }
     });
 
