@@ -85,7 +85,7 @@
     }
 
     th {
-      background-color: #212F3D;
+      background-color: #17202A;
       color: #ffffff;
     }
 
@@ -99,7 +99,7 @@
     }
 
     table tr:nth-child(even) {
-      background-color: #273746;
+      background-color: #212F3D;
     }
 
     .acordeon {
@@ -144,25 +144,12 @@
       justify-content: center;
       height: 100%;
     }
-
-    body::after {
-      content: "Desarrollada por Team Arq.";
-      display: block;
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 16px;
-      color: rgba(255, 255, 255, 0.3);
-      text-align: center;
-      z-index: -1;
-    }
   </style>
 </head>
 
 <body>
   <header>
-    <h1>Descarga Archivos DEV</h1>
+    <h1>Descarga Archivos <span id="ambiente"></span></h1>
     <div class="acordeon" onclick="toggleAcordeon()">
       <h1>AYUDA</h1>
     </div>
@@ -193,9 +180,10 @@
     <button onclick="seleccionarTodos()">Seleccionar Todos</button>
     &nbsp;&nbsp;
 
-    <span id="totalArchivosInfo" style="float: right; line-height: 3rem; margin-right: 30px; font-family: Arial, sans-serif; font-weight: bold;"></span>
+    <span id="totalArchivosInfo"
+      style="float: right; line-height: 3rem; margin-right: 30px; font-family: Arial, sans-serif; font-weight: bold;"></span>
     <div id="div3"></div>
-    <div id="archivos"></div>
+    <div id="archivos" ></div>
 
     <p id="msjNoArchivos" class="mensaje">¡NO SE ENCONTRARON ARCHIVOS!</p>
     <p id="msjEspera" class="mensaje">Por favor espera... buscando archivos...</p>
@@ -206,6 +194,28 @@
   </main>
 
   <script>
+
+    // Función para obtener y actualizar el ambiente en el título
+    function obtenerAmbiente() {
+      fetch('http://localhost:9093/api/ambiente')
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('Hubo un problema al obtener el ambiente.');
+          }
+          return response.text();
+        })
+        .then((ambiente) => {
+          document.getElementById('ambiente').textContent = ambiente;
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+
+    // Llama a la función al cargar la página
+    window.onload = function () {
+      obtenerAmbiente();
+    };
 
     // Función para listar archivos
     function listarArchivos() {
