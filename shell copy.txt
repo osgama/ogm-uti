@@ -2,14 +2,16 @@
 CHCP 65001 > NUL
 
 :: Configuración de colores
-set "color_texto=07"  :: Texto blanco sobre fondo negro
-set "color_fondo=00"  :: Fondo negro
-:: Otras opciones de configuración, como tamaño de ventana, podrían agregarse aquí
+set "color_texto=0B"  :: Primer plano amarillo claro, segundo plano negro
 
 :inicio
 cls
 :: Aplicar configuración de colores
-color %color_texto% %color_fondo%
+color %color_texto%
+
+:: Mostrar fecha y hora
+echo Fecha: %DATE%
+echo Hora: %TIME%
 
 echo Menú de login:
 echo 1. Opción de login 1
@@ -32,6 +34,8 @@ if %opcion_login%==5 goto salir
 
 :login1
 cls
+echo Fecha: %DATE%
+echo Hora: %TIME%
 echo Has seleccionado la Opción de login 1.
 rem Agrega aquí lo que desees hacer para la opción de login 1.
 pause
