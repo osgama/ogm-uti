@@ -1,0 +1,168 @@
+@echo off
+CHCP 65001 > NUL
+
+:: Configuración de colores
+set "color_texto=07"  :: Texto blanco sobre fondo negro
+set "color_fondo=00"  :: Fondo negro
+:: Otras opciones de configuración, como tamaño de ventana, podrían agregarse aquí
+
+:inicio
+cls
+:: Aplicar configuración de colores
+color %color_texto% %color_fondo%
+
+echo Menú de login:
+echo 1. Opción de login 1
+echo 2. Opción de login 2
+echo 3. Opción de login 3
+echo 4. Opción de login 4
+echo 5. Salir
+
+set /p opcion_login=Seleccione una opción de login (1-5):
+
+rem Validación de entrada
+if %opcion_login% lss 1 goto inicio
+if %opcion_login% gtr 5 goto inicio
+
+if %opcion_login%==1 goto login1
+if %opcion_login%==2 goto login2
+if %opcion_login%==3 goto login3
+if %opcion_login%==4 goto login4
+if %opcion_login%==5 goto salir
+
+:login1
+cls
+echo Has seleccionado la Opción de login 1.
+rem Agrega aquí lo que desees hacer para la opción de login 1.
+pause
+goto menu_principal
+
+:login2
+cls
+echo Has seleccionado la Opción de login 2.
+rem Agrega aquí lo que desees hacer para la opción de login 2.
+pause
+goto menu_principal
+
+:login3
+cls
+echo Has seleccionado la Opción de login 3.
+rem Agrega aquí lo que desees hacer para la opción de login 3.
+pause
+goto menu_principal
+
+:login4
+cls
+echo Has seleccionado la Opción de login 4.
+rem Agrega aquí lo que desees hacer para la opción de login 4.
+pause
+goto menu_principal
+
+:salir
+cls
+echo Saliendo del programa.
+exit
+
+:menu_principal
+cls
+echo Menú principal:
+echo 1. Submenú 1
+echo 2. Submenú 2
+echo 3. Submenú 3
+echo 4. Submenú 4
+echo 5. Submenú 5
+echo 6. Submenú 6
+echo 7. Submenú 7
+echo 8. Submenú 8
+echo 9. Submenú 9
+echo 10. Submenú 10
+echo 11. Salir
+
+set /p opcion_menu=Seleccione una opción (1-11):
+
+if %opcion_menu%==1 goto submenu1
+if %opcion_menu%==2 goto submenu2
+if %opcion_menu%==3 goto submenu3
+if %opcion_menu%==4 goto submenu4
+if %opcion_menu%==5 goto submenu5
+if %opcion_menu%==6 goto submenu6
+if %opcion_menu%==7 goto submenu7
+if %opcion_menu%==8 goto submenu8
+if %opcion_menu%==9 goto submenu9
+if %opcion_menu%==10 goto submenu10
+if %opcion_menu%==11 goto salir
+
+:submenu1
+cls
+echo Has seleccionado Submenú 1.
+rem Agrega aquí lo que desees hacer para Submenú 1.
+pause
+goto menu_principal
+
+:submenu2
+cls
+echo Has seleccionado Submenú 2.
+rem Agrega aquí lo que desees hacer para Submenú 2.
+pause
+goto menu_principal
+
+:submenu3
+cls
+echo Has seleccionado Submenú 3.
+rem Agrega aquí lo que desees hacer para Submenú 3.
+pause
+goto menu_principal
+
+:submenu4
+cls
+echo Has seleccionado Submenú 4.
+rem Agrega aquí lo que desees hacer para Submenú 4.
+pause
+goto menu_principal
+
+:submenu5
+cls
+echo Has seleccionado Submenú 5.
+rem Agrega aquí lo que desees hacer para Submenú 5.
+pause
+goto menu_principal
+
+:submenu6
+cls
+echo Has seleccionado Submenú 6.
+rem Agrega aquí lo que desees hacer para Submenú 6.
+pause
+goto menu_principal
+
+:submenu7
+cls
+echo Has seleccionado Submenú 7.
+rem Agrega aquí lo que desees hacer para Submenú 7.
+pause
+goto menu_principal
+
+:submenu8
+cls
+echo Has seleccionado Submenú 8.
+rem Agrega aquí lo que desees hacer para Submenú 8.
+pause
+goto menu_principal
+
+:submenu9
+cls
+echo Has seleccionado Submenú 9.
+rem Agrega aquí lo que desees hacer para Submenú 9.
+pause
+goto menu_principal
+
+:submenu10
+cls
+echo Has seleccionado Submenú 10.
+rem Agrega aquí lo que desees hacer para Submenú 10.
+pause
+goto menu_principal
+
+:salir
+cls
+echo Saliendo del programa.
+exit
