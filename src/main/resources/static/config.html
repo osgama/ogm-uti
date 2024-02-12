@@ -1,148 +1,116 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Configuración del Archivo INI</title>
+    <title>Configuración INI</title>
     <style>
-        /* Estilos proporcionados */
         body {
-          font-family: Arial, sans-serif;
-          margin: 0;
-          padding: 0;
-          background-color: #283747;
-          color: #ffffff;
-          position: relative;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #283747;
+            color: #ffffff;
+            position: relative;
         }
 
         header {
-          background-color: #212F3C;
-          color: #ffffff;
-          text-align: center;
-          padding: 1rem 0;
+            background-color: #212F3C;
+            color: #ffffff;
+            text-align: center;
+            padding: 1rem 0;
         }
 
         main {
-          max-width: 1300px;
-          margin: 1rem auto;
-          padding: 1rem;
-          background-color: #34495E;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-          position: relative;
+            max-width: 1300px;
+            margin: 1rem auto;
+            padding: 1rem;
+            background-color: #34495E;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
 
-        h1 {
-          font-size: 24px;
-          color: #ffffff;
-          position: relative;
-          margin: 0;
-        }
-
-        form {
-          margin-top: 1rem;
-        }
-
-        div {
-          margin-bottom: 10px;
+        h2 {
+            font-size: 24px;
+            color: #ffffff;
+            position: relative;
+            margin: 0 0 1rem 0;
         }
 
         label {
-          font-weight: bold;
+            font-weight: bold;
         }
 
+        select,
         input[type="text"],
         button {
-          margin: 5px;
-          padding: 8px;
-          border: 1px solid #212F3D;
-          border-radius: 4px;
-          font-size: 14px;
-          background-color: #212F3D;
-          color: #ffffff;
+            margin: 5px 0;
+            padding: 8px;
+            border: 1px solid #212F3D;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: #212F3D;
+            color: #ffffff;
         }
 
         button {
-          background-color: #212F3D;
-          color: #ffffff;
-          border: none;
-          cursor: pointer;
-          font-family: Arial, sans-serif;
-          font-weight: bold;
+            background-color: #212F3D;
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+            font-weight: bold;
         }
 
         button:hover {
-          background-color: #2C3E50;
+            background-color: #2C3E50;
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>Configuración Reprosys</h1>
+        <h1>Configuración de Archivo INI</h1>
     </header>
     <main>
-        <form id="configForm">
-            <div>
-                <label for="parametro1">Fecha Inicial:</label>
-                <input type="text" id="parametro1" name="parametro1">
-            </div>
-            <div>
-                <label for="parametro2">Fecha Final:</label>
-                <input type="text" id="parametro2" name="parametro2">
-            </div>
-            <div>
-                <label for="parametro3">Reproceso:</label>
-                <input type="text" id="parametro3" name="parametro3">
-            </div>
-            <button type="submit">Guardar</button>
-        </form>
+        <h2>Configuración Actual</h2>
+        <div id="configuracion"></div>
+        <h2>Actualizar Configuración</h2>
+        Fecha Inicial: <input type="text" id="fechainicial"><br>
+        Fecha Final: <input type="text" id="fechafinal"><br>
+        Parámetro: <input type="text" id="parametro"><br>
+        <button onclick="actualizarConfiguracion()">Actualizar</button>
     </main>
 
     <script>
-        document.getElementById('configForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const data = {
-                parametro1: document.getElementById('parametro1').value,
-                parametro2: document.getElementById('parametro2').value,
-                parametro3: document.getElementById('parametro3').value
-            };
-
-            fetch('/api/configuracion', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => { throw new Error(text) });
-                }
-                return response.text();
-            })
-            .then(data => {
-                alert('Configuración actualizada: ' + data);
-            })
-            .catch((error) => {
-                alert('Error: ' + error.message);
-            });
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/configuracion')
+                .then(response => response.json())
+                .then(data => {
+                    const configDiv = document.getElementById('configuracion');
+                    configDiv.innerHTML = '';
+                    Object.entries(data).forEach(([section, values]) => {
+                        if (section === "DEFAULT") {
+                            Object.entries(values).forEach(([key, value]) => {
+                                configDiv.innerHTML += `${key}: ${value}<br>`;
+                            });
+                        }
+                    });
+                });
         });
 
-        window.onload = function() {
-            fetch('/api/configuracion')
-                .then(response => {
-                    if (!response.ok) {
-                        return response.text().then(text => { throw new Error(text) });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    document.getElementById('parametro1').value = data.parametro1 || '';
-                    document.getElementById('parametro2').value = data.parametro2 || '';
-                    document.getElementById('parametro3').value = data.parametro3 || '';
-                })
-                .catch((error) => {
-                    alert('Error al cargar la configuración: ' + error.message);
-                });
-        };
+        function actualizarConfiguracion() {
+            const fechainicial = document.getElementById('fechainicial').value;
+            const fechafinal = document.getElementById('fechafinal').value;
+            const parametro = document.getElementById('parametro').value;
+
+            fetch('/configuracion', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `fechainicial=${encodeURIComponent(fechainicial)}&fechafinal=${encodeURIComponent(fechafinal)}&parametro=${encodeURIComponent(parametro)}`
+            }).then(() => {
+                window.location.reload(); // Recarga la página para mostrar la configuración actualizada
+            });
+        }
     </script>
 </body>
 </html>

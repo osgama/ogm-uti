@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 public class ApiDescargaArchivos {
 
     @GetMapping("/api/descargar")
-    public ResponseEntity<byte[]> downloadFile(@RequestParam("directorio") String directorio, @RequestParam("archivo") String archivo) {
+    public ResponseEntity<byte[]> downloadFile(@RequestParam String directorio, @RequestParam String archivo) {
 
         //String envir = System.getenv("ENVIRONMENT");
         //System.out.println(": : : : INICIA DESCARGA DE ARCHIVO EN AMBIENTE: " + envir);
@@ -36,7 +36,7 @@ public class ApiDescargaArchivos {
     }
 
     @GetMapping("/api/descargar-zip")
-    public ResponseEntity<byte[]> downloadFilesAsZip(@RequestParam("directorio") String directorio,@RequestParam("archivos") List<String> archivosSeleccionados) {
+    public ResponseEntity<byte[]> downloadFilesAsZip(@RequestParam String directorio,@RequestParam("archivos") List<String> archivosSeleccionados) {
         List<File> archivosParaComprimir = new ArrayList<>();
 
         //String envir = System.getenv("ENVIRONMENT");
