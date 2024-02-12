@@ -48,7 +48,7 @@
         }
 
         button {
-            background-color: #212F3D;
+            background-color: #212F3C;
             color: #ffffff;
             border: none;
             cursor: pointer;
@@ -64,6 +64,14 @@
             font-weight: bold;
             display: block;
             margin-top: 20px;
+        }
+
+        .valido {
+            color: green;
+        }
+
+        .invalido {
+            color: red;
         }
     </style>
 </head>
@@ -81,10 +89,48 @@
         <input type="text" id="fechafinal">
         <label for="parametro">Parámetro:</label>
         <input type="text" id="parametro">
-        <button onclick="actualizarConfiguracion()">Actualizar</button>
+        <button onclick="validarCamposYActualizar()">Actualizar</button>
     </main>
 
     <script>
+                function validarFecha(fecha) {
+            const regexFecha = /^(19|20)\d\d(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])$/;
+            return regexFecha.test(fecha) && esFechaValida(fecha);
+        }
+
+        function validarParametro(parametro) {
+            const regexParametro = /^[A-Za-z]$/;
+            return regexParametro.test(parametro);
+        }
+
+        function esFechaValida(fecha) {
+            const year = parseInt(fecha.substring(0, 4), 10);
+            const month = parseInt(fecha.substring(4, 6), 10) - 1;
+            const day = parseInt(fecha.substring(6, 8), 10);
+
+            const dateObj = new Date(year, month, day);
+            return dateObj.getFullYear() === year && dateObj.getMonth() === month && dateObj.getDate() === day;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tu código para cargar la configuración...
+
+            document.getElementById('fechainicial').addEventListener('input', function() {
+                this.classList.toggle('valido', validarFecha(this.value));
+                this.classList.toggle('invalido', !validarFecha(this.value));
+            });
+
+            document.getElementById('fechafinal').addEventListener('input', function() {
+                this.classList.toggle('valido', validarFecha(this.value));
+                this.classList.toggle('invalido', !validarFecha(this.value));
+            });
+
+            document.getElementById('parametro').addEventListener('input', function() {
+                this.classList.toggle('valido', validarParametro(this.value));
+                this.classList.toggle('invalido', !validarParametro(this.value));
+            });
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             fetch('/configuracion')
                 .then(response => response.json())
@@ -116,10 +162,16 @@
                 });
         });
         
-        function actualizarConfiguracion() {
-            const fechainicial = document.getElementById('fechainicial').value.trim();
-            const fechafinal = document.getElementById('fechafinal').value.trim();
-            const parametro = document.getElementById('parametro').value.trim();
+        function validarCamposYActualizar() {
+
+            const fechainicial = document.getElementById('fechainicial').value;
+            const fechafinal = document.getElementById('fechafinal').value;
+            const parametro = document.getElementById('parametro').value;
+
+            if (!validarFecha(fechainicial) || !validarFecha(fechafinal) || !validarParametro(parametro)) {
+                alert('Por favor, corrija los errores antes de actualizar.');
+                return;
+            }
         
             fetch('/configuracion', {
                 method: 'POST',
