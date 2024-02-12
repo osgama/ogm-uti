@@ -94,10 +94,18 @@
                     // Asumiendo que la clave extraña "?" es consistente en la respuesta
                     const configData = data["?"];
                     if (configData) {
-                        // Elimina los espacios al final de cada clave antes de mostrar los datos
-                        Object.entries(configData).forEach(([key, value]) => {
-                            let cleanKey = key.trim(); // Elimina espacios en blanco al inicio y al final
-                            configDiv.innerHTML += `${cleanKey}: ${value}<br>`;
+                        // Accede directamente a cada propiedad en el orden deseado
+                        const props = [
+                            { key: 'fechainicial', label: 'Fecha Inicial' },
+                            { key: 'fechafinal', label: 'Fecha Final' },
+                            { key: 'parametro', label: 'Parámetro' }
+                        ];
+        
+                        props.forEach(prop => {
+                            const value = configData[prop.key.trim()]; // Asegúrate de usar trim() por si acaso
+                            if (value !== undefined) { // Solo muestra la propiedad si existe
+                                configDiv.innerHTML += `${prop.label}: ${value}<br>`;
+                            }
                         });
                     } else {
                         configDiv.innerHTML = 'No hay datos para mostrar';
@@ -107,12 +115,12 @@
                     console.error('Error al fetch:', error);
                 });
         });
-
+        
         function actualizarConfiguracion() {
-            const fechainicial = document.getElementById('fechainicial').value;
-            const fechafinal = document.getElementById('fechafinal').value;
-            const parametro = document.getElementById('parametro').value;
-
+            const fechainicial = document.getElementById('fechainicial').value.trim();
+            const fechafinal = document.getElementById('fechafinal').value.trim();
+            const parametro = document.getElementById('parametro').value.trim();
+        
             fetch('/configuracion', {
                 method: 'POST',
                 headers: {
@@ -128,6 +136,7 @@
                 console.error('Error al actualizar:', error);
             });
         }
-    </script>
+        </script>
+        
 </body>
 </html>
