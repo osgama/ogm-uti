@@ -35,11 +35,6 @@
             margin: 0 0 1rem 0;
         }
 
-        label {
-            font-weight: bold;
-        }
-
-        select,
         input[type="text"],
         button {
             margin: 5px 0;
@@ -49,6 +44,7 @@
             font-size: 14px;
             background-color: #212F3D;
             color: #ffffff;
+            display: block;
         }
 
         button {
@@ -63,6 +59,12 @@
         button:hover {
             background-color: #2C3E50;
         }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -73,9 +75,12 @@
         <h2>Configuración Actual</h2>
         <div id="configuracion"></div>
         <h2>Actualizar Configuración</h2>
-        Fecha Inicial: <input type="text" id="fechainicial"><br>
-        Fecha Final: <input type="text" id="fechafinal"><br>
-        Parámetro: <input type="text" id="parametro"><br>
+        <label for="fechainicial">Fecha Inicial:</label>
+        <input type="text" id="fechainicial">
+        <label for="fechafinal">Fecha Final:</label>
+        <input type="text" id="fechafinal">
+        <label for="parametro">Parámetro:</label>
+        <input type="text" id="parametro">
         <button onclick="actualizarConfiguracion()">Actualizar</button>
     </main>
 
@@ -86,13 +91,20 @@
                 .then(data => {
                     const configDiv = document.getElementById('configuracion');
                     configDiv.innerHTML = '';
-                    Object.entries(data).forEach(([section, values]) => {
-                        if (section === "DEFAULT") {
-                            Object.entries(values).forEach(([key, value]) => {
-                                configDiv.innerHTML += `${key}: ${value}<br>`;
-                            });
-                        }
-                    });
+                    // Asumiendo que la clave extraña "?" es consistente en la respuesta
+                    const configData = data["?"];
+                    if (configData) {
+                        // Elimina los espacios al final de cada clave antes de mostrar los datos
+                        Object.entries(configData).forEach(([key, value]) => {
+                            let cleanKey = key.trim(); // Elimina espacios en blanco al inicio y al final
+                            configDiv.innerHTML += `${cleanKey}: ${value}<br>`;
+                        });
+                    } else {
+                        configDiv.innerHTML = 'No hay datos para mostrar';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al fetch:', error);
                 });
         });
 
@@ -107,8 +119,13 @@
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 body: `fechainicial=${encodeURIComponent(fechainicial)}&fechafinal=${encodeURIComponent(fechafinal)}&parametro=${encodeURIComponent(parametro)}`
-            }).then(() => {
+            }).then(response => {
+                if (!response.ok) {
+                    throw new Error('Respuesta de red no fue ok al actualizar');
+                }
                 window.location.reload(); // Recarga la página para mostrar la configuración actualizada
+            }).catch(error => {
+                console.error('Error al actualizar:', error);
             });
         }
     </script>
