@@ -1,0 +1,38 @@
+input[type="text"],
+input[type="date"], /* Agrega esto */
+button {
+    margin: 5px 0;
+    padding: 8px;
+    border: 1px solid #212F3D;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: #212F3D;
+    color: #ffffff;
+    display: block;
+    -webkit-appearance: none; /* Elimina la apariencia nativa en WebKit/Blink */
+    -moz-appearance: none; /* Elimina la apariencia nativa en Firefox */
+    appearance: none; /* Para futura compatibilidad */
+}
+
+/* Puedes intentar agregar estilos específicos para los iconos/calendario si el navegador lo permite */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    color: rgba(255, 255, 255, 0);
+    opacity: 1; /* Hace el indicador totalmente transparente */
+    display: block;
+    background: url('tu_icono_calendario.png') no-repeat; /* Cambia 'tu_icono_calendario.png' por tu icono de calendario */
+    width: 20px;
+    height: 20px;
+    border-width: thin;
+}
+
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-clear-button {
+    display: none;
+}
+
+input[type="date"]::-ms-clear,
+input[type="date"]::-ms-reveal {
+    display: none;
+    width: 0;
+    height: 0;
+}
