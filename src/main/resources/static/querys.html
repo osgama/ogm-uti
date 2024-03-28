@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>BD</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #283747;
+            color: #ffffff;
+            position: relative;
+        }
+
+        header {
+            background-color: #212F3C;
+            color: #ffffff;
+            text-align: center;
+            padding: 1rem 0;
+        }
+
+        main {
+            max-width: 1300px;
+            margin: 1rem auto;
+            padding: 1rem;
+            background-color: #34495E;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #ffffff;
+            position: relative;
+            margin: 0;
+        }
+
+        p {
+            font-size: 14px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        select,
+        input[type="text"],
+        button {
+            margin: 5px;
+            padding: 8px;
+            border: 1px solid #212F3D;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: #212F3D;
+            color: #ffffff;
+        }
+
+        button {
+            background-color: #212F3D;
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #2C3E50;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #212F3D;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #17202A;
+            color: #ffffff;
+        }
+
+        table tr:nth-child(odd) {
+            background-color: #2C3E50;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #212F3D;
+        }
+
+        .mensaje {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid;
+            border-radius: 4px;
+            text-align: center;
+            opacity: 0.9;
+        }
+
+        .exito {
+            border-color: green;
+            background-color: rgba(0, 128, 0, 0.2);
+        }
+
+        .error {
+            border-color: red;
+            background-color: rgba(255, 0, 0, 0.2);
+        }
+
+        #paginacionControles {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #mensajeResultado,
+        #paginacionControles {
+            display: none;
+            /* Ocultar inicialmente */
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Base de Datos</h1>
+    </header>
+    <main>
+        <input type="text" id="sqlInput" placeholder="Ingresa tu sentencia SQL aquí" size="50">
+        <button onclick="enviarOperacion()">Enviar</button>
+        <button onclick="limpiarFormulario()">Limpiar</button>
+        <div id="mensajeResultado" class="mensaje"></div>
+        <table id="resultadoConsulta"></table>
+        <div id="paginacionControles">
+            <button onclick="paginaAnterior()">Anterior</button>
+            <span id="infoPagina"></span>
+            <button onclick="paginaSiguiente()">Siguiente</button>
+        </div>
+    </main>
+
+    <script>
+        function enviarOperacion() {
+            var sqlInput = document.getElementById('sqlInput').value;
+            var data = {
+                tipoOperacion: sqlInput.trim().toLowerCase().startsWith('select') ? 'consulta' : 'actualizacion',
+                parametros: { consultaSql: sqlInput, updateSql: sqlInput }
+            };
+
+            fetch('http://localhost:9093/api/ejecutar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    var mensajeResultado = document.getElementById('mensajeResultado');
+                    mensajeResultado.innerHTML = ''; // Limpiar resultados anteriores
+                    document.getElementById('resultadoConsulta').innerHTML = ''; // Limpiar tabla anterior
+                    mensajeResultado.style.display = 'block'; // Hace visible el mensaje
+
+                    if (data.statusCode === 'OK') {
+                        if (Array.isArray(data.body)) { // Es una consulta con resultados
+                            mostrarResultadosConsulta(data.body);
+                            mensajeResultado.classList.remove('error');
+                            mensajeResultado.classList.add('exito');
+                            mensajeResultado.textContent = 'Consulta ejecutada con éxito.';
+                        } else { // Es una actualización
+                            mensajeResultado.textContent = data.body.mensaje;
+                            mensajeResultado.classList.remove('error');
+                            mensajeResultado.classList.add('exito');
+                        }
+                    } else if (data.statusCode === 'INTERNAL_SERVER_ERROR') {
+                        mensajeResultado.textContent = data.body.mensaje;
+                        mensajeResultado.classList.remove('exito');
+                        mensajeResultado.classList.add('error');
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    var mensajeResultado = document.getElementById('mensajeResultado');
+                    mensajeResultado.textContent = 'Error al procesar la solicitud: ' + error;
+                    mensajeResultado.classList.remove('exito');
+                    mensajeResultado.classList.add('error');
+                });
+        }
+
+        function mostrarResultadosConsulta(resultados) {
+            var tabla = document.getElementById('resultadoConsulta');
+            tabla.innerHTML = ''; // Limpiar tabla anterior
+            var thead = document.createElement('thead');
+            var tbody = document.createElement('tbody');
+            tabla.appendChild(thead);
+            tabla.appendChild(tbody);
+
+            // Crear encabezados
+            var row = thead.insertRow();
+            for (var key in resultados[0]) {
+                var th = document.createElement('th');
+                th.textContent = key;
+                row.appendChild(th);
+            }
+            // Crear filas de datos
+            resultados.forEach(function (item) {
+                var row = tbody.insertRow();
+                for (var key in item) {
+                    var cell = row.insertCell();
+                    cell.textContent = item[key];
+                }
+            });
+        }
+
+        let resultadosActuales = [];
+        let paginaActual = 1;
+        let resultadosPorPagina = 50; // Cambia esto según cuántos resultados quieras por página
+
+        function mostrarResultadosConsulta(resultados) {
+            resultadosActuales = resultados;
+            paginaActual = 1; // Resetea a la primera página cada vez que se realiza una nueva consulta
+            mostrarPaginaActual();
+        }
+
+        function mostrarPaginaActual() {
+            const inicio = (paginaActual - 1) * resultadosPorPagina;
+            const fin = inicio + resultadosPorPagina;
+            const resultadosPaginados = resultadosActuales.slice(inicio, fin);
+
+            var tabla = document.getElementById('resultadoConsulta');
+            tabla.innerHTML = ''; // Limpiar tabla anterior
+            var thead = document.createElement('thead');
+            var tbody = document.createElement('tbody');
+            tabla.appendChild(thead);
+            tabla.appendChild(tbody);
+
+            // Crear encabezados solo si hay resultados
+            if (resultadosPaginados.length > 0) {
+                var row = thead.insertRow();
+                for (var key in resultadosPaginados[0]) {
+                    var th = document.createElement('th');
+                    th.textContent = key;
+                    row.appendChild(th);
+                }
+            }
+
+            // Crear filas de datos
+            resultadosPaginados.forEach(function (item) {
+                var row = tbody.insertRow();
+                for (var key in item) {
+                    var cell = row.insertCell();
+                    cell.textContent = item[key];
+                }
+            });
+
+            // Actualizar información de paginación
+            document.getElementById('infoPagina').textContent = 'Página ' + paginaActual + ' de ' + Math.ceil(resultadosActuales.length / resultadosPorPagina);
+            // Muestra los controles de paginación
+            document.getElementById('paginacionControles').style.display = 'block'; // Asegura que los controles sean visibles
+        }
+
+        function paginaAnterior() {
+            if (paginaActual > 1) {
+                paginaActual--;
+                mostrarPaginaActual();
+            }
+        }
+
+        function paginaSiguiente() {
+            if ((paginaActual * resultadosPorPagina) < resultadosActuales.length) {
+                paginaActual++;
+                mostrarPaginaActual();
+            }
+        }
+
+        function limpiarFormulario() {
+            // Limpiar el input de la sentencia SQL
+            document.getElementById('sqlInput').value = '';
+
+            // Ocultar el mensaje de éxito/error
+            var mensajeResultado = document.getElementById('mensajeResultado');
+            mensajeResultado.style.display = 'none';
+            mensajeResultado.classList.remove('exito', 'error'); // Remover clases para limpiar estilos
+            mensajeResultado.textContent = ''; // Limpiar el texto
+
+            // Ocultar los controles de paginación
+            document.getElementById('paginacionControles').style.display = 'none';
+
+            // Limpiar la tabla de resultados
+            document.getElementById('resultadoConsulta').innerHTML = '';
+
+            // Opcionalmente, resetear variables relacionadas con la paginación si se están utilizando
+            paginaActual = 1;
+            resultadosActuales = [];
+        }
+
+
+    </script>
+</body>
+
+</html>
