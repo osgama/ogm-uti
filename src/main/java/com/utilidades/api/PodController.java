@@ -1,10 +1,9 @@
 package com.utilidades.api;
 
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import java.io.IOException;
-
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import com.utilidades.servicio.PodService;
 
 @RestController
@@ -17,12 +16,12 @@ public class PodController {
     }
 
     @GetMapping("/scaleDown")
-    public SseEmitter scaleDownPods() {
+    public SseEmitter scaleDownPods(@RequestParam String usuario, @RequestParam String token, @RequestParam String servidor) {
         final SseEmitter emitter = new SseEmitter();
         new Thread(() -> {
             try {
-                podService.scaleDownPods(emitter);
-            } catch (IOException e) {
+                podService.scaleDownPods(emitter, usuario, token, servidor);
+            } catch (Exception e) {
                 emitter.completeWithError(e);
             }
         }).start();
@@ -30,11 +29,11 @@ public class PodController {
     }
 
     @GetMapping("/scaleUpInBlocks")
-    public SseEmitter scaleUpPodsInBlocks() {
+    public SseEmitter scaleUpPodsInBlocks(@RequestParam String usuario, @RequestParam String token, @RequestParam String servidor) {
         final SseEmitter emitter = new SseEmitter();
         new Thread(() -> {
             try {
-                podService.scaleUpPodsInBlocks(emitter);
+                podService.scaleUpPodsInBlocks(emitter, usuario, token, servidor);
             } catch (Exception e) {
                 emitter.completeWithError(e);
             }
