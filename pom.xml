@@ -90,6 +90,14 @@
             <artifactId>openshift-client</artifactId>
             <version>6.11.0</version> <!-- Usar la última versión disponible -->
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-ui -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>1.8.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>
