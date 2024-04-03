@@ -13,17 +13,17 @@ public class PodController {
         this.podService = podService;
     }
 
-    @GetMapping("/scaleDown")
+    @GetMapping("/StopPods")
     public String scaleDownPods(@RequestParam String token, @RequestParam String servidor) {
         try {
             podService.scaleDownPods(token, servidor);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return "Scaling down in progress...";
+        return "Deteniendo pods en progreso...";
     }
 
-    @GetMapping("/scaleUpInBlocks")
+    @GetMapping("/StartPods")
     public String scaleUpPodsInBlocks(@RequestParam String token, @RequestParam String servidor) {
 
         try {
@@ -31,6 +31,6 @@ public class PodController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return "Scaling up in progress...";
+        return "Iniciando pods en progreso...";
     }
 }
