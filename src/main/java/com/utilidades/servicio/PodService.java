@@ -6,9 +6,6 @@ import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -22,7 +19,7 @@ public class PodService {
     public PodService() {
     }
 
-    public void scaleDownPods(SseEmitter emitter, String usuario, String token, String servidor) throws Exception {
+    public void scaleDownPods(String token, String servidor) throws Exception {
         KubernetesClient kubernetesClient = new KubernetesClientBuilder()
                 .withConfig(new ConfigBuilder()
                         .withMasterUrl(servidor)
@@ -44,21 +41,14 @@ public class PodService {
                                     .withReplicas(0)
                                     .endSpec()
                                     .build());
-
-                    try {
-                        emitter.send(SseEmitter.event().name("scale-down").data("Scaled down " + podName));
-                    } catch (IOException e) {
-                        // Considerar manejo de errores o registro adecuado
-                    }
                 }
             });
-            emitter.complete();
         } finally {
             kubernetesClient.close();
         }
     }
 
-    public void scaleUpPodsInBlocks(SseEmitter emitter, String usuario, String token, String servidor) throws Exception {
+    public void scaleUpPodsInBlocks(String token, String servidor) throws Exception {
         KubernetesClient kubernetesClient = new KubernetesClientBuilder()
                 .withConfig(new ConfigBuilder()
                         .withMasterUrl(servidor)
@@ -82,12 +72,6 @@ public class PodService {
                                         .withReplicas(1)
                                         .endSpec()
                                         .build());
-
-                        try {
-                            emitter.send(SseEmitter.event().name("scale-up").data("Scaled up " + podName));
-                        } catch (IOException e) {
-                            // Considerar manejo de errores o registro adecuado
-                        }
                     }
                 });
 
@@ -98,10 +82,8 @@ public class PodService {
                         TimeUnit.SECONDS.sleep(10);
                     }
                 } while (!allReady);
-
-                emitter.send(SseEmitter.event().name("block-complete").data("Completed scaling block ending with " + currentBlock.get(currentBlock.size() - 1)));
+        
             }
-            emitter.complete();
         } finally {
             kubernetesClient.close();
         }

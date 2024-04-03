@@ -3,9 +3,7 @@ package com.utilidades.api;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import com.utilidades.servicio.PodService;
-
 @RestController
 public class PodController {
 
@@ -16,28 +14,23 @@ public class PodController {
     }
 
     @GetMapping("/scaleDown")
-    public SseEmitter scaleDownPods(@RequestParam String usuario, @RequestParam String token, @RequestParam String servidor) {
-        final SseEmitter emitter = new SseEmitter();
-        new Thread(() -> {
-            try {
-                podService.scaleDownPods(emitter, usuario, token, servidor);
-            } catch (Exception e) {
-                emitter.completeWithError(e);
-            }
-        }).start();
-        return emitter;
+    public String scaleDownPods(@RequestParam String token, @RequestParam String servidor) {
+        try {
+            podService.scaleDownPods(token, servidor);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "Scaling down in progress...";
     }
 
     @GetMapping("/scaleUpInBlocks")
-    public SseEmitter scaleUpPodsInBlocks(@RequestParam String usuario, @RequestParam String token, @RequestParam String servidor) {
-        final SseEmitter emitter = new SseEmitter();
-        new Thread(() -> {
-            try {
-                podService.scaleUpPodsInBlocks(emitter, usuario, token, servidor);
-            } catch (Exception e) {
-                emitter.completeWithError(e);
-            }
-        }).start();
-        return emitter;
+    public String scaleUpPodsInBlocks(@RequestParam String token, @RequestParam String servidor) {
+
+        try {
+            podService.scaleUpPodsInBlocks(token, servidor);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "Scaling up in progress...";
     }
 }
