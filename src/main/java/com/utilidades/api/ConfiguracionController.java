@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 
 import com.utilidades.configuracion.*;
-
+/*
 @RestController
 public class ConfiguracionController {
 
@@ -27,5 +27,5 @@ public class ConfiguracionController {
     public void actualizarConfiguracion(@RequestParam String fechainicial, @RequestParam String fechafinal, @RequestParam String parametro) throws IOException {
         configuracion.actualizarConfiguracion(fechainicial, fechafinal, parametro);
     }
-}
+}*/
 

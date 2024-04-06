@@ -1,13 +1,15 @@
 package com.utilidades.servicio;
 
 import io.fabric8.openshift.client.OpenShiftClient;
-import io.fabric8.kubernetes.client.Config;
-import io.fabric8.kubernetes.client.ConfigBuilder;
-import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.List;
+
+import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.ConfigBuilder;
 
 @Service
 public class PodService {
@@ -16,35 +18,39 @@ public class PodService {
     private List<String> listaDePods = Arrays.asList("podName1", "podName2", "podName3", "podName16");
     private static final String NAMESPACE = "tu-namespace";
 
-    private OpenShiftClient createOpenShiftClient(String token, String servidor) {
+    private OpenShiftClient createOpenShiftClient(String usuario, String token, String servidor) {
         Config config = new ConfigBuilder()
-                .withMasterUrl(servidor)
-                .withOauthToken(token)
-                .build();
-        return new DefaultKubernetesClient(config).adapt(OpenShiftClient.class);
+            .withMasterUrl(servidor)
+            .withUsername(usuario)
+            .withPassword(token)
+            .withTrustCerts(true)
+            .build();
+
+        KubernetesClient kubernetesClient = new KubernetesClientBuilder().withConfig(config).build();
+        return kubernetesClient.adapt(OpenShiftClient.class);
     }
 
-    public void scaleDownPods(String token, String servidor) throws Exception {
-        try (OpenShiftClient openShiftClient = createOpenShiftClient(token, servidor)) {
+    public void scaleDownPods(String servidor, String usuario, String token) throws Exception {
+        try (OpenShiftClient openShiftClient = createOpenShiftClient(servidor, usuario, token)) {
             listaDePods.forEach(podName -> {
                 DeploymentConfig dc = openShiftClient.deploymentConfigs().inNamespace(NAMESPACE).withName(podName)
                         .get();
                 if (dc != null && dc.getSpec() != null) {
-                    openShiftClient.deploymentConfigs().inNamespace(NAMESPACE).withName(podName).scale(0, true);
+                    openShiftClient.deploymentConfigs().inNamespace(NAMESPACE).withName(podName).scale(0);
                 }
             });
         }
     }
 
-    public void scaleUpPodsInBlocks(String token, String servidor) throws Exception {
-        try (OpenShiftClient openShiftClient = createOpenShiftClient(token, servidor)) {
+    public void scaleUpPodsInBlocks(String servidor, String usuario, String token) throws Exception {
+        try (OpenShiftClient openShiftClient = createOpenShiftClient(servidor, usuario, token)) {
             for (int i = 0; i < listaDePods.size(); i += BLOCK_SIZE) {
                 List<String> currentBlock = listaDePods.subList(i, Math.min(i + BLOCK_SIZE, listaDePods.size()));
                 currentBlock.forEach(podName -> {
                     DeploymentConfig dc = openShiftClient.deploymentConfigs().inNamespace(NAMESPACE).withName(podName)
                             .get();
                     if (dc != null && dc.getSpec() != null) {
-                        openShiftClient.deploymentConfigs().inNamespace(NAMESPACE).withName(podName).scale(1, true);
+                        openShiftClient.deploymentConfigs().inNamespace(NAMESPACE).withName(podName).scale(1);
                     }
                 });
 

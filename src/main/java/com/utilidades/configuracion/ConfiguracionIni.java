@@ -4,7 +4,7 @@ import org.ini4j.Wini;
 import java.io.File;
 import java.io.IOException;
 
-public class ConfiguracionIni {
+/*public class ConfiguracionIni {
     private Wini ini;
     private String rutaArchivo;
 
@@ -27,4 +27,4 @@ public class ConfiguracionIni {
     public Wini obtenerConfiguracion() {
         return ini;
     }
-}
+}*/

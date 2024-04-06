@@ -1,6 +1,6 @@
 package com.utilidades.configuracion;
 
-import javax.sql.DataSource;
+/*import javax.sql.DataSource;
 import java.sql.SQLException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,4 +21,4 @@ public class OracleConfiguration {
         dataSource.setImplicitCachingEnabled(true);
         return dataSource;
     }
-}
+}*/
