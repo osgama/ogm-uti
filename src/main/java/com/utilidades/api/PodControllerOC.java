@@ -14,7 +14,7 @@ public class PodControllerOC {
         this.podServiceOC = podServiceOC;
     }
 
-    @GetMapping("/StopPods")
+    @GetMapping("/StopPodsOC")
     public String scaleDownPods(@RequestParam String servidor, @RequestParam String usuario, @RequestParam String token) {
         try {
             podServiceOC.scaleDownPods(servidor, usuario, token);
@@ -25,7 +25,7 @@ public class PodControllerOC {
         }
     }
 
-    @GetMapping("/StartPods")
+    @GetMapping("/StartPodsOC")
     public String scaleUpPodsInBlocks(@RequestParam String servidor, @RequestParam String usuario, @RequestParam String token) {
         try {
             podServiceOC.scaleUpPodsInBlocks(servidor, usuario, token);

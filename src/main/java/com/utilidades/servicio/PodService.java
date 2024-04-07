@@ -15,19 +15,21 @@ import io.fabric8.kubernetes.client.ConfigBuilder;
 public class PodService {
 
     private static final int BLOCK_SIZE = 4;
-    private List<String> listaDePods = Arrays.asList("podName1", "podName2", "podName3", "podName16");
-    private static final String NAMESPACE = "tu-namespace";
 
+    private List<String> listaDePodsA = Arrays.asList("podName1", "podName2", "podName3", "podName16");
+    private List<String> listaDePodsB = Arrays.asList("podName5", "podName6", "podName7", "podName8");
+
+    private static final String NAMESPACE = "tu-namespace";
 
     private OpenShiftClient createOpenShiftClient(String token, String servidor) {
         System.out.println("Intentando crear cliente de OpenShift...");
 
         try {
             Config config = new ConfigBuilder()
-                    .withOauthToken(token) // Se recomienda usar withOauthToken para tokens de acceso
-                    .withMasterUrl(servidor)
-                    .withTrustCerts(true) // Considera las implicaciones de seguridad de esta opción
-                    .build();
+                        .withOauthToken(token)
+                        .withMasterUrl(servidor)
+                        .withTrustCerts(true)
+                        .build();
 
             KubernetesClient kubernetesClient = new KubernetesClientBuilder().withConfig(config).build();
             kubernetesClient.namespaces().list();
@@ -40,44 +42,27 @@ public class PodService {
         }
     }
 
-    public void scaleDownPods(String token, String servidor) throws Exception {
+    public void scaleDownPods(String token, String servidor, String opcion) throws Exception {
         System.out.println("Iniciando el escalado hacia abajo de los pods...");
+        List<String> listaDePodsDown = seleccionarListaPods(opcion);
+
         try (OpenShiftClient openShiftClient = createOpenShiftClient(token, servidor)) {
-            listaDePods.forEach(podName -> {
-                try {
-                    DeploymentConfig dc = openShiftClient.deploymentConfigs().inNamespace(NAMESPACE).withName(podName).get();
-                    if (dc != null && dc.getSpec() != null) {
-                        openShiftClient.deploymentConfigs().inNamespace(NAMESPACE).withName(podName).scale(0);
-                        System.out.println("Pod " + podName + " escalado a 0 exitosamente.");
-                    }
-                } catch (Exception e) {
-                    System.err.println("Error al escalar el pod " + podName + ": " + e.getMessage());
-                }
-            });
+            escalarPods(openShiftClient, listaDePodsDown, 0);
         } catch (Exception e) {
             System.err.println("Error al intentar escalar los pods hacia abajo: " + e.getMessage());
         }
         System.out.println("Escalado hacia abajo de pods completado.");
     }
 
-    public void scaleUpPodsInBlocks(String token, String servidor) throws Exception {
+    public void scaleUpPodsInBlocks(String token, String servidor, String opcion) throws Exception {
         System.out.println("Iniciando el escalado hacia arriba de los pods en bloques...");
-        try (OpenShiftClient openShiftClient = createOpenShiftClient(token, servidor)) {
-            for (int i = 0; i < listaDePods.size(); i += BLOCK_SIZE) {
-                List<String> currentBlock = listaDePods.subList(i, Math.min(i + BLOCK_SIZE, listaDePods.size()));
-                System.out.println("Escalando el siguiente bloque de pods: " + currentBlock);
-                currentBlock.forEach(podName -> {
-                    try {
-                        DeploymentConfig dc = openShiftClient.deploymentConfigs().inNamespace(NAMESPACE).withName(podName).get();
-                        if (dc != null && dc.getSpec() != null) {
-                            openShiftClient.deploymentConfigs().inNamespace(NAMESPACE).withName(podName).scale(1);
-                            System.out.println("Pod " + podName + " escalado a 1 exitosamente.");
-                        }
-                    } catch (Exception e) {
-                        System.err.println("Error al escalar el pod " + podName + ": " + e.getMessage());
-                    }
-                });
+        List<String> listaDePodsUp = seleccionarListaPods(opcion);
 
+        try (OpenShiftClient openShiftClient = createOpenShiftClient(token, servidor)) {
+            for (int i = 0; i < listaDePodsUp.size(); i += BLOCK_SIZE) {
+                List<String> currentBlock = listaDePodsUp.subList(i, Math.min(i + BLOCK_SIZE, listaDePodsUp.size()));
+                System.out.println("Escalando el siguiente bloque de pods: " + currentBlock);
+                escalarPods(openShiftClient, currentBlock, 1);
                 boolean allReady;
                 do {
                     allReady = checkPodsReady(openShiftClient, currentBlock);
@@ -87,7 +72,8 @@ public class PodService {
                     }
                 } while (!allReady);
 
-                System.out.println("Todos los pods del bloque actual están listos. Esperando 2 minutos antes de continuar con el siguiente bloque.");
+                System.out.println(
+                        "Todos los pods del bloque actual están listos. Esperando 2 minutos antes de continuar con el siguiente bloque.");
                 Thread.sleep(120000); // 120000 milisegundos = 2 minutos
             }
         } catch (Exception e) {
@@ -96,15 +82,57 @@ public class PodService {
         System.out.println("Escalado hacia arriba de pods en bloques completado.");
     }
 
+    private void escalarPods(OpenShiftClient openShiftClient, List<String> podNames, int replicas) {
+        podNames.forEach(podName -> {
+            try {
+                DeploymentConfig dc = openShiftClient.deploymentConfigs()
+                        .inNamespace(NAMESPACE)
+                        .withName(podName)
+                        .get();
+                if (dc != null && dc.getSpec() != null) {
+
+                    openShiftClient.deploymentConfigs()
+                            .inNamespace(NAMESPACE)
+                            .withName(podName)
+                            .scale(replicas);
+
+                    System.out.println("Pod " + podName + " escalado a " + replicas + " exitosamente.");
+                }
+            } catch (Exception e) {
+                System.err.println("Error al escalar el pod " + podName + ": " + e.getMessage());
+            }
+        });
+    }
+
     private boolean checkPodsReady(OpenShiftClient openShiftClient, List<String> podNames) {
         return podNames.stream()
                 .allMatch(podName -> {
                     try {
-                        return openShiftClient.pods().inNamespace(NAMESPACE).withLabel("name", podName).list().getItems().stream().allMatch(pod -> "Running".equals(pod.getStatus().getPhase()));
+                        return openShiftClient.pods()
+                                .inNamespace(NAMESPACE)
+                                .withLabel("name", podName)
+                                .list()
+                                .getItems()
+                                .stream()
+                                .allMatch(pod -> "Running"
+                                        .equals(pod.getStatus().getPhase()));
                     } catch (Exception e) {
                         System.err.println("Error al verificar si los pods están listos: " + e.getMessage());
                         return false;
                     }
                 });
+    }
+
+    private List<String> seleccionarListaPods(String opcion) {
+        switch (opcion) {
+            case "1":
+                System.out.println("Usando lista de Pods opción A.");
+                return listaDePodsA;
+            case "2":
+                System.out.println("Usando lista de Pods opción B.");
+                return listaDePodsB;
+            default:
+                throw new IllegalArgumentException("Opción no válida proporcionada: " + opcion);
+        }
     }
 }
