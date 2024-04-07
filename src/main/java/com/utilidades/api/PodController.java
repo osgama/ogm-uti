@@ -14,9 +14,9 @@ public class PodController {
     }
 
     @GetMapping("/StopPods")
-    public String scaleDownPods(@RequestParam String servidor, @RequestParam String usuario, @RequestParam String token) {
+    public String scaleDownPods(@RequestParam String token, @RequestParam String servidor) {
         try {
-            podService.scaleDownPods(servidor, usuario,token);
+            podService.scaleDownPods(token, servidor);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -24,10 +24,10 @@ public class PodController {
     }
 
     @GetMapping("/StartPods")
-    public String scaleUpPodsInBlocks(@RequestParam String servidor, @RequestParam String usuario, @RequestParam String token) {
+    public String scaleUpPodsInBlocks(@RequestParam String token, @RequestParam String servidor) {
 
         try {
-            podService.scaleUpPodsInBlocks(servidor, usuario, token);
+            podService.scaleUpPodsInBlocks(token, servidor);
         } catch (Exception e) {
             e.printStackTrace();
         }

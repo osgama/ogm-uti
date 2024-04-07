@@ -18,20 +18,18 @@ public class PodService {
     private List<String> listaDePods = Arrays.asList("podName1", "podName2", "podName3", "podName16");
     private static final String NAMESPACE = "tu-namespace";
 
-    private OpenShiftClient createOpenShiftClient(String usuario, String token, String servidor) {
+    private OpenShiftClient createOpenShiftClient(String token, String servidor) {
         Config config = new ConfigBuilder()
-            .withMasterUrl(servidor)
-            .withUsername(usuario)
-            .withPassword(token)
-            .withTrustCerts(true)
-            .build();
+                .withPassword(token)
+                .withMasterUrl(servidor)
+                .build();
 
         KubernetesClient kubernetesClient = new KubernetesClientBuilder().withConfig(config).build();
         return kubernetesClient.adapt(OpenShiftClient.class);
     }
 
-    public void scaleDownPods(String servidor, String usuario, String token) throws Exception {
-        try (OpenShiftClient openShiftClient = createOpenShiftClient(servidor, usuario, token)) {
+    public void scaleDownPods(String token, String servidor) throws Exception {
+        try (OpenShiftClient openShiftClient = createOpenShiftClient(token, servidor)) {
             listaDePods.forEach(podName -> {
                 DeploymentConfig dc = openShiftClient.deploymentConfigs().inNamespace(NAMESPACE).withName(podName)
                         .get();
@@ -42,8 +40,8 @@ public class PodService {
         }
     }
 
-    public void scaleUpPodsInBlocks(String servidor, String usuario, String token) throws Exception {
-        try (OpenShiftClient openShiftClient = createOpenShiftClient(servidor, usuario, token)) {
+    public void scaleUpPodsInBlocks(String token, String servidor) throws Exception {
+        try (OpenShiftClient openShiftClient = createOpenShiftClient(token, servidor)) {
             for (int i = 0; i < listaDePods.size(); i += BLOCK_SIZE) {
                 List<String> currentBlock = listaDePods.subList(i, Math.min(i + BLOCK_SIZE, listaDePods.size()));
                 currentBlock.forEach(podName -> {
@@ -60,6 +58,10 @@ public class PodService {
                     allReady = checkPodsReady(openShiftClient, currentBlock);
                     Thread.sleep(10000); // Espera 10 segundos antes de volver a verificar
                 } while (!allReady);
+                // Espera 2 minutos antes de avanzar al siguiente bloque de pods
+                System.out.println(
+                        "Todos los pods del bloque actual están listos. Esperando 2 minutos antes de continuar con el siguiente bloque.");
+                Thread.sleep(120000); // 120000 milisegundos = 2 minutos
             }
         }
     }
