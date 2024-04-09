@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Control de Pods</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #events { background: #f0f0f0; padding: 10px; margin-top: 10px; }
+        .message { padding: 5px; border-bottom: 1px solid #ddd; }
+        .error { padding: 5px; border-bottom: 1px solid #ddd; color: red; }
+    </style>
+</head>
+<body>
+    <h2>Control de Pods</h2>
+    <label for="token">Token de autenticación:</label><br>
+    <input type="text" id="token" name="token" required><br>
+    <label for="servidor">Nombre del servidor:</label><br>
+    <input type="text" id="servidor" name="servidor" required><br>
+    <label for="opcion">Opción de selección de pods:</label><br>
+    <select id="opcion" name="opcion" required>
+        <option value="1">Opción A</option>
+        <option value="2">Opción B</option>
+    </select><br><br>
+    <button onclick="connectScaleDown()">Detener Pods</button>
+    <button onclick="connectScaleUp()">Iniciar Pods</button>
+
+    <div id="events"></div>
+
+    <script>
+        function connectScaleDown() {
+            const token = document.getElementById('token').value;
+            const servidor = document.getElementById('servidor').value;
+            const opcion = document.getElementById('opcion').value;
+            const url = `/streamScaleDownPods?token=${token}&servidor=${servidor}&opcion=${opcion}`;
+            connectSSE(url);
+        }
+
+        function connectScaleUp() {
+            const token = document.getElementById('token').value;
+            const servidor = document.getElementById('servidor').value;
+            const opcion = document.getElementById('opcion').value;
+            const url = `/streamScaleUpPods?token=${token}&servidor=${servidor}&opcion=${opcion}`;
+            connectSSE(url);
+        }
+
+        function connectSSE(url) {
+            const events = document.getElementById("events");
+            events.innerHTML = ''; // Limpiar los eventos anteriores
+
+            const evtSource = new EventSource(url);
+
+            evtSource.onmessage = function(event) {
+                const newElement = document.createElement("div");
+                newElement.classList.add("message");
+                newElement.textContent = "Mensaje: " + event.data;
+                events.appendChild(newElement);
+            };
+
+            evtSource.addEventListener("error", function(event) {
+                const newElement = document.createElement("div");
+                newElement.classList.add("error");
+                newElement.textContent = "Error: " + event.data;
+                events.appendChild(newElement);
+            }, false);
+
+            evtSource.addEventListener("open", function(event) {
+                const newElement = document.createElement("div");
+                newElement.textContent = "Conexión establecida.";
+                events.appendChild(newElement);
+            }, false);
+        }
+    </script>
+</body>
+</html>
