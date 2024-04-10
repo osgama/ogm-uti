@@ -9,7 +9,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @RestController
 public class PruebaEventos {
 
-    @GetMapping("/streamScaleDownPods")
+    @GetMapping("/ScaleDownPods")
     public SseEmitter scaleDownPods(@RequestParam String token, @RequestParam String servidor, @RequestParam String opcion) {
         final SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
         new Thread(() -> {
@@ -44,7 +44,7 @@ public class PruebaEventos {
         return emitter;
     }
 
-    @GetMapping("/streamScaleUpPods")
+    @GetMapping("/ScaleUpPods")
     public SseEmitter scaleUpPods(@RequestParam String token, @RequestParam String servidor, @RequestParam String opcion) {
         final SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
         new Thread(() -> {
@@ -63,7 +63,7 @@ public class PruebaEventos {
                 emitter.send(SseEmitter.event().name("message").data("Iniciando podName3..."));
 
                 Thread.sleep(1000);
-                emitter.send(SseEmitter.event().name("message").data("Simulación completada. Pods iniciados."));
+                emitter.send(SseEmitter.event().name("message").data("Proceso completado"));
 
                 emitter.complete();
             } catch (Exception e) {

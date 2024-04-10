@@ -16,7 +16,7 @@ public class PodController {
         this.podService = podService;
     }
 
-    @GetMapping("/streamScaleDownPods")
+    @GetMapping("/ScaleDownPods")
     public SseEmitter scaleDownPods(@RequestParam String token, @RequestParam String servidor, @RequestParam String opcion) {
         final SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
         Thread thread = new Thread(() -> {
@@ -25,7 +25,7 @@ public class PodController {
                 emitter.complete();
             } catch (Exception e) {
                 try {
-                    emitter.send(SseEmitter.event().name("error").data("Error al detener los pods" + e.getMessage()));
+                    emitter.send(SseEmitter.event().name("error").data("Error al detener el sistema: " + e.getMessage()));
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 }
@@ -36,7 +36,7 @@ public class PodController {
         return emitter;
     }
 
-    @GetMapping("/streamScaleUpPods")
+    @GetMapping("/ScaleUpPods")
     public SseEmitter scaleUpPodsInBlocks(@RequestParam String token, @RequestParam String servidor, @RequestParam String opcion) {
         final SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
         Thread thread = new Thread(() -> {
@@ -45,7 +45,7 @@ public class PodController {
                 emitter.complete();
             } catch (Exception e) {
                 try {
-                    emitter.send(SseEmitter.event().name("error").data("Error al iniciar los pods: " + e.getMessage()));
+                    emitter.send(SseEmitter.event().name("error").data("Error al iniciar el sistema: " + e.getMessage()));
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 }
