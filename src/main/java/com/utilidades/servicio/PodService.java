@@ -9,6 +9,8 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import org.slf4j.Logger;
@@ -23,6 +25,15 @@ public class PodService {
     private List<String> listaDePodsB = Arrays.asList("podName5", "podName6", "podName7", "podName8");
     private static final String NAMESPACE = "tu-namespace";
 
+    public PodService() throws IOException {
+        try {
+            listaDePodsA = loadPodListFromEnv("VALORESLISTAA");
+            listaDePodsB = loadPodListFromEnv("VALORESLISTAB");
+        } catch (IllegalArgumentException e) {
+            logger.error(e.getMessage());
+            throw new RuntimeException("Error al inicializar PodService debido a una configuración incorrecta.", e);
+        }
+    }
     private OpenShiftClient createOpenShiftClient(String token, String servidor, SseEmitter emitter) throws IOException {
         try {
             emitter.send(SseEmitter.event().name("message").data("Conectando con el servicio de OpenShift para gestión del sistema..."));
@@ -147,6 +158,18 @@ public class PodService {
                 emitter.send(SseEmitter.event().name("error").data("Opción de configuración inválida: " + opcion));
                 logger.error("Opción de configuración inválida: {}", opcion);
                 throw new IllegalArgumentException("Opción de configuración inválida: " + opcion);
+        }
+    }
+
+    private List<String> loadPodListFromEnv(String envVar) throws IllegalArgumentException, IOException {
+        String podsEnv = System.getenv(envVar);
+        if (podsEnv != null && !podsEnv.isEmpty()) {
+            return Arrays.stream(podsEnv.split(","))
+                         .map(String::trim)
+                         .collect(Collectors.toList());
+        } else {
+            logger.error("No se pudo recuperar la lista de pods de la variable de entorno: {}", envVar);
+            throw new IllegalArgumentException("No se pudo recuperar la lista de pods de la variable de entorno: " + envVar);
         }
     }
 }
