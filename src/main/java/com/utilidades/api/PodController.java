@@ -20,7 +20,8 @@ public class PodController {
     }
 
     @GetMapping("/ScaleDownPods")
-    public SseEmitter scaleDownPods(@RequestParam String token, @RequestParam String servidor, @RequestParam String opcion) {
+    public SseEmitter scaleDownPods(@RequestParam String token, @RequestParam String servidor,
+            @RequestParam String opcion) {
         final SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
         Thread thread = new Thread(() -> {
             try {
@@ -43,7 +44,8 @@ public class PodController {
     }
 
     @GetMapping("/ScaleUpPods")
-    public SseEmitter scaleUpPodsInBlocks(@RequestParam String token, @RequestParam String servidor, @RequestParam String opcion) {
+    public SseEmitter scaleUpPodsInBlocks(@RequestParam String token, @RequestParam String servidor,
+            @RequestParam String opcion) {
         final SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
         Thread thread = new Thread(() -> {
             try {
@@ -64,5 +66,28 @@ public class PodController {
         thread.start();
         return emitter;
     }
-}
 
+    @GetMapping("/DeleteCompletedPods")
+    public SseEmitter deleteCompletedPods(@RequestParam String token, @RequestParam String servidor) {
+        final SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
+        Thread thread = new Thread(() -> {
+            try {
+                podService.deleteCompletedPods(token, servidor, emitter);
+                emitter.complete();
+                logger.info("Eliminación de pods completados exitosa.");
+            } catch (Exception e) {
+                String errorMsg = "Error eliminando pods completados: " + e.getMessage();
+                try {
+                    emitter.send(SseEmitter.event().name("error").data(errorMsg));
+                    logger.error(errorMsg, e);
+                } catch (IOException ioException) {
+                    logger.error("Error enviando mensaje de error: {}", ioException.getMessage(), ioException);
+                }
+                emitter.completeWithError(e);
+            }
+        });
+        thread.start();
+        return emitter;
+    }
+
+}

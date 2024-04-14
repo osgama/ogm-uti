@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import org.slf4j.Logger;
@@ -85,10 +86,12 @@ public class PodService {
                         Thread.sleep(10000); // Espera 10 segundos antes de volver a verificar
                     }
                 } while (!allReady);
-                emitter.send(SseEmitter.event().name("message").data(
-                        "Bloque de pods activo. Pausa de 2 minutos antes de continuar con el siguiente bloque..."));
-                logger.info("Bloque de pods activo. Pausa de 2 minutos antes de continuar con el siguiente bloque...");
-                Thread.sleep(120000); // 120000 milisegundos = 2 minutos
+                if (i + BLOCK_SIZE < listaDePodsUp.size()) {
+                    emitter.send(SseEmitter.event().name("message").data(
+                            "Bloque de pods activo. Pausa de 2 minutos antes de continuar con el siguiente bloque..."));
+                    logger.info("Bloque de pods activo. Pausa de 2 minutos antes de continuar con el siguiente bloque...");
+                    Thread.sleep(120000); // 120000 milisegundos = 2 minutos
+                }
             }
         } catch (Exception e) {
             emitter.send(
@@ -98,6 +101,26 @@ public class PodService {
         emitter.send(SseEmitter.event().name("message").data("Sistema arrancado y operativo."));
         logger.info("Sistema arrancado y operativo.");
     }
+
+    public void deleteCompletedPods(String token, String servidor, SseEmitter emitter) throws IOException {
+        try (OpenShiftClient openShiftClient = createOpenShiftClient(token, servidor, emitter)) {
+            List<Pod> completedPods = openShiftClient.pods().inNamespace(NAMESPACE)
+                .withField("status.phase", "Completed").list().getItems();
+    
+            for (Pod pod : completedPods) {
+                openShiftClient.pods().inNamespace(NAMESPACE).withName(pod.getMetadata().getName()).delete();
+                emitter.send(SseEmitter.event().name("message").data("Pod " + pod.getMetadata().getName() + " eliminado."));
+                logger.info("Pod {} eliminado.", pod.getMetadata().getName());
+            }
+            emitter.send(SseEmitter.event().name("message").data("Todos los pods completados han sido eliminados."));
+        } catch (Exception e) {
+            emitter.send(SseEmitter.event().name("error")
+                    .data("Error al eliminar pods completados: " + e.getMessage()));
+            logger.error("Error al eliminar pods completados: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
+    
 
     private void escalarPods(OpenShiftClient openShiftClient, List<String> podNames, int replicas, SseEmitter emitter)
             throws IOException {

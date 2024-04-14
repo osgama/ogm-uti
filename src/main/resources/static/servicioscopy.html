@@ -113,6 +113,7 @@
       ><br /><br />
       <button id="btnScaleDown">Detener Pods</button>
       <button id="btnScaleUp">Iniciar Pods</button>
+      <button id="btnDeleteCompleted">Limpiar Instalacion</button>
 
       <div id="events"></div>
     </main>
@@ -125,6 +126,9 @@
         document
           .getElementById("btnScaleUp")
           .addEventListener("click", connectScaleUp);
+        document
+          .getElementById("btnDeleteCompleted")
+          .addEventListener("click", connectDeleteCompleted);
         fetchServerOptions(); // Nueva función para cargar las opciones del servidor según el ambiente
       });
 
@@ -137,6 +141,12 @@
       function connectScaleUp() {
         if (!validateForm()) return;
         const url = buildURL("ScaleUpPods");
+        connectSSE(url);
+      }
+
+      function connectDeleteCompleted() {
+        if (!validateForm()) return;
+        const url = buildURL("DeleteCompletedPods");
         connectSSE(url);
       }
 
