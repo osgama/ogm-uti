@@ -93,6 +93,18 @@
           font-size: 12px;
         }
       }
+
+      .message {
+        padding: 10px;
+        border: 1px solid green;
+        background-color: rgba(0, 128, 0, 0.3); /* Verde claro */
+      }
+
+      .error {
+        padding: 10px;
+        border: 1px solid red;
+        background-color: rgba(255, 0, 0, 0.3); /* Rojo claro */
+      }
     </style>
   </head>
   <body>
@@ -176,33 +188,31 @@
 
         evtSource.onmessage = function (event) {
           const messageContent = event.data;
-
           const newElement = document.createElement("div");
-          newElement.classList.add("message");
-          newElement.textContent = "Mensaje: " + messageContent;
-          events.appendChild(newElement);
 
-          if (messageContent.includes("Proceso completado")) {
-            evtSource.close(); // Cierra la conexión
-            newElement.textContent += " (Conexión Cerrada)";
+          // Asumimos que la palabra clave "Error" indica un error
+          if (messageContent.includes("Error")) {
+            newElement.classList.add("error");
+            newElement.textContent = "Error: " + messageContent;
+          } else {
+            newElement.classList.add("message"); // Clase para mensajes normales
+            newElement.textContent = "Éxito: " + messageContent;
+            if (messageContent.includes("Proceso completado")) {
+              newElement.textContent += " (Conexión Cerrada)";
+              evtSource.close(); // Cierra la conexión
+            }
           }
+
+          events.appendChild(newElement);
         };
 
-        evtSource.addEventListener(
-          "error",
-          function (event) {
-            if (event.readyState == EventSource.CLOSED) {
-              console.log(": : : : Conexión cerrada");
-            } else {
-              const newElement = document.createElement("div");
-              newElement.classList.add("error");
-              newElement.textContent = "Error: Conexión Cerrada";
-              events.appendChild(newElement);
-            }
-            evtSource.close();
-          },
-          false
-        );
+        evtSource.onerror = function (event) {
+          const newElement = document.createElement("div");
+          newElement.classList.add("error");
+          newElement.textContent = "Error: Conexión cerrada inesperadamente.";
+          events.appendChild(newElement);
+          evtSource.close();
+        };
       }
 
       function fetchServerOptions() {
