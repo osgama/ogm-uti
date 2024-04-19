@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
 import com.utilidades.servicio.PodServiceA;
-
+/* 
 @RestController
 public class PodControllerA {
 
@@ -55,3 +55,4 @@ public class PodControllerA {
     }
 
 }
+*/
