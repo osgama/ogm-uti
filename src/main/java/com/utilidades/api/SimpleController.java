@@ -14,6 +14,8 @@ public class SimpleController {
         this.cryptoService = cryptoService;
     }
 
+    //http://localhost:9093/prueba?servidor=dev-server&usuario=test&password=test
+
     @GetMapping("/prueba")
     public String saludo(@RequestParam String servidor, @RequestParam String usuario, @RequestParam String password) throws Exception {
 
