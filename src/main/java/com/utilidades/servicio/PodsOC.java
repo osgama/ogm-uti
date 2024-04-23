@@ -16,7 +16,7 @@ public class PodsOC {
     private static final String NAMESPACE = "tu-namespace";
 
     public void scaleDownPods(String servidor, String usuario, String pwd, String opcion) {
-        List<String> baseCommand = OpenShiftUtils.buildBaseCommand(servidor, usuario, pwd);
+        List<String> baseCommand = OpenShiftUtils.buildBaseCommand(servidor, usuario, pwd, NAMESPACE);
         List<String> podsToScaleDown = seleccionarListaPods(opcion);
         podsToScaleDown.forEach(pod -> {
             List<String> command = new ArrayList<>(baseCommand);
@@ -31,7 +31,7 @@ public class PodsOC {
     }
 
     public void scaleUpPodsInBlocks(String servidor, String usuario, String pwd, String opcion) {
-        List<String> baseCommand = OpenShiftUtils.buildBaseCommand(servidor, usuario, pwd);
+        List<String> baseCommand = OpenShiftUtils.buildBaseCommand(servidor, usuario, pwd, NAMESPACE);
         List<String> podsToScaleUp = seleccionarListaPods(opcion);
         for (int i = 0; i < podsToScaleUp.size(); i += BLOCK_SIZE) {
             List<String> currentBlock = podsToScaleUp.subList(i, Math.min(i + BLOCK_SIZE, podsToScaleUp.size()));
@@ -75,7 +75,7 @@ public class PodsOC {
     }
 
     public void deleteCompletedPods(String servidor, String usuario, String pwd) {
-        List<String> baseCommand = OpenShiftUtils.buildBaseCommand(servidor, usuario, pwd);
+        List<String> baseCommand = OpenShiftUtils.buildBaseCommand(servidor, usuario, pwd, pwd);
         List<String> command = new ArrayList<>(baseCommand);
         command.addAll(Arrays.asList("delete", "pod", "-l status.phase=Completed"));
         try {
@@ -87,7 +87,7 @@ public class PodsOC {
     }
 
     private boolean checkPodsReady(String servidor, String usuario, String pwd, List<String> podNames) {
-        List<String> baseCommand = OpenShiftUtils.buildBaseCommand(servidor, usuario, pwd);
+        List<String> baseCommand = OpenShiftUtils.buildBaseCommand(servidor, usuario, pwd, NAMESPACE);
         for (String podName : podNames) {
             List<String> command = new ArrayList<>(baseCommand);
             command.addAll(Arrays.asList("get", "pod", podName, "-o=jsonpath={.status.phase}"));
@@ -123,5 +123,9 @@ public class PodsOC {
             logger.error(errorMessage);
             throw new IllegalArgumentException(errorMessage);
         }
+    }
+
+    public boolean login(String servidor, String usuario, String password) {
+        return OpenShiftUtils.login(servidor, usuario, password);
     }
 }

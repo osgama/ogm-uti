@@ -1,5 +1,5 @@
 package com.utilidades.servicio;
-
+/*
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
@@ -171,4 +171,10 @@ public class PodServiceA {
             logger.warn("Algunos pods no se han detenido correctamente después de los intentos máximos.");
         }
     }
+
+    public boolean login(String servidor, String usuario, String pwd) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'login'");
+    }
 }
+*/
