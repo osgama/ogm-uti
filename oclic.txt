@@ -1,0 +1,20 @@
+# Utiliza una imagen base de Ubuntu
+FROM ubuntu:20.04
+
+# Instala las dependencias necesarias
+RUN apt-get update && apt-get install -y wget ca-certificates
+
+# Establece la versión de `oc` y descarga el cliente
+ENV OC_VERSION=4.7.0
+RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${OC_VERSION}/openshift-client-linux-${OC_VERSION}.tar.gz \
+    && tar xvzf openshift-client-linux-${OC_VERSION}.tar.gz -C /usr/local/bin/ \
+    && rm -f openshift-client-linux-${OC_VERSION}.tar.gz
+
+# Verifica la instalación
+RUN oc version
+
+# Define el directorio de trabajo
+WORKDIR /app
+
+# Comando por defecto o punto de entrada de tu aplicación
+CMD ["bash"]
