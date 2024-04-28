@@ -1,5 +1,5 @@
 package com.utilidades.servicio;
-/*
+
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
@@ -177,4 +177,3 @@ public class PodServiceA {
         throw new UnsupportedOperationException("Unimplemented method 'login'");
     }
 }
-*/
