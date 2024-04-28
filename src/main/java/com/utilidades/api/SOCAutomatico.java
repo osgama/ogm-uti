@@ -12,9 +12,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 @RestController
-public class PodControllerA {
+public class SOCAutomatico {
 
-    private static final Logger logger = LoggerFactory.getLogger(PodControllerA.class);
+    private static final Logger logger = LoggerFactory.getLogger(SOCAutomatico.class);
 
     @GetMapping("/scaleUp")
     public ResponseEntity<String> scaleUpPods(@RequestParam String option, @RequestParam String server, @RequestParam String user, @RequestParam String password) {

@@ -1,10 +1,10 @@
 package com.utilidades.configuracion;
-
+/*
 import org.ini4j.Wini;
 import java.io.File;
 import java.io.IOException;
 
-/*public class ConfiguracionIni {
+public class ConfiguracionIni {
     private Wini ini;
     private String rutaArchivo;
 

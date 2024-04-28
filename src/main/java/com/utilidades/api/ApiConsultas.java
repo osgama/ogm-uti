@@ -4,18 +4,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.utilidades.model.OperacionDto;
-import com.utilidades.servicio.OperacionesService;
+import com.utilidades.servicio.*;
 
 @RestController
 @RequestMapping("/api")
-public class OperacionesController {
+public class ApiConsultas {
 
  @Autowired
-    private OperacionesService operacionesService;
+    private ConsultasService consultasService;
 
     @PostMapping("/ejecutar")
     public ResponseEntity<?> ejecutarOperacion(@RequestBody OperacionDto operacionDto) {
-        Object resultado = operacionesService.ejecutarOperacion(operacionDto);
+        Object resultado = consultasService.ejecutarOperacion(operacionDto);
         return ResponseEntity.ok().body(resultado);
     }
 }*/

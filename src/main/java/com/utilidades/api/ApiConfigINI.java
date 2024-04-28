@@ -6,26 +6,24 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
-
 import com.utilidades.configuracion.*;
 /*
 @RestController
-public class ConfiguracionController {
+public class ApiConfigINI {
 
-    private ConfiguracionIni configuracion;
+    private ApiConfigINI apiConfigINI;
 
-    public ConfiguracionController() throws IOException {
-        this.configuracion = new ConfiguracionIni("ruta/a/tu/archivo.ini");
+    public ConfiguracionINI() throws IOException {
+        this.apiConfigINI = new ApiConfigINI("ruta/a/tu/archivo.ini");
     }
 
     @GetMapping("/configuracion")
     public Wini getConfiguracion() {
-        return configuracion.obtenerConfiguracion();
+        return apiConfigINI.obtenerConfiguracion();
     }
 
     @PostMapping("/configuracion")
     public void actualizarConfiguracion(@RequestParam String fechainicial, @RequestParam String fechafinal, @RequestParam String parametro) throws IOException {
-        configuracion.actualizarConfiguracion(fechainicial, fechafinal, parametro);
+        apiConfigINI.actualizarConfiguracion(fechainicial, fechafinal, parametro);
     }
 }*/
-

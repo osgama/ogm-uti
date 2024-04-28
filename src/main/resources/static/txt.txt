@@ -1,1 +1,0 @@
-echo -e "[ReproSys]\nFECHAINICIAL = 20240229\nFECHAFINAL = 20240229\nREPROCESO = A" > config.ini

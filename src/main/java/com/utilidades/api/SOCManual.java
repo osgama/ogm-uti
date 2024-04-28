@@ -10,7 +10,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 
 @RestController
-public class PodController {
+public class ServiciosOCManual {
 
     private static final Logger logger = LoggerFactory.getLogger(PodController.class);
     private final PodService podService;
