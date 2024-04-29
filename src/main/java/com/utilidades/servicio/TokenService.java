@@ -9,20 +9,31 @@ import java.io.InputStreamReader;
 public class TokenService {
 
     public String getToken(String server, String username, String password) throws IOException, InterruptedException {
-        for (int i = 0; i < 3; i++) {
-            String command = String.format("/app/get-token.sh %s %s %s", server, username, password);
-            Process process = Runtime.getRuntime().exec(command);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String token = reader.readLine();
-            int exitVal = process.waitFor();
+        String command = String.format("/app/get-token.sh %s %s %s", server, username, password);
+        Process process = Runtime.getRuntime().exec(command);
+        BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
     
-            if (exitVal == 0 && token != null && !token.isEmpty() && !token.contains("failed")) {
-                return token.trim();
-            } else {
-                Thread.sleep(5000);  // Espera 5 segundos antes de intentar de nuevo
-            }
+        // Lee la salida del comando
+        String s;
+        StringBuilder token = new StringBuilder();
+        while ((s = stdInput.readLine()) != null) {
+            token.append(s);
         }
-        throw new RuntimeException("Failed to obtain a valid token after several attempts.");
+    
+        // Lee cualquier error del comando
+        StringBuilder error = new StringBuilder();
+        while ((s = stdError.readLine()) != null) {
+            error.append(s);
+        }
+    
+        int exitVal = process.waitFor();
+        if (exitVal == 0) {
+            return token.toString().trim();
+        } else {
+            throw new RuntimeException("Failed to obtain token: " + error.toString());
+        }
     }
+    
     
 }
