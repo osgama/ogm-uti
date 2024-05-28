@@ -1,0 +1,264 @@
+Paso 1: Configuración del pom.xml Principal
+Configura tu pom.xml principal para incluir todos los módulos y manejar las versiones automáticas.
+
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://www.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.example</groupId>
+    <artifactId>parent-project</artifactId>
+    <version>2.1.0</version>
+    <packaging>pom</packaging>
+    <modules>
+        <module>subproject1</module>
+        <module>subproject2</module>
+        <module>subproject3</module>
+        <module>subproject4</module>
+        <module>subproject5</module>
+    </modules>
+    <properties>
+        <maven.build.timestamp.format>yyyyMMdd.HHmmss</maven.build.timestamp.format>
+    </properties>
+    <build>
+        <plugins>
+            <!-- Maven Bundle Plugin -->
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>5.1.2</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Version>${project.version}-${maven.build.timestamp}</Bundle-Version>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+
+
+
+******************************************************************************************************************************************************************************************
+******************************************************************************************************************************************************************************************
+
+Paso 2: Configuración del pom.xml de los Subproyectos
+Configura los pom.xml de cada subproyecto para heredar del proyecto padre y manejar las dependencias entre subproyectos.
+
+Ejemplo: subproject1/pom.xml
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://www.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.example</groupId>
+        <artifactId>parent-project</artifactId>
+        <version>2.1.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>subproject1</artifactId>
+    <build>
+        <plugins>
+            <!-- Maven Bundle Plugin -->
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>5.1.2</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Version>${project.version}-${maven.build.timestamp}</Bundle-Version>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+
+
+Ejemplo: subproject5/pom.xml (con dependencias a subproject1 y subproject4)
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://www.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.example</groupId>
+        <artifactId>parent-project</artifactId>
+        <version>2.1.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>subproject5</artifactId>
+    <dependencies>
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>subproject1</artifactId>
+            <version>[2.1.0,2.2.0)</version>
+        </dependency>
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>subproject4</artifactId>
+            <version>[2.1.0,2.2.0)</version>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <!-- Maven Bundle Plugin -->
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>5.1.2</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Version>${project.version}-${maven.build.timestamp}</Bundle-Version>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+
+
+
+******************************************************************************************************************************************************************************************
+******************************************************************************************************************************************************************************************
+
+Paso 3: Configuración del Jenkinsfile
+Configura tu Jenkinsfile para manejar la versión automática y la compilación de todos los módulos.
+
+
+pipeline {
+    agent any
+
+    environment {
+        MAVEN_BUILD_TIMESTAMP = sh(script: "date +%Y%m%d.%H%M%S", returnStdout: true).trim()
+        NEW_VERSION = "2.1.0-${MAVEN_BUILD_TIMESTAMP}"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Set Version') {
+            steps {
+                script {
+                    // Update the version in the parent pom.xml and propagate it to submodules
+                    sh "mvn versions:set -DnewVersion=${NEW_VERSION}"
+                    sh "mvn versions:commit"
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean install'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh 'mvn deploy'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Build and deployment completed successfully!'
+        }
+        failure {
+            echo 'Build or deployment failed.'
+        }
+    }
+}
+
+
+******************************************************************************************************************************************************************************************
+******************************************************************************************************************************************************************************************
+
+
+Paso 4: Compilación Local
+Para compilar todos los módulos localmente y resolver las dependencias, ejecuta el siguiente comando en el directorio raíz del proyecto:
+
+mvn clean install
+
+******************************************************************************************************************************************************************************************
+******************************************************************************************************************************************************************************************
+
+Paso 5: Publicación
+Después de compilar y probar localmente, publica los artefactos en el repositorio remoto usando Jenkins.
+
+
+******************************************************************************************************************************************************************************************
+******************************************************************************************************************************************************************************************
+
+Paso 6: Recuperación de Dependencias en Otro Proyecto
+Configura el pom.xml del nuevo proyecto para usar el repositorio remoto y agregar las dependencias de los subproyectos con un rango de versiones.
+
+Configuración del Repositorio y Dependencias en el pom.xml del Nuevo Proyecto
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://www.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.example</groupId>
+    <artifactId>new-project</artifactId>
+    <version>1.0.0</version>
+
+    <repositories>
+        <repository>
+            <id>your-repo-id</id>
+            <url>https://your-repo-url</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>subproject1</artifactId>
+            <version>[2.1.0,2.2.0)</version>
+        </dependency>
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>subproject2</artifactId>
+            <version>[2.1.0,2.2.0)</version>
+        </dependency>
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>subproject5</artifactId>
+            <version>[2.1.0,2.2.0)</version>
+        </dependency>
+    </dependencies>
+</project>
+
+
+******************************************************************************************************************************************************************************************
+******************************************************************************************************************************************************************************************
+
+
+Explicación del Rango de Versiones
+[2.1.0,2.2.0): Esto significa que Maven buscará la versión más reciente disponible que sea mayor o igual a 2.1.0 y menor que 2.2.0.
+Consideraciones para la Segunda Compilación
+Cache Local de Maven: Durante la compilación, Maven utiliza su cache local (ubicada generalmente en ~/.m2/repository) para resolver las dependencias. Si ya has compilado el proyecto localmente, las dependencias estarán disponibles en el cache local y se utilizarán para las compilaciones subsecuentes.
+
+Publicación en Artifactory: Una vez que los artefactos se publican en Artifactory, las futuras compilaciones pueden resolver las dependencias desde el repositorio remoto si no están disponibles localmente.
+
+Configuración de Jenkins: Jenkins puede configurar su propio cache local en el workspace del job, por lo que las dependencias compiladas localmente en la primera ejecución estarán disponibles para compilaciones futuras en el mismo job.
+
+******************************************************************************************************************************************************************************************
+******************************************************************************************************************************************************************************************
+
+
+Resumen Final
+Configuración del Proyecto Multi-Módulo: Configura pom.xml principal y los pom.xml de los subproyectos para manejar las versiones automáticas y las dependencias.
+Compilación Local: Ejecuta mvn clean install para compilar todos los subproyectos y resolver las dependencias localmente.
+Configuración del Jenkinsfile: Configura Jenkins para manejar la versión automática, la compilación y el despliegue.
+Publicación en Artifactory: Publica los artefactos en Artifactory después de la compilación local exitosa.
+Configuración del Nuevo Proyecto: Configura el pom.xml del nuevo proyecto para usar el repositorio remoto y agrega las dependencias de los subproyectos utilizando rangos de versiones.
+Compilaciones Futuras: Las compilaciones futuras resolverán las dependencias desde el cache local o desde Artifactory, asegurando que siempre se utilicen las versiones más recientes dentro del rango especificado.
