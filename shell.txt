@@ -34,3 +34,8 @@ mkdir -p "$DESTINATION_BASE"
 cp -r "$SOURCE_DIR/"* "$DESTINATION_BASE/"
 
 echo "Archivos copiados de $SOURCE_DIR a $DESTINATION_BASE"
+
+
+
+
+curl "http://localhost:8080/setup?env=1"
