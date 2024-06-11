@@ -2,8 +2,8 @@ package com.utilidades.api;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.utilidades.servicio.PodService;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -19,15 +19,14 @@ public class SOCManual {
         this.podService = podService;
     }
 
-    @GetMapping("/ScaleDownPods")
-    public SseEmitter scaleDownPods(@RequestParam String token, @RequestParam String servidor,
-            @RequestParam String opcion) {
+    @PostMapping("/ScaleDownPods")
+    public SseEmitter scaleDownPods(@RequestBody PodRequest request) {
         final SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
         Thread thread = new Thread(() -> {
             try {
-                podService.scaleDownPods(token, servidor, opcion, emitter);
+                podService.scaleDownPods(request.getUsuario(), request.getPassword(), request.getServidor(), request.getOpcion(), emitter);
                 emitter.complete();
-                logger.info("Detención completada para la opción: {}", opcion);
+                logger.info("Detención completada para la opción: {}", request.getOpcion());
             } catch (Exception e) {
                 String errorMsg = "Error deteniendo pods: " + e.getMessage();
                 try {
@@ -43,15 +42,14 @@ public class SOCManual {
         return emitter;
     }
 
-    @GetMapping("/ScaleUpPods")
-    public SseEmitter scaleUpPodsInBlocks(@RequestParam String token, @RequestParam String servidor,
-            @RequestParam String opcion) {
+    @PostMapping("/ScaleUpPods")
+    public SseEmitter scaleUpPodsInBlocks(@RequestBody PodRequest request) {
         final SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
         Thread thread = new Thread(() -> {
             try {
-                podService.scaleUpPodsInBlocks(token, servidor, opcion, emitter);
+                podService.scaleUpPodsInBlocks(request.getUsuario(), request.getPassword(), request.getServidor(), request.getOpcion(), emitter);
                 emitter.complete();
-                logger.info("Inicio completado para la opción: {}", opcion);
+                logger.info("Inicio completado para la opción: {}", request.getOpcion());
             } catch (Exception e) {
                 String errorMsg = "Error iniciando pods: " + e.getMessage();
                 try {
@@ -67,12 +65,12 @@ public class SOCManual {
         return emitter;
     }
 
-    @GetMapping("/DeleteCompletedPods")
-    public SseEmitter deleteCompletedPods(@RequestParam String token, @RequestParam String servidor) {
+    @PostMapping("/DeleteCompletedPods")
+    public SseEmitter deleteCompletedPods(@RequestBody PodRequest request) {
         final SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
         Thread thread = new Thread(() -> {
             try {
-                podService.deleteCompletedPods(token, servidor, emitter);
+                podService.deleteCompletedPods(request.getUsuario(), request.getPassword(), request.getServidor(), emitter);
                 emitter.complete();
                 logger.info("Eliminación de pods completados exitosa.");
             } catch (Exception e) {
@@ -90,4 +88,23 @@ public class SOCManual {
         return emitter;
     }
 
+    public static class PodRequest {
+        private String usuario;
+        private String password;
+        private String servidor;
+        private String opcion;
+
+        // Getters y Setters
+        public String getUsuario() { return usuario; }
+        public void setUsuario(String usuario) { this.usuario = usuario; }
+
+        public String getPassword() { return password; }
+        public void setPassword(String password) { this.password = password; }
+
+        public String getServidor() { return servidor; }
+        public void setServidor(String servidor) { this.servidor = servidor; }
+
+        public String getOpcion() { return opcion; }
+        public void setOpcion(String opcion) { this.opcion = opcion; }
+    }
 }
