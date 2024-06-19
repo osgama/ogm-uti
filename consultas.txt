@@ -1,0 +1,34 @@
+Peticiones en Postman
+1. Consulta
+Para realizar una consulta SQL, puedes configurar una petición POST en Postman de la siguiente manera:
+
+URL: http://localhost:8080/api/ejecutar (ajusta el puerto según tu configuración)
+Método: POST
+Headers:
+Content-Type: application/json
+Body (raw, JSON):
+json
+Copy code
+{
+    "tipoOperacion": "consulta",
+    "parametros": {
+        "consultaSql": "SELECT * FROM tu_tabla"
+    }
+}
+
+2. Actualización
+Para realizar una actualización SQL, puedes configurar una petición POST en Postman de la siguiente manera:
+
+URL: http://localhost:8080/api/ejecutar (ajusta el puerto según tu configuración)
+Método: POST
+Headers:
+Content-Type: application/json
+Body (raw, JSON):
+json
+Copy code
+{
+    "tipoOperacion": "actualizacion",
+    "parametros": {
+        "updateSql": "UPDATE tu_tabla SET columna = 'valor' WHERE condicion"
+    }
+}

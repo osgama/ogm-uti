@@ -1,5 +1,5 @@
 package com.utilidades.servicio;
-/*
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,4 +49,4 @@ public class ConsultasService {
             return ResponseEntity.badRequest().body(badRequestResponse);
         }
     }
-}*/
+}
