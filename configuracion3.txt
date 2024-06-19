@@ -1,0 +1,195 @@
+Jenkinsfile
+
+pipeline {
+    agent any
+
+    environment {
+        MAVEN_BUILD_TIMESTAMP = sh(script: "date +%Y%m%d.%H%M%S", returnStdout: true).trim()
+        NEW_VERSION = "2.1.0-${MAVEN_BUILD_TIMESTAMP}"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Set Version') {
+            steps {
+                script {
+                    // Actualiza la versión en el parent pom.xml y propágala a los submódulos
+                    sh "mvn versions:set -DnewVersion=${NEW_VERSION}"
+                    sh "mvn versions:commit"
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean install'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh 'mvn deploy'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Build and deployment completed successfully!'
+        }
+        failure {
+            echo 'Build or deployment failed.'
+        }
+    }
+}
+
+
+******************************************************************************************************************************************************************************************
+******************************************************************************************************************************************************************************************
+
+pom.xml del Proyecto Padre
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://www.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.example</groupId>
+    <artifactId>parent-project</artifactId>
+    <version>2.1.0</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>subproject1</module>
+        <module>subproject2</module>
+        <module>subproject3</module>
+        <module>subproject4</module>
+        <module>subproject5</module>
+    </modules>
+
+    <properties>
+        <maven.build.timestamp.format>yyyyMMdd.HHmmss</maven.build.timestamp.format>
+        <maven.build.timestamp>${maven.build.timestamp}</maven.build.timestamp>
+    </properties>
+
+    <build>
+        <plugins>
+            <!-- Maven Bundle Plugin -->
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>5.1.2</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Version>${project.version}-${maven.build.timestamp}</Bundle-Version>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+
+
+******************************************************************************************************************************************************************************************
+******************************************************************************************************************************************************************************************
+
+
+pom.xml de un Subproyecto Normal (subproject1)
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://www.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.example</groupId>
+    <artifactId>subproject1</artifactId>
+    <version>1.0.0</version>
+
+    <properties>
+        <maven.build.timestamp.format>yyyyMMdd.HHmmss</maven.build.timestamp.format>
+        <maven.build.timestamp>${maven.build.timestamp}</maven.build.timestamp>
+    </properties>
+
+    <build>
+        <plugins>
+            <!-- Maven Bundle Plugin -->
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>5.1.2</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Version>${project.version}-${maven.build.timestamp}</Bundle-Version>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+
+
+
+******************************************************************************************************************************************************************************************
+******************************************************************************************************************************************************************************************
+
+pom.xml de un Subproyecto que Depende de Otros Subproyectos (subproject5)
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://www.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.example</groupId>
+    <artifactId>subproject5</artifactId>
+    <version>1.0.0</version>
+
+    <properties>
+        <maven.build.timestamp.format>yyyyMMdd.HHmmss</maven.build.timestamp.format>
+        <maven.build.timestamp>${maven.build.timestamp}</maven.build.timestamp>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>subproject1</artifactId>
+            <version>[1.0.0,2.0.0)</version>
+        </dependency>
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>subproject4</artifactId>
+            <version>[1.0.0,2.0.0)</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Maven Bundle Plugin -->
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>5.1.2</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Version>${project.version}-${maven.build.timestamp}</Bundle-Version>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+
+******************************************************************************************************************************************************************************************
+******************************************************************************************************************************************************************************************
+
+Explicación
+Jenkinsfile: Genera el timestamp y establece la nueva versión para todo el proyecto.
+Proyecto Padre: Define los módulos y configura las propiedades y plugins necesarios.
+Subproyecto Normal: Configura las propiedades y el maven-bundle-plugin igual que el proyecto padre.
+Subproyecto con Dependencias: Configura las propiedades, el maven-bundle-plugin y define las dependencias a otros subproyectos.
+Con esta configuración, cada subproyecto utiliza las mismas propiedades y plugins que el proyecto padre, pero genera su propia versión de manera independiente. 
+El Jenkinsfile se asegura de establecer la nueva versión basada en el timestamp para todos los proyectos.
