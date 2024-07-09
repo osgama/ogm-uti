@@ -58,3 +58,23 @@ public class ConsultasService {
         }
     }
 }
+
+
+
+
+        try {
+            int count = jdbcTemplate.queryForObject(consultaSql, new Object[]{valorParametro}, Integer.class);
+            return count > 0 ? 1 : 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0; // En caso de error, devolvemos 0 (o puedes manejarlo de otra forma según tus necesidades)
+        }
+
+
+
+
+
+
+            public ResponseEntity<?> ejecutarOperacion(@RequestParam String valorParametro) {
+        int resultado = consultasService.validarExistencia(valorParametro);
+        return ResponseEntity.ok().body(resultado);
