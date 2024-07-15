@@ -166,3 +166,179 @@ public class DatabaseValidationController {
         return validationService.validateConnection(option);
     }
 }
+
+
+
+
+
+
+**************************************************************************************************************
+**************************************************************************************************************
+
+
+
+
+
+package com.utilidades.api;
+
+import java.io.*;
+import java.util.*;
+import java.util.zip.*;
+import java.nio.file.*;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class ApiDescargaArchivos {
+
+    @GetMapping("/api/descargar")
+    public ResponseEntity<StreamingResponseBody> downloadFile(@RequestParam String directorio, @RequestParam String archivo) {
+        File file = new File(directorio, archivo);
+        if (file.exists()) {
+            StreamingResponseBody stream = outputStream -> {
+                try (InputStream inputStream = new FileInputStream(file)) {
+                    byte[] buffer = new byte[1024];
+                    int bytesRead;
+                    while ((bytesRead = inputStream.read(buffer)) != -1) {
+                        outputStream.write(buffer, 0, bytesRead);
+                    }
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            };
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            headers.setContentDisposition(ContentDisposition.attachment().filename(file.getName()).build());
+
+            return new ResponseEntity<>(stream, headers, HttpStatus.OK);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/api/descargar-zip")
+    public ResponseEntity<StreamingResponseBody> downloadFilesAsZip(@RequestParam String directorio, @RequestParam("archivos") List<String> archivosSeleccionados) {
+        List<File> archivosParaComprimir = new ArrayList<>();
+
+        for (String nombreArchivo : archivosSeleccionados) {
+            File file = new File(directorio, nombreArchivo);
+            if (file.exists()) {
+                archivosParaComprimir.add(file);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        }
+        if (archivosParaComprimir.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        StreamingResponseBody stream = outputStream -> {
+            try (ZipOutputStream zos = new ZipOutputStream(outputStream)) {
+                byte[] buffer = new byte[1024];
+                for (File file : archivosParaComprimir) {
+                    try (FileInputStream fis = new FileInputStream(file)) {
+                        zos.putNextEntry(new ZipEntry(file.getName()));
+                        int length;
+                        while ((length = fis.read(buffer)) >= 0) {
+                            zos.write(buffer, 0, length);
+                        }
+                        zos.closeEntry();
+                    }
+                }
+                zos.finish();
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        };
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentDisposition(ContentDisposition.attachment().filename("Archivos.zip").build());
+
+        return new ResponseEntity<>(stream, headers, HttpStatus.OK);
+    }
+}
+
+
+
+package com.utilidades.api;
+
+import java.io.*;
+import java.util.*;
+import java.util.zip.*;
+import java.nio.file.*;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class ApiDescargaArchivos {
+
+    @GetMapping("/api/descargar")
+    public ResponseEntity<StreamingResponseBody> downloadFile(@RequestParam String directorio, @RequestParam String archivo) {
+        File file = new File(directorio, archivo);
+        if (file.exists()) {
+            StreamingResponseBody stream = outputStream -> {
+                try (InputStream inputStream = new FileInputStream(file)) {
+                    byte[] buffer = new byte[1024];
+                    int bytesRead;
+                    while ((bytesRead = inputStream.read(buffer)) != -1) {
+                        outputStream.write(buffer, 0, bytesRead);
+                    }
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            };
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            headers.setContentDisposition(ContentDisposition.attachment().filename(file.getName()).build());
+
+            return new ResponseEntity<>(stream, headers, HttpStatus.OK);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/api/descargar-zip")
+    public ResponseEntity<StreamingResponseBody> downloadFilesAsZip(@RequestParam String directorio, @RequestParam("archivos") List<String> archivosSeleccionados) {
+        List<File> archivosParaComprimir = new ArrayList<>();
+
+        for (String nombreArchivo : archivosSeleccionados) {
+            File file = new File(directorio, nombreArchivo);
+            if (file.exists()) {
+                archivosParaComprimir.add(file);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        }
+        if (archivosParaComprimir.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        StreamingResponseBody stream = outputStream -> {
+            try (ZipOutputStream zos = new ZipOutputStream(outputStream)) {
+                byte[] buffer = new byte[1024];
+                for (File file : archivosParaComprimir) {
+                    try (FileInputStream fis = new FileInputStream(file)) {
+                        zos.putNextEntry(new ZipEntry(file.getName()));
+                        int length;
+                        while ((length = fis.read(buffer)) >= 0) {
+                            zos.write(buffer, 0, length);
+                        }
+                        zos.closeEntry();
+                    }
+                }
+                zos.finish();
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        };
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentDisposition(ContentDisposition.attachment().filename("Archivos.zip").build());
+
+        return new ResponseEntity<>(stream, headers, HttpStatus.OK);
+    }
+}
