@@ -1,0 +1,168 @@
+// pom.xml
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-jpa</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.oracle.database.jdbc</groupId>
+        <artifactId>ojdbc8</artifactId>
+        <scope>runtime</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-webflux</artifactId>
+    </dependency>
+</dependencies>
+
+// src/main/resources/application.properties
+spring.datasource.url=jdbc:oracle:thin:@//localhost:1521/orclpdb1
+spring.datasource.driver-class-name=oracle.jdbc.OracleDriver
+spring.jpa.hibernate.ddl-auto=none
+cyberark.api.url=https://cyberark.example.com/api
+
+// src/main/java/com/example/databasevalidation/dto/ConnectionResponse.java
+package com.example.databasevalidation.dto;
+
+public class ConnectionResponse {
+    private String status;
+    private String message;
+
+    public ConnectionResponse(String status, String message) {
+        this.status = status;
+        this.message = message;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+}
+
+// src/main/java/com/example/databasevalidation/service/CyberArkService.java
+package com.example.databasevalidation.service;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
+
+@Service
+public class CyberArkService {
+
+    @Value("${cyberark.api.url}")
+    private String cyberArkApiUrl;
+
+    private final WebClient webClient;
+
+    public CyberArkService(WebClient.Builder webClientBuilder) {
+        this.webClient = webClientBuilder.baseUrl(cyberArkApiUrl).build();
+    }
+
+    public String getPassword(String nickname) {
+        Mono<String> response = webClient.get()
+            .uri(uriBuilder -> uriBuilder.path("/password").queryParam("nickname", nickname).build())
+            .retrieve()
+            .bodyToMono(String.class);
+
+        return response.block();
+    }
+}
+
+// src/main/java/com/example/databasevalidation/service/DatabaseValidationService.java
+package com.example.databasevalidation.service;
+
+import com.example.databasevalidation.dto.ConnectionResponse;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+@Service
+public class DatabaseValidationService {
+
+    @Value("${spring.datasource.url}")
+    private String dbUrl;
+
+    private final CyberArkService cyberArkService;
+
+    public DatabaseValidationService(CyberArkService cyberArkService) {
+        this.cyberArkService = cyberArkService;
+    }
+
+    public ConnectionResponse validateConnection(int option) {
+        String username;
+        String nickname;
+
+        switch (option) {
+            case 1:
+                username = "user1";
+                nickname = "nickname1";
+                break;
+            case 2:
+                username = "user2";
+                nickname = "nickname2";
+                break;
+            case 3:
+                username = "user3";
+                nickname = "nickname3";
+                break;
+            default:
+                return new ConnectionResponse("error", "Invalid option");
+        }
+
+        String password = cyberArkService.getPassword(nickname);
+
+        try (Connection connection = DriverManager.getConnection(dbUrl, username, password)) {
+            if (connection.isValid(2)) {
+                return new ConnectionResponse("success", "Connection successful");
+            } else {
+                return new ConnectionResponse("error", "Connection not successful");
+            }
+        } catch (SQLException e) {
+            return new ConnectionResponse("error", "Connection failed: " + e.getMessage());
+        }
+    }
+}
+
+// src/main/java/com/example/databasevalidation/controller/DatabaseValidationController.java
+package com.example.databasevalidation.controller;
+
+import com.example.databasevalidation.dto.ConnectionResponse;
+import com.example.databasevalidation.service.DatabaseValidationService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/database")
+public class DatabaseValidationController {
+
+    @Autowired
+    private DatabaseValidationService validationService;
+
+    @GetMapping("/validate")
+    public ConnectionResponse validateConnection(@RequestParam int option) {
+        return validationService.validateConnection(option);
+    }
+}
