@@ -6,6 +6,7 @@ import java.util.zip.*;
 import java.nio.file.*;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 @RestController
 public class ApiDescargaArchivos {
