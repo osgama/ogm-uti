@@ -1,0 +1,146 @@
+Código completo
+DatabaseValidationApplication.java
+
+package com.example.databasevalidation;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+
+@SpringBootApplication
+@EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})
+public class DatabaseValidationApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(DatabaseValidationApplication.class, args);
+    }
+}
+OracleConfiguration.java
+java
+Copiar código
+package com.utilidades.configuracion;
+
+import com.example.databasevalidation.service.CyberArkService;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+import oracle.jdbc.pool.OracleDataSource;
+import javax.sql.DataSource;
+import java.sql.SQLException;
+
+@Configuration
+@Profile("oracle")
+public class OracleConfiguration {
+
+    private final CyberArkService cyberArkService;
+
+    public OracleConfiguration(CyberArkService cyberArkService) {
+        this.cyberArkService = cyberArkService;
+    }
+
+    @Bean
+    public DataSource dataSource(String username, String nickname) throws SQLException {
+        String password = cyberArkService.getPassword(nickname);
+
+        OracleDataSource dataSource = new OracleDataSource();
+        dataSource.setUser(username);
+        dataSource.setPassword(password);
+        dataSource.setURL("jdbc:oracle:thin:@//localhost:1521/orcl");
+        dataSource.setFastConnectionFailoverEnabled(true);
+        dataSource.setImplicitCachingEnabled(true);
+        return dataSource;
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+DatabaseValidationService.java
+java
+Copiar código
+package com.example.databasevalidation.service;
+
+import com.example.databasevalidation.dto.ConnectionResponse;
+import com.utilidades.configuracion.OracleConfiguration;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Arrays;
+
+@Service
+public class DatabaseValidationService {
+
+    @Value("${spring.datasource.url}")
+    private String dbUrl;
+
+    private final CyberArkService cyberArkService;
+    private final OracleConfiguration oracleConfiguration;
+    private final List<String> nicknames;
+
+    public DatabaseValidationService(CyberArkService cyberArkService, OracleConfiguration oracleConfiguration) {
+        this.cyberArkService = cyberArkService;
+        this.oracleConfiguration = oracleConfiguration;
+        this.nicknames = Arrays.asList(System.getenv("NICKNAMES").split(","));
+    }
+
+    public ConnectionResponse validateConnection(int option) {
+        String username;
+        String nickname;
+
+        if (option >= 1 && option <= nicknames.size()) {
+            username = "user" + option;
+            nickname = nicknames.get(option - 1);
+        } else {
+            return new ConnectionResponse("error", "Invalid option");
+        }
+
+        try {
+            DataSource dataSource = oracleConfiguration.dataSource(username, nickname);
+            try (Connection connection = dataSource.getConnection()) {
+                if (connection.isValid(2)) {
+                    return new ConnectionResponse("success", "Connection successful");
+                } else {
+                    return new ConnectionResponse("error", "Connection not successful");
+                }
+            }
+        } catch (SQLException e) {
+            return new ConnectionResponse("error", "Connection failed: " + e.getMessage());
+        }
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+DatabaseValidationController.java
+
+package com.example.databasevalidation.controller;
+
+import com.example.databasevalidation.dto.ConnectionResponse;
+import com.example.databasevalidation.service.DatabaseValidationService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/database")
+public class DatabaseValidationController {
+
+    @Autowired
+    private DatabaseValidationService validationService;
+
+    @GetMapping("/validate")
+    public ConnectionResponse validateConnection(@RequestParam int option) {
+        return validationService.validateConnection(option);
+    }
+}
+
+
+Resumen
+Este código asegura que los valores de nickname se obtienen de la variable de entorno NICKNAMES 
+y se utilizan en el servicio de validación para conectarse a la base de datos Oracle
+Las respuestas se manejan como se ha especificado, proporcionando mensajes detallados sobre el estado 
+de la conexión y los errores encontrados.
