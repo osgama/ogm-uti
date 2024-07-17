@@ -1,36 +1,135 @@
-// pom.xml
-<dependencies>
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-data-jpa</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>com.oracle.database.jdbc</groupId>
-        <artifactId>ojdbc8</artifactId>
-        <scope>runtime</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-security</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-webflux</artifactId>
-    </dependency>
-</dependencies>
+GET http://localhost:8080/api/database/validate?option=1
 
-// src/main/resources/application.properties
-spring.datasource.url=jdbc:oracle:thin:@//localhost:1521/orclpdb1
-spring.datasource.driver-class-name=oracle.jdbc.OracleDriver
-spring.jpa.hibernate.ddl-auto=none
-cyberark.api.url=https://cyberark.example.com/api
 
-// src/main/java/com/example/databasevalidation/dto/ConnectionResponse.java
-package com.example.databasevalidation.dto;
+package com.utilidades.configuracion;
+
+import com.example.databasevalidation.service.CyberArkService;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+import oracle.jdbc.pool.OracleDataSource;
+import javax.sql.DataSource;
+import java.sql.SQLException;
+
+@Configuration
+@Profile("oracle")
+public class OracleConfiguration {
+
+    private final CyberArkService cyberArkService;
+
+    public OracleConfiguration(CyberArkService cyberArkService) {
+        this.cyberArkService = cyberArkService;
+    }
+
+    @Bean
+    public DataSource dataSource(String username, String nickname) throws SQLException {
+        String password = cyberArkService.getPassword(nickname);
+
+        OracleDataSource dataSource = new OracleDataSource();
+        dataSource.setUser(username);
+        dataSource.setPassword(password);
+        dataSource.setURL("jdbc:oracle:thin:@//localhost:1521/orcl");
+        dataSource.setFastConnectionFailoverEnabled(true);
+        dataSource.setImplicitCachingEnabled(true);
+        return dataSource;
+    }
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+package com.example.databasevalidation.service;
+
+import com.example.databasevalidation.dto.ConnectionResponse;
+import com.utilidades.configuracion.OracleConfiguration;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
+
+@Service
+public class DatabaseValidationService {
+
+    @Value("${spring.datasource.url}")
+    private String dbUrl;
+
+    private final CyberArkService cyberArkService;
+    private final OracleConfiguration oracleConfiguration;
+
+    public DatabaseValidationService(CyberArkService cyberArkService, OracleConfiguration oracleConfiguration) {
+        this.cyberArkService = cyberArkService;
+        this.oracleConfiguration = oracleConfiguration;
+    }
+
+    public ConnectionResponse validateConnection(int option) {
+        String username;
+        String nickname;
+
+        switch (option) {
+            case 1:
+                username = "user1";
+                nickname = "nickname1";
+                break;
+            case 2:
+                username = "user2";
+                nickname = "nickname2";
+                break;
+            case 3:
+                username = "user3";
+                nickname = "nickname3";
+                break;
+            default:
+                return new ConnectionResponse("error", "Invalid option");
+        }
+
+        try {
+            DataSource dataSource = oracleConfiguration.dataSource(username, nickname);
+            try (Connection connection = dataSource.getConnection()) {
+                if (connection.isValid(2)) {
+                    return new ConnectionResponse("success", "Connection successful");
+                } else {
+                    return new ConnectionResponse("error", "Connection not successful");
+                }
+            }
+        } catch (SQLException e) {
+            return new ConnectionResponse("error", "Connection failed: " + e.getMessage());
+        }
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+package com.example.databasevalidation.controller;
+
+import com.example.databasevalidation.dto.ConnectionResponse;
+import com.example.databasevalidation.service.DatabaseValidationService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/database")
+public class DatabaseValidationController {
+
+    @Autowired
+    private DatabaseValidationService validationService;
+
+    @GetMapping("/validate")
+    public ConnectionResponse validateConnection(@RequestParam int option) {
+        return validationService.validateConnection(option);
+    }
+}
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
 public class ConnectionResponse {
     private String status;
@@ -55,290 +154,5 @@ public class ConnectionResponse {
 
     public void setMessage(String message) {
         this.message = message;
-    }
-}
-
-// src/main/java/com/example/databasevalidation/service/CyberArkService.java
-package com.example.databasevalidation.service;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
-
-@Service
-public class CyberArkService {
-
-    @Value("${cyberark.api.url}")
-    private String cyberArkApiUrl;
-
-    private final WebClient webClient;
-
-    public CyberArkService(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl(cyberArkApiUrl).build();
-    }
-
-    public String getPassword(String nickname) {
-        Mono<String> response = webClient.get()
-            .uri(uriBuilder -> uriBuilder.path("/password").queryParam("nickname", nickname).build())
-            .retrieve()
-            .bodyToMono(String.class);
-
-        return response.block();
-    }
-}
-
-// src/main/java/com/example/databasevalidation/service/DatabaseValidationService.java
-package com.example.databasevalidation.service;
-
-import com.example.databasevalidation.dto.ConnectionResponse;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-
-@Service
-public class DatabaseValidationService {
-
-    @Value("${spring.datasource.url}")
-    private String dbUrl;
-
-    private final CyberArkService cyberArkService;
-
-    public DatabaseValidationService(CyberArkService cyberArkService) {
-        this.cyberArkService = cyberArkService;
-    }
-
-    public ConnectionResponse validateConnection(int option) {
-        String username;
-        String nickname;
-
-        switch (option) {
-            case 1:
-                username = "user1";
-                nickname = "nickname1";
-                break;
-            case 2:
-                username = "user2";
-                nickname = "nickname2";
-                break;
-            case 3:
-                username = "user3";
-                nickname = "nickname3";
-                break;
-            default:
-                return new ConnectionResponse("error", "Invalid option");
-        }
-
-        String password = cyberArkService.getPassword(nickname);
-
-        try (Connection connection = DriverManager.getConnection(dbUrl, username, password)) {
-            if (connection.isValid(2)) {
-                return new ConnectionResponse("success", "Connection successful");
-            } else {
-                return new ConnectionResponse("error", "Connection not successful");
-            }
-        } catch (SQLException e) {
-            return new ConnectionResponse("error", "Connection failed: " + e.getMessage());
-        }
-    }
-}
-
-// src/main/java/com/example/databasevalidation/controller/DatabaseValidationController.java
-package com.example.databasevalidation.controller;
-
-import com.example.databasevalidation.dto.ConnectionResponse;
-import com.example.databasevalidation.service.DatabaseValidationService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-@RestController
-@RequestMapping("/api/database")
-public class DatabaseValidationController {
-
-    @Autowired
-    private DatabaseValidationService validationService;
-
-    @GetMapping("/validate")
-    public ConnectionResponse validateConnection(@RequestParam int option) {
-        return validationService.validateConnection(option);
-    }
-}
-
-
-
-
-
-
-**************************************************************************************************************
-**************************************************************************************************************
-
-
-
-
-
-package com.utilidades.api;
-
-import java.io.*;
-import java.util.*;
-import java.util.zip.*;
-import java.nio.file.*;
-import org.springframework.http.*;
-import org.springframework.web.bind.annotation.*;
-
-@RestController
-public class ApiDescargaArchivos {
-
-    @GetMapping("/api/descargar")
-    public ResponseEntity<StreamingResponseBody> downloadFile(@RequestParam String directorio, @RequestParam String archivo) {
-        File file = new File(directorio, archivo);
-        if (file.exists()) {
-            StreamingResponseBody stream = outputStream -> {
-                try (InputStream inputStream = new FileInputStream(file)) {
-                    byte[] buffer = new byte[1024];
-                    int bytesRead;
-                    while ((bytesRead = inputStream.read(buffer)) != -1) {
-                        outputStream.write(buffer, 0, bytesRead);
-                    }
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                }
-            };
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-            headers.setContentDisposition(ContentDisposition.attachment().filename(file.getName()).build());
-
-            return new ResponseEntity<>(stream, headers, HttpStatus.OK);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping("/api/descargar-zip")
-    public ResponseEntity<StreamingResponseBody> downloadFilesAsZip(@RequestParam String directorio, @RequestParam("archivos") List<String> archivosSeleccionados) {
-        List<File> archivosParaComprimir = new ArrayList<>();
-
-        for (String nombreArchivo : archivosSeleccionados) {
-            File file = new File(directorio, nombreArchivo);
-            if (file.exists()) {
-                archivosParaComprimir.add(file);
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        }
-        if (archivosParaComprimir.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        StreamingResponseBody stream = outputStream -> {
-            try (ZipOutputStream zos = new ZipOutputStream(outputStream)) {
-                byte[] buffer = new byte[1024];
-                for (File file : archivosParaComprimir) {
-                    try (FileInputStream fis = new FileInputStream(file)) {
-                        zos.putNextEntry(new ZipEntry(file.getName()));
-                        int length;
-                        while ((length = fis.read(buffer)) >= 0) {
-                            zos.write(buffer, 0, length);
-                        }
-                        zos.closeEntry();
-                    }
-                }
-                zos.finish();
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        };
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-        headers.setContentDisposition(ContentDisposition.attachment().filename("Archivos.zip").build());
-
-        return new ResponseEntity<>(stream, headers, HttpStatus.OK);
-    }
-}
-
-
-
-package com.utilidades.api;
-
-import java.io.*;
-import java.util.*;
-import java.util.zip.*;
-import java.nio.file.*;
-import org.springframework.http.*;
-import org.springframework.web.bind.annotation.*;
-
-@RestController
-public class ApiDescargaArchivos {
-
-    @GetMapping("/api/descargar")
-    public ResponseEntity<StreamingResponseBody> downloadFile(@RequestParam String directorio, @RequestParam String archivo) {
-        File file = new File(directorio, archivo);
-        if (file.exists()) {
-            StreamingResponseBody stream = outputStream -> {
-                try (InputStream inputStream = new FileInputStream(file)) {
-                    byte[] buffer = new byte[1024];
-                    int bytesRead;
-                    while ((bytesRead = inputStream.read(buffer)) != -1) {
-                        outputStream.write(buffer, 0, bytesRead);
-                    }
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                }
-            };
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-            headers.setContentDisposition(ContentDisposition.attachment().filename(file.getName()).build());
-
-            return new ResponseEntity<>(stream, headers, HttpStatus.OK);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping("/api/descargar-zip")
-    public ResponseEntity<StreamingResponseBody> downloadFilesAsZip(@RequestParam String directorio, @RequestParam("archivos") List<String> archivosSeleccionados) {
-        List<File> archivosParaComprimir = new ArrayList<>();
-
-        for (String nombreArchivo : archivosSeleccionados) {
-            File file = new File(directorio, nombreArchivo);
-            if (file.exists()) {
-                archivosParaComprimir.add(file);
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        }
-        if (archivosParaComprimir.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        StreamingResponseBody stream = outputStream -> {
-            try (ZipOutputStream zos = new ZipOutputStream(outputStream)) {
-                byte[] buffer = new byte[1024];
-                for (File file : archivosParaComprimir) {
-                    try (FileInputStream fis = new FileInputStream(file)) {
-                        zos.putNextEntry(new ZipEntry(file.getName()));
-                        int length;
-                        while ((length = fis.read(buffer)) >= 0) {
-                            zos.write(buffer, 0, length);
-                        }
-                        zos.closeEntry();
-                    }
-                }
-                zos.finish();
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        };
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-        headers.setContentDisposition(ContentDisposition.attachment().filename("Archivos.zip").build());
-
-        return new ResponseEntity<>(stream, headers, HttpStatus.OK);
     }
 }
