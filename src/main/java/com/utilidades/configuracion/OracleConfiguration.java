@@ -6,6 +6,7 @@ import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.slf4j.*;
 
 @Configuration
@@ -33,23 +34,26 @@ public class OracleConfiguration {
 
     @Bean
     public List<String> users() {
-        String usersEnv = System.getenv("USERS");
-        if (usersEnv == null || usersEnv.isEmpty()) {
-            throw new IllegalArgumentException("Environment variable USERS is not set");
-        }
-        List<String> usersList = Arrays.asList(usersEnv.split(","));
-        logger.info("Usuarios cargados: {}", usersList);
-        return usersList;
+        return loadListFromEnv("USERS");
     }
 
     @Bean
     public List<String> nicknames() {
-        String nicknamesEnv = System.getenv("SECRET");
-        if (nicknamesEnv == null || nicknamesEnv.isEmpty()) {
-            throw new IllegalArgumentException("Environment variable SECRET is not set");
+        return loadListFromEnv("SECRET");
+    }
+
+    private List<String> loadListFromEnv(String envVar) {
+        String envValue = System.getenv(envVar);
+        if (envValue != null && !envValue.isEmpty()) {
+            List<String> list = Arrays.stream(envValue.split(","))
+                                      .map(String::trim)
+                                      .collect(Collectors.toList());
+            logger.info("{} cargados: {}", envVar, list);
+            return list;
+        } else {
+            String errorMessage = "No se pudo recuperar la lista de la variable de entorno: " + envVar;
+            logger.error(errorMessage);
+            throw new IllegalArgumentException(errorMessage);
         }
-        List<String> nicknamesList = Arrays.asList(nicknamesEnv.split(","));
-        logger.info("Nicknames cargados: {}", nicknamesList);
-        return nicknamesList;
     }
 }
