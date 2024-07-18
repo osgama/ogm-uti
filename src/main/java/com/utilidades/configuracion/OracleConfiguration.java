@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import org.slf4j.*;
 
 @Configuration
-@Profile("oracle")
 public class OracleConfiguration {
 
     private Logger logger = LoggerFactory.getLogger(OracleConfiguration.class);
