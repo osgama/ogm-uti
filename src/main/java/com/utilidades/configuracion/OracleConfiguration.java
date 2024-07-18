@@ -37,7 +37,9 @@ public class OracleConfiguration {
         if (usersEnv == null || usersEnv.isEmpty()) {
             throw new IllegalArgumentException("Environment variable USERS is not set");
         }
-        return Arrays.asList(usersEnv.split(","));
+        List<String> usersList = Arrays.asList(usersEnv.split(","));
+        logger.info("Usuarios cargados: {}", usersList);
+        return usersList;
     }
 
     @Bean
@@ -46,6 +48,8 @@ public class OracleConfiguration {
         if (nicknamesEnv == null || nicknamesEnv.isEmpty()) {
             throw new IllegalArgumentException("Environment variable SECRET is not set");
         }
-        return Arrays.asList(nicknamesEnv.split(","));
+        List<String> nicknamesList = Arrays.asList(nicknamesEnv.split(","));
+        logger.info("Nicknames cargados: {}", nicknamesList);
+        return nicknamesList;
     }
 }
