@@ -1,24 +1,39 @@
 package com.utilidades.configuracion;
 
-/*import javax.sql.DataSource;
-import java.sql.SQLException;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.*;
 import oracle.jdbc.pool.OracleDataSource;
+import javax.sql.DataSource;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
 
+import org.slf4j.*;
 
 @Configuration
 @Profile("oracle")
 public class OracleConfiguration {
+
+    private Logger logger = LoggerFactory.getLogger(OracleConfiguration.class);
+
     @Bean
     public DataSource dataSource() throws SQLException {
+        String urldb = System.getenv("URLDB");
+
         OracleDataSource dataSource = new OracleDataSource();
-        dataSource.setUser("osgama");
-        dataSource.setPassword("123456789");
-        dataSource.setURL("jdbc:oracle:thin:@//localhost:1521/orcl");
+        dataSource.setURL(urldb);
+        dataSource.setDriverType("oracle.jdbc.driver.OracleDriver");
         dataSource.setFastConnectionFailoverEnabled(true);
         dataSource.setImplicitCachingEnabled(true);
         return dataSource;
     }
-}*/
+
+    @Bean
+    public List<String> users() {
+        return Arrays.asList(System.getenv("USERS").split(","));
+    }
+
+    @Bean
+    public List<String> nicknames() {
+        return Arrays.asList(System.getenv("SECRET").split(","));
+    }
+}

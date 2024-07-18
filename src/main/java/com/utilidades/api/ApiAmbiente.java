@@ -9,8 +9,7 @@ public class ApiAmbiente {
 
     @GetMapping("/api/ambiente")
     public ResponseEntity<String> obtenerAmbiente() {
-       // String ambiente = System.getenv("MI_AMBIENTE");
-       String ambiente = "dev";
+        String ambiente = System.getenv("MI_AMBIENTE");
         if (ambiente != null && !ambiente.isEmpty()) {
             String valor;
 
@@ -21,11 +20,16 @@ public class ApiAmbiente {
                 case "uat":
                     valor = "UAT";
                     break;
+                case "prod":
+                    valor = "PROD";
+                    break;
+                case "cob":
+                    valor = "COB";
+                    break;
                 default:
-                    valor = "SINAMBIENTE";
+                    valor = "";
                     break;
             }
-
             return ResponseEntity.ok(valor);
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("SINAMBIENTE");
