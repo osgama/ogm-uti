@@ -20,7 +20,7 @@ public class OracleConfiguration {
         String urldb = System.getenv("URLDB");
 
         if (urldb == null || urldb.isEmpty()) {
-            throw new IllegalArgumentException("Environment variable URLDB null");
+            throw new IllegalArgumentException("Environment variable URLDB is not set");
         }
 
         OracleDataSource dataSource = new OracleDataSource();
@@ -35,7 +35,7 @@ public class OracleConfiguration {
     public List<String> users() {
         String usersEnv = System.getenv("USERS");
         if (usersEnv == null || usersEnv.isEmpty()) {
-            throw new IllegalArgumentException("Environment variable USERS null");
+            throw new IllegalArgumentException("Environment variable USERS is not set");
         }
         return Arrays.asList(usersEnv.split(","));
     }
@@ -44,7 +44,7 @@ public class OracleConfiguration {
     public List<String> nicknames() {
         String nicknamesEnv = System.getenv("SECRET");
         if (nicknamesEnv == null || nicknamesEnv.isEmpty()) {
-            throw new IllegalArgumentException("Environment variable SECRET null");
+            throw new IllegalArgumentException("Environment variable SECRET is not set");
         }
         return Arrays.asList(nicknamesEnv.split(","));
     }

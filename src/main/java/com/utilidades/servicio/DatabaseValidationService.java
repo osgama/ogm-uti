@@ -1,10 +1,10 @@
 package com.utilidades.servicio;
 
 import org.springframework.stereotype.Service;
-import com.utilidades.model.*;
+import com.utilidades.model.ConnectionResponse;
 import javax.sql.DataSource;
 import java.sql.*;
-import java.util.*;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
