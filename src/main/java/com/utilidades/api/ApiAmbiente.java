@@ -9,7 +9,7 @@ public class ApiAmbiente {
 
     @GetMapping("/api/ambiente")
     public ResponseEntity<String> obtenerAmbiente() {
-        String ambiente = System.getenv("MI_AMBIENTE");
+        String ambiente = System.getenv("ENVIRONMENT");
         if (ambiente != null && !ambiente.isEmpty()) {
             String valor;
 
