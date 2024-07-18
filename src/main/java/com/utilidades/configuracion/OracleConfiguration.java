@@ -4,9 +4,7 @@ import org.springframework.context.annotation.*;
 import oracle.jdbc.pool.OracleDataSource;
 import javax.sql.DataSource;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
-
+import java.util.*;
 import org.slf4j.*;
 
 @Configuration
