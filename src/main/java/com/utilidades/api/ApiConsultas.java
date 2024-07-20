@@ -1,4 +1,4 @@
-package com.utilidades.api;
+/*package com.utilidades.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,4 +18,4 @@ public class ApiConsultas {
         Object resultado = consultasService.ejecutarOperacion(operacionDto);
         return ResponseEntity.ok().body(resultado);
     }
-}
+}*/
