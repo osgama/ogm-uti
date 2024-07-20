@@ -11,13 +11,13 @@ import java.util.stream.Collectors;
 import org.slf4j.*;
 
 @Service
-public class PodServiceA {
+public class PodServiceAutomatico {
 
-    private static final Logger logger = LoggerFactory.getLogger(PodServiceA.class);
+    private static final Logger logger = LoggerFactory.getLogger(PodServiceAutomatico.class);
     private final TokenService tokenService;
     private final CryptoService cryptoService;
 
-    public PodServiceA(TokenService tokenService, CryptoService cryptoService) {
+    public PodServiceAutomatico(TokenService tokenService, CryptoService cryptoService) {
         this.tokenService = tokenService;
         this.cryptoService = cryptoService;
     }

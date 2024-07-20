@@ -6,16 +6,16 @@ import org.slf4j.*;
 import java.io.*;
 
 import com.utilidades.model.PodRequest;
-import com.utilidades.servicio.PodService;
+import com.utilidades.servicio.PodServiceManual;
 
 @RestController
 public class ApiPodManual {
 
     private static final Logger logger = LoggerFactory.getLogger(ApiPodManual.class);
-    private final PodService podService;
+    private final PodServiceManual podServiceManual;
 
-    public ApiPodManual(PodService podService) {
-        this.podService = podService;
+    public ApiPodManual(PodServiceManual podServiceManual) {
+        this.podServiceManual = podServiceManual;
     }
 
     @PostMapping("/StopPods")
@@ -23,7 +23,7 @@ public class ApiPodManual {
         final SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
         Thread thread = new Thread(() -> {
             try {
-                podService.scaleDownPods(
+                podServiceManual.scaleDownPods(
                         request.getUsuario(),
                         request.getPassword(),
                         request.getServidor(),
@@ -51,7 +51,7 @@ public class ApiPodManual {
         final SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
         Thread thread = new Thread(() -> {
             try {
-                podService.scaleUpPodsInBlocks(
+                podServiceManual.scaleUpPodsInBlocks(
                         request.getUsuario(),
                         request.getPassword(),
                         request.getServidor(),
@@ -79,7 +79,7 @@ public class ApiPodManual {
         final SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
         Thread thread = new Thread(() -> {
             try {
-                podService.deleteCompletedPods(
+                podServiceManual.deleteCompletedPods(
                         request.getUsuario(),
                         request.getPassword(),
                         request.getServidor(),

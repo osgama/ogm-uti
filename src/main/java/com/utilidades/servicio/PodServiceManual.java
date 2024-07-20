@@ -12,12 +12,12 @@ import org.slf4j.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Service
-public class PodService {
+public class PodServiceManual {
 
-    private static final Logger logger = LoggerFactory.getLogger(PodService.class);
+    private static final Logger logger = LoggerFactory.getLogger(PodServiceManual.class);
     private final TokenService tokenService;
 
-    public PodService(TokenService tokenService) {
+    public PodServiceManual(TokenService tokenService) {
         this.tokenService = tokenService;
     }
 
