@@ -1,15 +1,15 @@
 package com.utilidades.api;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import com.utilidades.servicio.CryptoService;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+import com.utilidades.servicio.CryptoService;
+
 @RestController
 @RequestMapping("/api/crypto")
-public class CryptoController {
+public class ApiCrypto {
 
     @Autowired
     private CryptoService cryptoService;
@@ -44,5 +44,4 @@ public class CryptoController {
                     .body("Error en la codificación URL: " + e.getMessage());
         }
     }
-
 }
