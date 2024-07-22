@@ -1,4 +1,4 @@
-package com.utilidades.api;
+package com.utilidades.ps.api;
 
 import java.io.*;
 import java.util.*;
@@ -6,8 +6,8 @@ import org.slf4j.*;
 import java.text.SimpleDateFormat;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import com.utilidades.model.*;
-import com.utilidades.servicio.*;
+import com.utilidades.ps.model.*;
+import com.utilidades.ps.servicio.*;
 
 @RestController
 public class ApiListaDetalle {

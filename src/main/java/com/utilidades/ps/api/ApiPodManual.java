@@ -1,12 +1,12 @@
-package com.utilidades.api;
+package com.utilidades.ps.api;
 
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.*;
 import java.io.*;
 
-import com.utilidades.model.PodRequest;
-import com.utilidades.servicio.PodServiceManual;
+import com.utilidades.ps.model.PodRequest;
+import com.utilidades.ps.servicio.PodServiceManual;
 
 @RestController
 public class ApiPodManual {

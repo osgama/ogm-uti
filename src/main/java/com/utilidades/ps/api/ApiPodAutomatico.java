@@ -1,9 +1,9 @@
-package com.utilidades.api;
+package com.utilidades.ps.api;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.*;
-import com.utilidades.servicio.PodServiceAutomatico;
+import com.utilidades.ps.servicio.PodServiceAutomatico;
 
 @RestController
 public class ApiPodAutomatico {

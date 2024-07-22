@@ -1,4 +1,4 @@
-package com.utilidades.model;
+package com.utilidades.ps.model;
 
 import java.util.Map;
 

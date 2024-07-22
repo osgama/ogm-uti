@@ -1,4 +1,4 @@
-package com.utilidades.configuracion;
+package com.utilidades.ps.configuracion;
 
 import org.springframework.context.annotation.*;
 import oracle.jdbc.pool.OracleDataSource;

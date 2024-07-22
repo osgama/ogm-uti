@@ -1,7 +1,7 @@
-package com.utilidades.api;
+package com.utilidades.ps.api;
 
-import com.utilidades.model.*;
-import com.utilidades.servicio.*;
+import com.utilidades.ps.model.*;
+import com.utilidades.ps.servicio.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

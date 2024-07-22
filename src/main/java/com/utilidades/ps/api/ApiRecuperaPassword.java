@@ -1,4 +1,4 @@
-package com.utilidades.api;
+package com.utilidades.ps.api;
 
 import org.slf4j.*;
 import org.springframework.http.ResponseEntity;

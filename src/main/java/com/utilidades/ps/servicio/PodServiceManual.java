@@ -1,4 +1,4 @@
-package com.utilidades.servicio;
+package com.utilidades.ps.servicio;
 
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.client.OpenShiftClient;

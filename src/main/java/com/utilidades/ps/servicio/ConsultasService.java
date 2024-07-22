@@ -1,4 +1,4 @@
-/* package com.utilidades.servicio;
+/* package com.utilidades.ps.servicio;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

@@ -10,7 +10,7 @@
         <relativePath />
     </parent>
 
-    <groupId>com.utilidades</groupId>
+    <groupId>com.utilidades.ps</groupId>
     <artifactId>ogm-uti</artifactId>
     <version>v1.4</version>
     <name>ogm-uti</name>

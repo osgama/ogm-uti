@@ -1,8 +1,8 @@
-package com.utilidades.servicio;
+package com.utilidades.ps.servicio;
 
 
 import org.springframework.stereotype.Service;
-import com.utilidades.model.*;
+import com.utilidades.ps.model.*;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.*;

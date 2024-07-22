@@ -1,4 +1,4 @@
-package com.utilidades.configuracion;
+package com.utilidades.ps.configuracion;
 /*
 import org.ini4j.Wini;
 import java.io.File;

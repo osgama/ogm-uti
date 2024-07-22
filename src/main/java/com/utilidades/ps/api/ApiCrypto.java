@@ -1,11 +1,11 @@
-package com.utilidades.api;
+package com.utilidades.ps.api;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import com.utilidades.servicio.CryptoService;
+import com.utilidades.ps.servicio.CryptoService;
 
 @RestController
 @RequestMapping("/api/crypto")

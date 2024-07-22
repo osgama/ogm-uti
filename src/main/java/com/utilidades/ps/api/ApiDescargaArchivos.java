@@ -1,4 +1,4 @@
-package com.utilidades.api;
+package com.utilidades.ps.api;
 
 import org.slf4j.*;
 import java.io.*;
@@ -8,7 +8,7 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import com.utilidades.servicio.*;
+import com.utilidades.ps.servicio.*;
 
 @RestController
 public class ApiDescargaArchivos {
