@@ -152,7 +152,7 @@
                 parametros: { consultaSql: sqlInput, updateSql: sqlInput }
             };
 
-            fetch('http://localhost:9093/api/ejecutar', {
+            fetch('/service/api/ejecutar', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
