@@ -164,29 +164,7 @@
   <main>
     &nbsp;&nbsp;
     <label for="directorio">Directorio:</label>
-    <select id="directorio" name="directorio">
-      <option value="1">logs 1</option>
-      <option value="2">logs 2</option>
-      <option value="3">logs 3</option>
-      <option value="4">logs 4</option>
-      <option value="5">logs 5</option>
-      <option value="6">logs 6</option>
-      <option value="7">logs 7</option>
-      <option value="8">logs 8</option>
-      <option value="9">logs 9</option>
-      <option value="10">logs 10</option>
-      <option value="11">logs 11</option>
-      <option value="12">logs 12</option>
-      <option value="13">logs 13</option>
-      <option value="14">logs 14</option>
-      <option value="15">logs 15</option>
-      <option value="16">logs 16</option>
-      <option value="17">logs 17</option>
-      <option value="18">logs 18</option>
-      <option value="19">logs 19</option>
-      <option value="20">logs 20</option>
-      <option value="21">logs 21</option>
-    </select>
+    <input type="text" id="directorio" name="directorio" placeholder="Directorio de archivos" />
 
     &nbsp;&nbsp;
     <label for="filtro">Filtro:</label>
@@ -234,7 +212,7 @@
       document.getElementById("msjEspera").style.display = "block";
       const directorio = document.getElementById("directorio").value;
       const filtro = document.getElementById("filtro").value;
-      const tipo = '1';
+      const tipo = '2';
       limpiarSeleccion();
       fetch(`/service/api/lista`, {
         method: "POST",
@@ -274,7 +252,6 @@
     function mostrarArchivos(archivos) {
       const archivosDiv = document.getElementById("archivos");
       archivosDiv.innerHTML = "";
-
       const tabla = document.createElement("table");
       const cabecera = document.createElement("tr");
       const headers = ["Nombre", "Tamaño", "Fecha (DD/MM/YYYY)", "Seleccionar"];
@@ -356,10 +333,10 @@
       const directorio = document.getElementById("directorio").value;
       if (archivosSeleccionados.length === 1) {
         const archivo = archivosSeleccionados[0];
-        window.location.href = `/service/api/descargar?directorio=${encodeURIComponent(directorio)}&archivo=${encodeURIComponent(archivo)}&tipo=1`;
+        window.location.href = `/service/api/descargar?directorio=${encodeURIComponent(directorio)}&archivo=${encodeURIComponent(archivo)}&tipo=2`;
       } else {
         const archivosParam = archivosSeleccionados.join(",");
-        window.location.href = `/service/api/descargar-zip?directorio=${encodeURIComponent(directorio)}&archivos=${encodeURIComponent(archivosParam)}&tipo=1`;
+        window.location.href = `/service/api/descargar-zip?directorio=${encodeURIComponent(directorio)}&archivos=${encodeURIComponent(archivosParam)}&tipo=2`;
       }
     }
 
@@ -371,6 +348,7 @@
         contenidoAcordeon.style.display = "block";
       }
     }
+
     document.addEventListener("click", function (event) {
       const contenidoAcordeon = document.getElementById("contenidoAcordeon");
       const acordeon = document.querySelector(".acordeon");

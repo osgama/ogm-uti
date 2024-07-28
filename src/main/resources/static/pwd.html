@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recuperar Contraseña</title>
     <style>
-        /* Estilos proporcionados por ti, añadidos directamente aquí */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -72,6 +71,23 @@
             background-color: #2C3E50;
         }
 
+        .acordeon {
+            background-color: #212F3D;
+            padding: 1rem;
+            cursor: pointer;
+            position: absolute;
+            top: 0;
+            right: 0;
+            z-index: 1;
+        }
+
+        .contenido-acordeon {
+            display: none;
+            padding: 1rem;
+            background-color: #2C3E50;
+            color: #ffffff;
+        }
+
         .mensaje {
             margin-top: 20px;
             padding: 10px;
@@ -91,42 +107,83 @@
             background-color: rgba(255, 0, 0, 0.2);
         }
     </style>
-</head>
 
 <body>
     <header>
-        <h1>Recuperar Contraseña</h1>
+        <h1>Recuperar Contraseña <span id="ambiente"></span></h1>
+        <div class="acordeon" onclick="toggleAcordeon()">
+            <h1>v1.4</h1>
+        </div>
     </header>
+
+    <div class="contenido-acordeon" id="contenidoAcordeon">
+        <p>*****************************************************
+            ********************************************************************************************
+        </p>
+    </div>
+
     <main>
         <label for="nickname">Nickname:</label>
         <select id="nickname">
             <option value="user1">user1</option>
             <option value="user2">user2</option>
-            <!-- Añadir más opciones según sea necesario -->
+            <option value="user2">user2</option>
+            <option value="user2">user2</option>
         </select>
         <button onclick="fetchPassword()">Obtener Contraseña</button>
         <div id="mensajeResultado" class="mensaje"></div>
     </main>
 
     <script>
+        function obtenerAmbiente() {
+            fetch('/service/api/ambiente')
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error('Hubo un problema al obtener el ambiente.');
+                    }
+                    return response.text();
+                })
+                .then((ambiente) => {
+                    document.getElementById('ambiente').textContent = ambiente;
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+        }
+
+        window.onload = function () {
+            obtenerAmbiente();
+        };
+
         function fetchPassword() {
             var nickname = document.getElementById('nickname').value;
-            fetch('https://example.com/api/getPassword?nickname=' + nickname)
+            fetch('/service/api/getPassword?nickname=' + nickname)
                 .then(response => response.json())
                 .then(data => {
                     var mensajeDiv = document.getElementById('mensajeResultado');
-                    mensajeDiv.className = 'mensaje exito'; // Clase para mensaje de éxito
+                    mensajeDiv.className = 'mensaje exito';
                     mensajeDiv.innerText = 'Contraseña: ' + data.password;
                     mensajeDiv.style.display = 'block';
                 })
                 .catch(error => {
                     var mensajeDiv = document.getElementById('mensajeResultado');
-                    mensajeDiv.className = 'mensaje error'; // Clase para mensaje de error
+                    mensajeDiv.className = 'mensaje error';
                     mensajeDiv.innerText = 'Error al recuperar la contraseña';
                     mensajeDiv.style.display = 'block';
                 });
         }
+
+        function toggleAcordeon() {
+            const contenidoAcordeon = document.getElementById("contenidoAcordeon");
+            if (contenidoAcordeon.style.display === "block") {
+                contenidoAcordeon.style.display = "none";
+            } else {
+                contenidoAcordeon.style.display = "block";
+            }
+        }
+
     </script>
+  </head>
 </body>
 
 </html>

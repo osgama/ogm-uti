@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Codificación Token v1.4</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #283747;
+      color: #ffffff;
+      position: relative;
+    }
+
+    header {
+      background-color: #212f3c;
+      color: #ffffff;
+      text-align: center;
+      padding: 1rem 0;
+    }
+
+    main {
+      max-width: 1300px;
+      margin: 1rem auto;
+      padding: 1rem;
+      background-color: #34495e;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+
+    h1 {
+      font-size: 24px;
+      color: #ffffff;
+      position: relative;
+      margin: 0;
+    }
+
+    p {
+      font-size: 14px;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    select,
+    input[type="text"],
+    input[type="password"],
+    button {
+      margin: 5px;
+      padding: 8px;
+      border: 1px solid #212f3d;
+      border-radius: 4px;
+      font-size: 14px;
+      background-color: #212f3d;
+      color: #ffffff;
+    }
+
+    button {
+      background-color: #212f3d;
+      color: #ffffff;
+      border: none;
+      cursor: pointer;
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background-color: #2c3e50;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th,
+    td {
+      border: 1px solid #212f3d;
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #17202a;
+      color: #ffffff;
+    }
+
+    table tr:nth-child(odd) {
+      background-color: #2c3e50;
+    }
+
+    table tr:nth-child(even) {
+      background-color: #212f3d;
+    }
+
+    .mensaje {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid;
+      border-radius: 4px;
+      text-align: center;
+      opacity: 0.9;
+    }
+
+    .exito {
+      border-color: green;
+      background-color: rgba(0, 128, 0, 0.2);
+    }
+
+    .error {
+      border-color: red;
+      background-color: rgba(255, 0, 0, 0.2);
+    }
+
+    #paginacionControles {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    #mensajeResultado,
+    #paginacionControles {
+      display: none;
+    }
+
+    .acordeon {
+      background-color: #212F3D;
+      padding: 1rem;
+      cursor: pointer;
+      position: absolute;
+      top: 0;
+      right: 0;
+      z-index: 1;
+    }
+
+    .contenido-acordeon {
+      display: none;
+      padding: 1rem;
+      background-color: #2C3E50;
+      color: #ffffff;
+    }
+  </style>
+
+<body>
+  <header>
+    <h1>Codificación Token <span id="ambiente"></span></h1>
+    <div class="acordeon" onclick="toggleAcordeon()">
+      <h1>v1.4</h1>
+    </div>
+  </header>
+
+  <div class="contenido-acordeon" id="contenidoAcordeon">
+    <p>*****************************************************
+      ********************************************************************************************
+    </p>
+  </div>
+
+  <main>
+    <form id="encryptForm">
+      <label for="passwordEncrypt">Password:</label>
+      <input type="password" id="passwordEncrypt" required />
+      <button type="submit">Encriptar</button>
+    </form>
+    <p>Resultado Encriptación: <span id="resultEncrypt"></span></p>
+
+    <!--
+      <form id="decryptForm">
+      <label for="passwordDecrypt">Datos encriptados:</label>
+      <input type="password" id="passwordDecrypt" required />
+      <button type="submit">Desencriptar</button>
+    </form>
+    <p>Resultado Desencriptación: <span id="resultDecrypt"></span></p>-->
+
+    <form id="urlEncodeForm">
+      <label for="encodedData">Token:</label>
+      <input type="text" id="encodedData" required />
+      <button type="submit">Codificar para URL</button>
+    </form>
+    <p>Resultado Codificación URL: <span id="resultUrlEncode"></span></p>
+
+    <div id="mensajeResultado" class="mensaje"></div>
+  </main>
+
+  <script>
+    function obtenerAmbiente() {
+      fetch('/service/api/ambiente')
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('Hubo un problema al obtener el ambiente.');
+          }
+          return response.text();
+        })
+        .then((ambiente) => {
+          document.getElementById('ambiente').textContent = ambiente;
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+
+    window.onload = function () {
+      obtenerAmbiente();
+    };
+
+    document.addEventListener("DOMContentLoaded", function () {
+      document.getElementById("encryptForm").addEventListener("submit", function (event) {
+        event.preventDefault();
+        const data = document.getElementById("passwordEncrypt").value;
+        fetch("/service/api/crypto/encrypt", {
+          method: "POST",
+          headers: {
+            "Content-Type": "text/plain",
+          },
+          body: data,
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Error en la encriptación");
+            }
+            return response.text();
+          })
+          .then((text) => {
+            document.getElementById("resultEncrypt").textContent = text;
+            displayMessage("Encriptación exitosa.", "exito");
+          })
+          .catch((error) => {
+            displayMessage(error.message, "error");
+          });
+      });
+
+      /*document.getElementById("decryptForm").addEventListener("submit", function (event) {
+          event.preventDefault();
+          const data = document.getElementById("passwordDecrypt").value;
+          fetch("/service/api/crypto/decrypt", {
+            method: "POST",
+            headers: {
+              "Content-Type": "text/plain",
+            },
+            body: data,
+          })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("Error en la desencriptación");
+              }
+              return response.text();
+            })
+            .then((text) => {
+              document.getElementById("resultDecrypt").textContent = text;
+              displayMessage("Desencriptación exitosa.", "exito");
+            })
+            .catch((error) => {
+              displayMessage(error.message, "error");
+            });
+        });*/
+
+      function displayMessage(message, type) {
+        const mensajeResultado = document.getElementById("mensajeResultado");
+        mensajeResultado.textContent = message;
+        mensajeResultado.className = "mensaje " + type;
+        mensajeResultado.style.display = "block";
+      }
+
+      document.getElementById("urlEncodeForm").addEventListener("submit", function (event) {
+        event.preventDefault();
+        const data = document.getElementById("encodedData").value;
+        fetch("/service/api/crypto/urlEncode", {
+          method: "POST",
+          headers: {
+            "Content-Type": "text/plain",
+          },
+          body: data,
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Error en la codificación URL");
+            }
+            return response.text();
+          })
+          .then((text) => {
+            document.getElementById("resultUrlEncode").textContent = text;
+            displayMessage("Codificación URL exitosa.", "exito");
+          })
+          .catch((error) => {
+            displayMessage(error.message, "error");
+          });
+      });
+    });
+
+    function fetchServerOptions() {
+      fetch("/service/api/ambiente")
+        .then((response) => response.text())
+        .then((ambiente) => {
+          const servidorSelect = document.getElementById("servidor");
+          servidorSelect.innerHTML = "";
+
+          if (ambiente === "DEV") {
+            servidorSelect.add(new Option("Servidor DEV", "dev-server"));
+          } else if (ambiente === "UAT") {
+            servidorSelect.add(new Option("Servidor UAT", "uat-server"));
+          } else {
+            servidorSelect.add(new Option("Servidor PROD", "prod-server"));
+            servidorSelect.add(new Option("Servidor COB", "cob-server"));
+          }
+        })
+        .catch((error) => {
+          console.error("Error al cargar el ambiente:", error);
+          servidorSelect.add(
+            new Option("Error al cargar servidores", "", true, true)
+          );
+        });
+    }
+
+    function toggleAcordeon() {
+      const contenidoAcordeon = document.getElementById("contenidoAcordeon");
+      if (contenidoAcordeon.style.display === "block") {
+        contenidoAcordeon.style.display = "none";
+      } else {
+        contenidoAcordeon.style.display = "block";
+      }
+    }
+
+  </script>
+  </head>
+</body>
+
+</html>

@@ -1,7 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
+
 <head>
-    <title>Configuración INI</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración ReproSys</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -28,13 +31,22 @@
             position: relative;
         }
 
-        h2 {
+        h1 {
             font-size: 24px;
             color: #ffffff;
             position: relative;
-            margin: 0 0 1rem 0;
+            margin: 0;
         }
 
+        p {
+            font-size: 14px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        select,
         input[type="text"],
         button {
             margin: 5px 0;
@@ -44,7 +56,6 @@
             font-size: 14px;
             background-color: #212F3D;
             color: #ffffff;
-            display: block;
         }
 
         button {
@@ -60,82 +71,221 @@
             background-color: #2C3E50;
         }
 
-        label {
-            font-weight: bold;
-            display: block;
+        table {
+            width: 100%;
+            border-collapse: collapse;
             margin-top: 20px;
         }
+
+        th,
+        td {
+            border: 1px solid #212F3D;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #17202A;
+            color: #ffffff;
+        }
+
+        td.tamano,
+        td.fecha {
+            text-align: left;
+        }
+
+        table tr:nth-child(odd) {
+            background-color: #2C3E50;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #212F3D;
+        }
+
+        .acordeon {
+            background-color: #212F3D;
+            padding: 1rem;
+            cursor: pointer;
+            position: absolute;
+            top: 0;
+            right: 0;
+            z-index: 1;
+        }
+
+        .contenido-acordeon {
+            display: none;
+            padding: 1rem;
+            background-color: #2C3E50;
+            color: #ffffff;
+        }
+
+        .mensaje {
+            font-size: 16px;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        .centrar-checkbox {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .espaciado-vertical {
+            margin-top: 2rem;
+        }
+
+        .espaciado-vertical-dos {
+            margin-top: 2rem;
+        }
+
+        input[type="date"],
+        button {
+            margin: 5px 0;
+            padding: 8px;
+            border: 1px solid #212F3D;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: #212F3D;
+            color: #ffffff;
+        }
     </style>
-</head>
+
 <body>
     <header>
-        <h1>Configuración de Archivo INI</h1>
+        <h1>Configuración ReproSys <span id="ambiente"></span></h1>
+        <div class="acordeon" onclick="toggleAcordeon()">
+            <h1>v1.4</h1>
+        </div>
     </header>
+
+    <div class="contenido-acordeon" id="contenidoAcordeon">
+        <p>NOTA 1:
+            ***************************************************************************************************************************
+        </p>
+    </div>
+
     <main>
-        <h2>Configuración Actual</h2>
-        <div id="configuracion"></div>
-        <h2>Actualizar Configuración</h2>
-        <label for="fechainicial">Fecha Inicial:</label>
-        <input type="text" id="fechainicial">
-        <label for="fechafinal">Fecha Final:</label>
-        <input type="text" id="fechafinal">
-        <label for="parametro">Parámetro:</label>
-        <input type="text" id="parametro">
+        <label for="DIAINICIAL">Fecha Inicial:</label>
+        <input type="date" id="DIAINICIAL">
+        &nbsp;&nbsp;
+
+        <label for="DIAFINAL">Fecha Final:</label>
+        <input type="date" id="DIAFINAL">
+        &nbsp;&nbsp;
+
+        <label for="REPROCESO">Tipo de Reproceso:</label>
+        <select id="REPROCESO" name="REPROCESO" class="espaciado-vertical-dos">
+            <optgroup label="Reprocesos con">
+                <option value="A">A *********************************</option>
+                <option value="I">I *********************************</option>
+                <option value="C">C *********************************</option>
+                <option value="F">F *********************************</option>
+            </optgroup>
+            <optgroup label="Reprocesos sin">
+                <option value="E">E *********************************</option>
+                <option value="B">B *********************************</option>
+                <option value="D">D *********************************</option>
+            </optgroup>
+        </select>
+
         <button onclick="actualizarConfiguracion()">Actualizar</button>
+
+        <h2>Configuración Actual ReproSys.ini</h2>
+        <div id="configuracion"></div>
     </main>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            fetch('/configuracion')
+
+        function obtenerAmbiente() {
+            fetch('/service/api/ambiente')
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error('Hubo un problema al obtener el ambiente.');
+                    }
+                    return response.text();
+                })
+                .then((ambiente) => {
+                    document.getElementById('ambiente').textContent = ambiente;
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+        }
+
+        window.onload = function () {
+            obtenerAmbiente();
+        };
+
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch('/service/api/configuracion')
                 .then(response => response.json())
                 .then(data => {
                     const configDiv = document.getElementById('configuracion');
                     configDiv.innerHTML = '';
-                    // Asumiendo que la clave extraña "?" es consistente en la respuesta
-                    const configData = data["?"];
+                    const configData = data["ReproSys"];
                     if (configData) {
-                        // Accede directamente a cada propiedad en el orden deseado
                         const props = [
-                        { key: 'fechainicial', label: 'Fecha Inicial' },
-                        { key: 'fechafinal', label: 'Fecha Final' },
-                        { key: 'parametro', label: 'Parámetro' }
-                ];
+                            { key: 'DIAINICIAL', label: 'Fecha Inicial' },
+                            { key: 'DIAFINAL', label: 'Fecha Final' },
+                            { key: 'REPROCESO', label: 'Reproceso' }
+                        ];
 
-                props.forEach(prop => {
-                    const value = configData[prop.key.trim()]; // Asegúrate de usar trim() por si acaso
-                    if (value !== undefined) { // Solo muestra la propiedad si existe
-                        configDiv.innerHTML += `${prop.label}: ${value}<br>`;
+                        props.forEach(prop => {
+                            const value = configData[prop.key.trim()];
+                            if (value !== undefined) {
+                                configDiv.innerHTML += `${prop.label}: ${value}<br>`;
+                            }
+                        });
+                    } else {
+                        configDiv.innerHTML = 'No hay datos para mostrar';
                     }
+                })
+                .catch(error => {
+                    console.error('Error al fetch:', error);
                 });
-            } else {
-                configDiv.innerHTML = 'No hay datos para mostrar';
-            }
-        })
-        .catch(error => {
-            console.error('Error al fetch:', error);
         });
-});
 
         function actualizarConfiguracion() {
-            const fechainicial = document.getElementById('fechainicial').value;
-            const fechafinal = document.getElementById('fechafinal').value;
-            const parametro = document.getElementById('parametro').value;
+            let DIAINICIAL = document.getElementById('DIAINICIAL').value;
+            let DIAFINAL = document.getElementById('DIAFINAL').value;
+            const REPROCESO = document.getElementById('REPROCESO').value;
 
-            fetch('/configuracion', {
+            DIAINICIAL = DIAINICIAL.replace(/-/g, '')
+            DIAFINAL = DIAFINAL.replace(/-/g, '')
+
+            fetch('/service/api/configuracion', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: `fechainicial=${encodeURIComponent(fechainicial)}&fechafinal=${encodeURIComponent(fechafinal)}&parametro=${encodeURIComponent(parametro)}`
+                body: `DIAINICIAL=${encodeURIComponent(DIAINICIAL)}&DIAFINAL=${encodeURIComponent(DIAFINAL)}&REPROCESO=${encodeURIComponent(REPROCESO)}`
             }).then(response => {
                 if (!response.ok) {
                     throw new Error('Respuesta de red no fue ok al actualizar');
                 }
-                window.location.reload(); // Recarga la página para mostrar la configuración actualizada
+                window.location.reload();
             }).catch(error => {
                 console.error('Error al actualizar:', error);
             });
         }
+
+        function toggleAcordeon() {
+            const contenidoAcordeon = document.getElementById("contenidoAcordeon");
+            if (contenidoAcordeon.style.display === "block") {
+                contenidoAcordeon.style.display = "none";
+            } else {
+                contenidoAcordeon.style.display = "block";
+            }
+        }
+
     </script>
+    </head>
 </body>
+
 </html>
