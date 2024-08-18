@@ -44,7 +44,7 @@ public class ApiDescargaArchivos {
             logger.error(": : : : Directorio no valido ");
         }
 
-        File file = new File(directorio, archivo);
+        File file = new File(directorioFinal, archivo);
         if (file.exists()) {
             StreamingResponseBody stream = outputStream -> {
                 try (InputStream inputStream = new FileInputStream(file)) {
@@ -98,7 +98,7 @@ public class ApiDescargaArchivos {
         }
 
         for (String nombreArchivo : archivosSeleccionados) {
-            File file = new File(directorio, nombreArchivo);
+            File file = new File(directorioFinal, nombreArchivo);
             if (file.exists()) {
                 archivosParaComprimir.add(file);
             } else {
