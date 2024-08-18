@@ -98,7 +98,7 @@ public class ApiDescargaArchivos {
         }
 
         for (String nombreArchivo : archivosSeleccionados) {
-            File file = new File(directorioFinal, nombreArchivo);
+            File file = new File(directorio, nombreArchivo);
             if (file.exists()) {
                 archivosParaComprimir.add(file);
             } else {
