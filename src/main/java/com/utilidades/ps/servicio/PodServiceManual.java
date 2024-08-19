@@ -160,22 +160,22 @@ public class PodServiceManual {
             if (servidor.equals("dev-server")) {
                 emitter.send(SseEmitter.event().name("message").data("Seleccionando servidor de DEV"));
                 logger.info("Seleccionando servidor de DEV");
-                servidorSeleccionado = System.getProperty("CLUSTER1");
+                servidorSeleccionado = System.getenv("CLUSTER1");
 
             } else if (servidor.equals("dev-server")) {
                 emitter.send(SseEmitter.event().name("message").data("Seleccionando servidor de DEV"));
                 logger.info("Seleccionando servidor de DEV");
-                servidorSeleccionado = System.getProperty("CLUSTER1");
+                servidorSeleccionado = System.getenv("CLUSTER1");
 
             } else if (servidor.equals("dev-server")) {
                 emitter.send(SseEmitter.event().name("message").data("Seleccionando servidor de DEV"));
                 logger.info("Seleccionando servidor de DEV");
-                servidorSeleccionado = System.getProperty("CLUSTER1");
+                servidorSeleccionado = System.getenv("CLUSTER1");
 
             } else if (servidor.equals("dev-server")) {
                 emitter.send(SseEmitter.event().name("message").data("Seleccionando servidor de DEV"));
                 logger.info("Seleccionando servidor de DEV");
-                servidorSeleccionado = System.getProperty("CLUSTER2");
+                servidorSeleccionado = System.getenv("CLUSTER2");
 
             } else {
                 emitter.send(SseEmitter.event().name("error").data("Opción de servidor inválida: " + servidor));
