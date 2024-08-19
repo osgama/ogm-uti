@@ -127,19 +127,19 @@ public class PodServiceAutomatico {
             String servidorSeleccionado = "";
             if (servidor.equals("dev-server")) {
                 logger.info("Seleccionando servidor de DEV");
-                servidorSeleccionado = System.getProperty("CLUSTER1");
+                servidorSeleccionado = System.getenv("CLUSTER1");
 
             } else if (servidor.equals("dev-server")) {
                 logger.info("Seleccionando servidor de DEV");
-                servidorSeleccionado = System.getProperty("CLUSTER1");
+                servidorSeleccionado = System.getenv("CLUSTER1");
 
             } else if (servidor.equals("dev-server")) {
                 logger.info("Seleccionando servidor de DEV");
-                servidorSeleccionado = System.getProperty("CLUSTER1");
+                servidorSeleccionado = System.getenv("CLUSTER1");
 
             } else if (servidor.equals("dev-server")) {
                 logger.info("Seleccionando servidor de DEV");
-                servidorSeleccionado = System.getProperty("CLUSTER2");
+                servidorSeleccionado = System.getenv("CLUSTER2");
 
             } else {
                 logger.error("Opción de servidor inválida: {}", servidor);
@@ -166,10 +166,10 @@ public class PodServiceAutomatico {
 
             logger.info("Validando conexión con el servidor " + servidor + " de OpenShift...");
 
-            List<Pod> completePods = kubernetesClient.pods().inNamespace(namespace)
+            List<Pod> completedPods = kubernetesClient.pods().inNamespace(namespace)
                     .withField("status.phase", "Running").list().getItems();
 
-            if (completePods.size() < 0) {
+            if (completedPods.size() < 0) {
                 String errorMsg = "Validación con el servidor " + servidor + " de OpenShift erronea...";
                 logger.error(errorMsg);
                 throw new IllegalArgumentException(errorMsg);

@@ -158,22 +158,22 @@ public class PodServiceManual {
         try {
             String servidorSeleccionado = "";
             if (servidor.equals("dev-server")) {
-                emitter.send(SseEmitter.event().name("message").data("Seleccionado servidor de DEV"));
+                emitter.send(SseEmitter.event().name("message").data("Seleccionando servidor de DEV"));
                 logger.info("Seleccionando servidor de DEV");
                 servidorSeleccionado = System.getProperty("CLUSTER1");
 
             } else if (servidor.equals("dev-server")) {
-                emitter.send(SseEmitter.event().name("message").data("Seleccionado servidor de DEV"));
+                emitter.send(SseEmitter.event().name("message").data("Seleccionando servidor de DEV"));
                 logger.info("Seleccionando servidor de DEV");
                 servidorSeleccionado = System.getProperty("CLUSTER1");
 
             } else if (servidor.equals("dev-server")) {
-                emitter.send(SseEmitter.event().name("message").data("Seleccionado servidor de DEV"));
+                emitter.send(SseEmitter.event().name("message").data("Seleccionando servidor de DEV"));
                 logger.info("Seleccionando servidor de DEV");
                 servidorSeleccionado = System.getProperty("CLUSTER1");
 
             } else if (servidor.equals("dev-server")) {
-                emitter.send(SseEmitter.event().name("message").data("Seleccionado servidor de DEV"));
+                emitter.send(SseEmitter.event().name("message").data("Seleccionando servidor de DEV"));
                 logger.info("Seleccionando servidor de DEV");
                 servidorSeleccionado = System.getProperty("CLUSTER2");
 
@@ -210,10 +210,10 @@ public class PodServiceManual {
                     .data("Validando conexión con el servidor " + servidor + " de OpenShift..."));
             logger.info("Validando conexión con el servidor " + servidor + " de OpenShift...");
 
-            List<Pod> completePods = kubernetesClient.pods().inNamespace(namespace)
+            List<Pod> completedPods = kubernetesClient.pods().inNamespace(namespace)
                     .withField("status.phase", "Running").list().getItems();
 
-            if (completePods.size() < 0) {
+            if (completedPods.size() < 0) {
                 String errorMsg = "Validación con el servidor " + servidor + " de OpenShift erronea...";
                 emitter.send(SseEmitter.event().name("message").data(errorMsg));
                 emitter.send(SseEmitter.event().name("error").data(errorMsg));

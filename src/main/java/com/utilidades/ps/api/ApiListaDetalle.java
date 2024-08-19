@@ -44,7 +44,7 @@ public class ApiListaDetalle {
 
         int ArchivosEncontrados = 0;
 
-        File folder = new File(directorio);
+        File folder = new File(directorioFinal);
         if (!folder.exists() || !folder.isDirectory()) {
             HttpHeaders headersFolder = new HttpHeaders();
             headersFolder.add("X-Error-Message", "El directorio especificado no existe o no es valido.");
@@ -52,7 +52,7 @@ public class ApiListaDetalle {
             return ResponseEntity.badRequest().headers(headersFolder).build();
         } else {
             File[] files = folder.listFiles();
-            Arrays.sort(files, Comparator.comparing(File::lastModified).reversed());
+            Arrays.sort(files, Comparator.comparingLong(File::lastModified).reversed());
             List<String> matchingFiles = new ArrayList<>();
             if (files != null) {
                 for (File file : files) {

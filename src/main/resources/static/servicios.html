@@ -150,7 +150,7 @@
     <select id="servidor" name="servidor" required></select><br />
     <label for="opcion">Opción de selección de pods:</label><br />
     <select id="opcion" name="opcion" required>
-      <option value="1">App completado</option>
+      <option value="1">App Completo</option>
       <option value="2">App parcial</option>
     </select><br /><br />
     <button id="btnStopPods">Detener Pods</button>
@@ -182,27 +182,27 @@
     };
 
     document.addEventListener("DOMContentLoaded", function () {
-      document.getElementById("btnScaleDown").addEventListener("click", connectScaleDown);
-      document.getElementById("btnScaleUp").addEventListener("click", connectScaleUp);
+      document.getElementById("btnStopPods").addEventListener("click", connectStopPods);
+      document.getElementById("btnStartPods").addEventListener("click", connectStartPods);
       document.getElementById("btnDeleteCompleted").addEventListener("click", connectDeleteCompleted);
       fetchServerOptions();
     });
 
-    function connectScaleDown() {
+    function connectStopPods() {
       if (!validateForm()) return;
-      const url = "StopPods";
+      const url = buildURL("StopPods");
       connectSSE(url);
     }
 
-    function connectScaleUp() {
+    function connectStartPods() {
       if (!validateForm()) return;
-      const url = "StartPods";
+      const url = buildURL("StartPods");
       connectSSE(url);
     }
 
     function connectDeleteCompleted() {
       if (!validateForm()) return;
-      const url = "DeleteCompletedPods";
+      const url = buildURL("DeleteCompletedPods");
       connectSSE(url);
     }
 

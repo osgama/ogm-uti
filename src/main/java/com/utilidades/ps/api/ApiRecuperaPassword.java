@@ -14,7 +14,7 @@ public class ApiRecuperaPassword {
     public ResponseEntity<?> getPassword(@RequestParam String nickname) {
         String ambiente = System.getenv("ENVIRONMENT");
         String password = "";
-        String usuario= "";
+        String usuario = "";
         
         if (nickname.equals("1")){
             usuario = "usuario1";
@@ -38,12 +38,12 @@ public class ApiRecuperaPassword {
 
         } else {
             logger.info(": : : : NICKNAME NO ENCONTRADO");
-            logger.info(": : : : NICKNAME NO ENCONTRADO");
+            logger.info(": : : : USUARIO NO ENCONTRADO");
         }
 
         logger.info(": : : : INICIA RECUPERACION DE PASSWORD");
         logger.info(": : : : NICKNAME: " + nickname);
-        logger.info(": : : : USUARIO" + usuario);
+        logger.info(": : : : USUARIO: " + usuario);
 
         try {
             password = findPasswordByNickname(nickname);

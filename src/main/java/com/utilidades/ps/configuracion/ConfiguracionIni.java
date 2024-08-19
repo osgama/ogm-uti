@@ -18,9 +18,9 @@ public class ConfiguracionIni {
     }
 
     public void actualizarConfiguracion(String DIAINICIAL, String DIAFINAL, String REPROCESO) throws IOException {
-        ini.put("Reprosys", "DIAINICIAL", DIAINICIAL);
-        ini.put("Reprosys", "DIAFINAL", DIAFINAL);
-        ini.put("Reprosys", "REPROCESO", REPROCESO);
+        ini.put("ReproSys", "DIAINICIAL", DIAINICIAL);
+        ini.put("ReproSys", "DIAFINAL", DIAFINAL);
+        ini.put("ReproSys", "REPROCESO", REPROCESO);
         ini.store();
     }
 

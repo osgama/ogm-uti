@@ -1,9 +1,9 @@
 package com.utilidades.ps.api;
- /*
+/*
 import org.ini4j.Wini;
 import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
-import com.utilidades.configuracion.*;
+import com.utilidades.ps.configuracion.*;
 
 @RestController
 public class ApiConfiguracionIni {

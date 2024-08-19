@@ -38,5 +38,5 @@ public class TokenService {
             logger.error(": : : : FALLO AL OBTENER EL TOKEN");
             throw new RuntimeException("FALLO AL OBTENER EL TOKEN: " + error.toString());
         }
-    } 
+    }
 }
