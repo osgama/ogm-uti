@@ -99,10 +99,8 @@ public class ApiDescargaArchivos {
         }
 
         StreamingResponseBody stream = outputStream -> {
-            try {
-                File tempZip = File.createTempFile("archivos", ".zip");
-                ZipFile zipFile = new ZipFile(tempZip);
-
+            File tempZip = File.createTempFile("archivos", ".zip");
+            try (ZipFile zipFile = new ZipFile(tempZip)) {
                 ZipParameters parameters = new ZipParameters();
                 parameters.setCompressionMethod(CompressionMethod.DEFLATE);
                 parameters.setCompressionLevel(CompressionLevel.NORMAL);
@@ -118,22 +116,23 @@ public class ApiDescargaArchivos {
                 for (File file : archivosParaComprimir) {
                     zipFile.addFile(file, parameters);
                 }
-
                 // Enviar el ZIP resultante como StreamingResponseBody
+                logger.info(": : : : Archivos Comprimidos y enviados.");
+
                 try (InputStream is = new FileInputStream(tempZip)) {
                     byte[] buffer = new byte[BUFFER_SIZE];
                     int bytesRead;
                     while ((bytesRead = is.read(buffer)) != -1) {
                         outputStream.write(buffer, 0, bytesRead);
                     }
-                } finally {
-                    tempZip.delete();
                 }
-
-                logger.info(": : : : Archivos Comprimidos y enviados.");
             } catch (IOException e) {
                 logger.error(": : : : ERROR EN CREACIÓN DE ZIP EN AMBIENTE: " + envir, e);
                 throw new UncheckedIOException(e);
+            } finally {
+                if (tempZip.exists()) {
+                    tempZip.delete();
+                }
             }
         };
 
