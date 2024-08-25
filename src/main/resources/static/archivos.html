@@ -70,6 +70,8 @@
   </main>
 
   <script>
+    let archivosSeleccionados = [];
+
     function obtenerAmbiente() {
       fetch('/service/api/ambiente')
         .then((response) => {
@@ -189,18 +191,69 @@
     }
 
     function descargarSeleccionados() {
-      if (archivosSeleccionados.length === 0) {
-        alert("Selecciona al menos un archivo para descargar.");
-        return;
-      }
       const directorio = document.getElementById("directorio").value;
-      if (archivosSeleccionados.length === 1) {
-        const archivo = archivosSeleccionados[0];
-        window.location.href = `/service/api/descargar?directorio=${encodeURIComponent(directorio)}&archivo=${encodeURIComponent(archivo)}&tipo=1`;
-      } else {
-        const archivosParam = archivosSeleccionados.join(",");
-        window.location.href = `/service/api/descargar-zip?directorio=${encodeURIComponent(directorio)}&archivos=${encodeURIComponent(archivosParam)}&tipo=1`;
-      }
+
+      // Verificar el ambiente antes de proceder
+      fetch('/service/api/ambiente')
+        .then(response => response.text())
+        .then(ambiente => {
+          let archivosSeleccionadosStr = JSON.stringify(archivosSeleccionados);
+          let password = null;
+
+          if (ambiente.trim().toUpperCase() === "PROD") {
+            // Solicitar la contraseña si estamos en PROD
+            password = prompt("Introduce la contraseña para el archivo ZIP:");
+            if (!password) {
+              alert("Debes proporcionar una contraseña.");
+              return;
+            }
+          }
+
+          if (archivosSeleccionados.length === 0) {
+            alert("Selecciona al menos un archivo para descargar.");
+            return;
+          }
+
+          if (archivosSeleccionados.length === 1 && ambiente.trim().toUpperCase() !== "PROD") {
+            // Si es un solo archivo y no es PROD, lo descarga directo
+            const archivo = archivosSeleccionados[0];
+            window.location.href = `/service/api/descargar?directorio=${encodeURIComponent(directorio)}&archivo=${encodeURIComponent(archivo)}&tipo=1`;
+          } else {
+            // Si es más de un archivo o estamos en PROD, descarga como ZIP
+            let formData = new FormData();
+            formData.append("directorio", directorio);
+            formData.append("archivos", archivosSeleccionadosStr);
+            formData.append("password", password);  // Incluimos la contraseña si es PROD
+
+            fetch(`/service/api/descargar-zip`, {
+              method: "POST",
+              body: formData
+            })
+              .then(response => {
+                if (response.ok) {
+                  return response.blob();
+                } else {
+                  throw new Error("Error al generar el archivo ZIP.");
+                }
+              })
+              .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "archivos.zip"; // Puedes ajustar el nombre del archivo aquí
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+              })
+              .catch(error => {
+                console.error(error);
+                alert("Ocurrió un error al descargar los archivos.");
+              });
+          }
+        })
+        .catch(error => {
+          console.error("Error al verificar el ambiente:", error);
+        });
     }
 
     function toggleAcordeon() {
@@ -212,7 +265,7 @@
       }
     }
 
-    document.addEventListener("click", function(event) {
+    document.addEventListener("click", function (event) {
       const contenidoAcordeon = document.getElementById("contenidoAcordeon");
       const acordeon = document.querySelector(".acordeon");
 
@@ -245,7 +298,7 @@
     }
 
     var filtroInput = document.getElementById("filtro");
-    filtroInput.addEventListener("keypress", function(event) {
+    filtroInput.addEventListener("keypress", function (event) {
       if (event.key === "Enter") {
         listarArchivos();
       }
