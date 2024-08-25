@@ -1,130 +1,12 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BD</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #283747;
-            color: #ffffff;
-            position: relative;
-        }
-
-        header {
-            background-color: #212F3C;
-            color: #ffffff;
-            text-align: center;
-            padding: 1rem 0;
-        }
-
-        main {
-            max-width: 1300px;
-            margin: 1rem auto;
-            padding: 1rem;
-            background-color: #34495E;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            position: relative;
-        }
-
-        h1 {
-            font-size: 24px;
-            color: #ffffff;
-            position: relative;
-            margin: 0;
-        }
-
-        p {
-            font-size: 14px;
-        }
-
-        label {
-            font-weight: bold;
-        }
-
-        select,
-        input[type="text"],
-        button {
-            margin: 5px;
-            padding: 8px;
-            border: 1px solid #212F3D;
-            border-radius: 4px;
-            font-size: 14px;
-            background-color: #212F3D;
-            color: #ffffff;
-        }
-
-        button {
-            background-color: #212F3D;
-            color: #ffffff;
-            border: none;
-            cursor: pointer;
-            font-family: Arial, sans-serif;
-            font-weight: bold;
-        }
-
-        button:hover {
-            background-color: #2C3E50;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th,
-        td {
-            border: 1px solid #212F3D;
-            padding: 8px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #17202A;
-            color: #ffffff;
-        }
-
-        table tr:nth-child(odd) {
-            background-color: #2C3E50;
-        }
-
-        table tr:nth-child(even) {
-            background-color: #212F3D;
-        }
-
-        .mensaje {
-            margin-top: 20px;
-            padding: 10px;
-            border: 1px solid;
-            border-radius: 4px;
-            text-align: center;
-            opacity: 0.9;
-        }
-
-        .exito {
-            border-color: green;
-            background-color: rgba(0, 128, 0, 0.2);
-        }
-
-        .error {
-            border-color: red;
-            background-color: rgba(255, 0, 0, 0.2);
-        }
-
-        #paginacionControles {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        #mensajeResultado,
-        #paginacionControles {
-            display: none;
-            /* Ocultar inicialmente */
-        }
-    </style>
+    <!-- Incluimos el archivo CSS consolidado -->
+    <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
@@ -298,8 +180,6 @@
             paginaActual = 1;
             resultadosActuales = [];
         }
-
-
     </script>
 </body>
 

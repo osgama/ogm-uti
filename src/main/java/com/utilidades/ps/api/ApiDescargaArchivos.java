@@ -2,6 +2,8 @@ package com.utilidades.ps.api;
 
 import org.slf4j.*;
 import java.io.*;
+import java.nio.channels.*;
+import java.nio.file.*;
 import java.util.*;
 import java.util.zip.*;
 import org.springframework.http.*;
@@ -14,6 +16,7 @@ import com.utilidades.ps.servicio.*;
 public class ApiDescargaArchivos {
 
     private static final Logger logger = LoggerFactory.getLogger(ApiDescargaArchivos.class);
+    private static final int BUFFER_SIZE = 8192;  // Buffer de 8 KB
 
     private final DetalleArchivos detalleArchivos;
 
@@ -30,30 +33,19 @@ public class ApiDescargaArchivos {
         String envir = System.getenv("ENVIRONMENT");
         logger.info(": : : : INICIA DESCARGA DE ARCHIVO EN AMBIENTE: " + envir);
 
-        String directorioFinal = "";
-        String directoriotmp = "";
-
-        if (tipo.equals("1")) {
-            directoriotmp = detalleArchivos.getDirectorio(Integer.parseInt(directorio));
-            directorioFinal = System.getenv("BASE_DIRECTORIO_LOGS" + directoriotmp);
-            logger.info(": : : : Directorio " + directorioFinal);
-        } else if (tipo.equals("2")) {
-            directorioFinal = System.getenv("BASE_DIRECTORIO_LOGS" + directorio);
-            logger.info(": : : : Directorio " + directorioFinal);
-        } else {
-            logger.error(": : : : Directorio no valido ");
+        String directorioFinal = obtenerDirectorioFinal(directorio, tipo);
+        if (directorioFinal == null) {
+            logger.error(": : : : Directorio no válido");
+            return ResponseEntity.badRequest().body(null);
         }
 
         File file = new File(directorioFinal, archivo);
         if (file.exists()) {
             StreamingResponseBody stream = outputStream -> {
-                try (InputStream inputStream = new FileInputStream(file)) {
-                    byte[] buffer = new byte[1024];
-                    int byteRead;
-                    while ((byteRead = inputStream.read(buffer)) != -1) {
-                        outputStream.write(buffer, 0, byteRead);
-                    }
+                try (FileChannel fileChannel = FileChannel.open(file.toPath(), StandardOpenOption.READ)) {
+                    fileChannel.transferTo(0, fileChannel.size(), Channels.newChannel(outputStream));
                 } catch (IOException e) {
+                    logger.error("Error al transmitir el archivo", e);
                     throw new UncheckedIOException(e);
                 }
             };
@@ -63,7 +55,6 @@ public class ApiDescargaArchivos {
             headers.setContentDisposition(ContentDisposition.attachment().filename(file.getName()).build());
             logger.info(": : : : TERMINA DESCARGA DE ARCHIVO EN AMBIENTE: " + envir);
             return new ResponseEntity<>(stream, headers, HttpStatus.OK);
-
         } else {
             logger.error(": : : : ERROR EN DESCARGA DE ARCHIVO EN AMBIENTE " + envir);
             return ResponseEntity.notFound().build();
@@ -75,28 +66,17 @@ public class ApiDescargaArchivos {
             @RequestParam String directorio,
             @RequestParam("archivos") List<String> archivosSeleccionados,
             @RequestParam String tipo) {
-        List<File> archivosParaComprimir = new ArrayList<>();
 
         String envir = System.getenv("ENVIRONMENT");
-        System.out.println(": : : : INICIA CREACIÓN DE ZIP EN AMBIENTE: " + envir);
-        String directorioFinal = "";
-        String directoriotmp = "";
-        String nombretmp = "";
+        logger.info(": : : : INICIA CREACIÓN DE ZIP EN AMBIENTE: " + envir);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-
-        if (tipo.equals("1")) {
-            directoriotmp = detalleArchivos.getDirectorio(Integer.parseInt(directorio));
-            directorioFinal = System.getenv("BASE_DIRECTORIO_LOGS" + directoriotmp);
-            logger.info(": : : : Directorio " + directorioFinal);
-        } else if (tipo.equals("2")) {
-            directorioFinal = System.getenv("BASE_DIRECTORIO_LOGS" + directorio);
-            logger.info(": : : : Directorio " + directorioFinal);
-        } else {
-            logger.error(": : : : Directorio no valido ");
+        String directorioFinal = obtenerDirectorioFinal(directorio, tipo);
+        if (directorioFinal == null) {
+            logger.error(": : : : Directorio no válido");
+            return ResponseEntity.badRequest().body(null);
         }
 
+        List<File> archivosParaComprimir = new ArrayList<>();
         for (String nombreArchivo : archivosSeleccionados) {
             File file = new File(directorioFinal, nombreArchivo);
             if (file.exists()) {
@@ -112,54 +92,61 @@ public class ApiDescargaArchivos {
         StreamingResponseBody stream = outputStream -> {
             try (ZipOutputStream zos = new ZipOutputStream(outputStream)) {
                 int ArchivosComprimidos = 0;
-                byte[] buffer = new byte[1024];
+                byte[] buffer = new byte[BUFFER_SIZE];
                 for (File file : archivosParaComprimir) {
                     try (FileInputStream fis = new FileInputStream(file)) {
                         zos.putNextEntry(new ZipEntry(file.getName()));
                         int length;
-                        while ((length = fis.read(buffer)) >= 0) {
+                        while ((length = fis.read(buffer)) != -1) {
                             zos.write(buffer, 0, length);
                         }
                         zos.closeEntry();
-                        ArchivosComprimidos++;
                     }
                 }
                 zos.finish();
                 logger.info(": : : : ArchivosComprimidos: " + ArchivosComprimidos);
             } catch (IOException e) {
-                logger.error(": : : : 1 ERROR EN CREACIÓN DE ZIP EN AMBIENTE: ", envir);
+                logger.error(": : : : ERROR EN CREACIÓN DE ZIP EN AMBIENTE: " + envir, e);
                 throw new UncheckedIOException(e);
             }
         };
 
-        if (tipo.equals("1")) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentDisposition(generarNombreZip(directorio, tipo, envir));
+
+        logger.info(": : : : TERMINA CREACIÓN DE ZIP EN AMBIENTE: " + envir);
+        return new ResponseEntity<>(stream, headers, HttpStatus.OK);
+    }
+
+    private String obtenerDirectorioFinal(String directorio, String tipo) {
+        String directorioFinal = null;
+        if ("1".equals(tipo)) {
+            String directoriotmp = detalleArchivos.getDirectorio(Integer.parseInt(directorio));
+            directorioFinal = System.getenv("BASE_DIRECTORIO_LOGS" + directoriotmp);
+        } else if ("2".equals(tipo)) {
+            directorioFinal = System.getenv("BASE_DIRECTORIO_LOGS" + directorio);
+        }
+        return directorioFinal;
+    }
+
+    private ContentDisposition generarNombreZip(String directorio, String tipo, String envir) {
+        if ("1".equals(tipo)) {
             Set<String> valoresPermitidos = new HashSet<>();
             for (int i = 7; i <= 21; i++) {
                 valoresPermitidos.add(String.valueOf(i));
             }
             if (valoresPermitidos.contains(directorio)) {
-                nombretmp = detalleArchivos.getNombreArchivo(Integer.parseInt(directorio));
-                logger.info(": : : : Archivo Logs " + nombretmp);
-                headers.setContentDisposition(
-                        ContentDisposition.attachment().filename("Logs-" + nombretmp + "-" + envir + ".zip").build());
+                String nombretmp = detalleArchivos.getNombreArchivo(Integer.parseInt(directorio));
+                return ContentDisposition.attachment().filename("Logs-" + nombretmp + "-" + envir + ".zip").build();
             } else {
-                logger.info(": : : : Archivo Normal");
-                headers.setContentDisposition(
-                        ContentDisposition.attachment().filename("Archivos-" + envir + ".zip").build());
+                return ContentDisposition.attachment().filename("Archivos-" + envir + ".zip").build();
             }
-        } else if (tipo.equals("2")) {
-            headers.setContentDisposition(
-                    ContentDisposition.attachment().filename("Archivos-" + envir + ".zip").build());
-            logger.info(": : : : Nombre Archivo Generico");
+        } else if ("2".equals(tipo)) {
+            return ContentDisposition.attachment().filename("Archivos-" + envir + ".zip").build();
         } else {
             logger.info(": : : : Nombre Archivo No Valido");
-        }
-        try {
-            logger.info(": : : : TERMINA CREACIÓN DE ZIP EN AMBIENTE: " + envir);
-            return new ResponseEntity<>(stream, headers, HttpStatus.OK);
-        } catch (Exception e) {
-            logger.info(": : : : 2 ERROR EN CREACIÓN DE ZIP EN AMBIENTE: " + envir);
-            return new ResponseEntity<>(stream, headers, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ContentDisposition.attachment().filename("Archivo-Desconocido.zip").build();
         }
     }
 }

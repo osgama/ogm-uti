@@ -24,61 +24,59 @@ public class ApiListaDetalle {
     public ResponseEntity<List<String>> listFiles(@RequestBody ListaArchivosRequest request) {
 
         String envir = System.getenv("ENVIRONMENT");
-        System.out.println(": : : : INICIA BUSQUEDA DE ACHIVO(S) EN AMBIENTE: " + envir);
-        String directorio = request.getDirectorio();
-        String filtro = request.getFiltro();
-        String tipo = request.getTipo();
-        String directorioFinal = "";
-        String directoriotmp = "";
+        logger.info(": : : : INICIA BUSQUEDA DE ARCHIVO(S) EN AMBIENTE: {}", envir);
 
-        if (tipo.equals("1")) {
-            directoriotmp = detalleArchivos.getDirectorio(Integer.parseInt(directorio));
-            directorioFinal = System.getenv("BASE_DIRECTORIO_LOGS" + directoriotmp);
-            logger.info(": : : : Directorio " + directorioFinal);
-        } else if (tipo.equals("2")) {
-            directorioFinal = System.getenv("BASE_DIRECTORIO_LOGS" + directorio);
-            logger.info(": : : : Directorio " + directorioFinal);
-        } else {
-            logger.error(": : : : Directorio no valido ");
+        String directorioFinal = obtenerDirectorioFinal(request.getDirectorio(), request.getTipo());
+        if (directorioFinal == null) {
+            logger.error(": : : : Directorio no válido");
+            return ResponseEntity.badRequest().header("X-Error-Message", "El directorio especificado no es válido.").build();
         }
-
-        int ArchivosEncontrados = 0;
 
         File folder = new File(directorioFinal);
         if (!folder.exists() || !folder.isDirectory()) {
-            HttpHeaders headersFolder = new HttpHeaders();
-            headersFolder.add("X-Error-Message", "El directorio especificado no existe o no es valido.");
-            logger.info(": : : : ERROR EN headersFolder: " + headersFolder);
-            return ResponseEntity.badRequest().headers(headersFolder).build();
-        } else {
-            File[] files = folder.listFiles();
-            Arrays.sort(files, Comparator.comparingLong(File::lastModified).reversed());
-            List<String> matchingFiles = new ArrayList<>();
-            if (files != null) {
-                for (File file : files) {
-                    if (file.isFile()
-                            && (filtro.equals("*")
-                            || file.getName().toLowerCase().contains(filtro.toLowerCase()))) {
-                        String detalle = getFormattedFileDetails(file);
-                        matchingFiles.add(detalle);
-                        ArchivosEncontrados++;
-                    }
-                }
-                logger.info(": : : : ArchivosEncontrados: " + ArchivosEncontrados);
-                logger.info(": : : : Filtro: " + filtro);
-                logger.info(": : : : TERMINA BUSQUEDA DE ACHIVO(S) EN AMBIENTE: " +envir);
-                return new ResponseEntity<>(matchingFiles, HttpStatus.OK);
-            }
-            logger.error(": : : : ERROR EN BUSQUEDA DE ACHIVO(S) EN AMBIENTE: " + envir);
-            return new ResponseEntity<>(HttpStatus.OK);
+            logger.error(": : : : El directorio especificado no existe o no es válido: {}", directorioFinal);
+            return ResponseEntity.badRequest().header("X-Error-Message", "El directorio especificado no existe o no es válido.").build();
         }
+
+        File[] files = folder.listFiles();
+        if (files == null || files.length == 0) {
+            logger.info(": : : : No se encontraron archivos en el directorio: {}", directorioFinal);
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+
+        Arrays.sort(files, Comparator.comparingLong(File::lastModified).reversed());
+        List<String> matchingFiles = new ArrayList<>();
+        String filtro = request.getFiltro().toLowerCase();
+        int archivosEncontrados = 0;
+
+        for (File file : files) {
+            if (file.isFile() && (filtro.equals("*") || file.getName().toLowerCase().contains(filtro))) {
+                matchingFiles.add(getFormattedFileDetails(file));
+                archivosEncontrados++;
+            }
+        }
+
+        logger.info(": : : : Archivos encontrados: {}", archivosEncontrados);
+        logger.info(": : : : Filtro: {}", filtro);
+        logger.info(": : : : TERMINA BUSQUEDA DE ARCHIVO(S) EN AMBIENTE: {}", envir);
+        return ResponseEntity.ok(matchingFiles);
+    }
+
+    private String obtenerDirectorioFinal(String directorio, String tipo) {
+        if ("1".equals(tipo)) {
+            String directoriotmp = detalleArchivos.getDirectorio(Integer.parseInt(directorio));
+            return System.getenv("BASE_DIRECTORIO_LOGS" + directoriotmp);
+        } else if ("2".equals(tipo)) {
+            return System.getenv("BASE_DIRECTORIO_LOGS" + directorio);
+        }
+        return null;
     }
 
     private String getFormattedFileDetails(File file) {
         String nombre = file.getName();
         String tamano = getFormattedFileSize(file.length());
         String fechaModificacion = new SimpleDateFormat("dd/MM/yyyy - HH:mm:ss").format(new Date(file.lastModified()));
-        return nombre + "||" + tamano + "||" + fechaModificacion;
+        return String.join("||", nombre, tamano, fechaModificacion);
     }
 
     private String getFormattedFileSize(long size) {

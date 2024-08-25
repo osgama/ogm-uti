@@ -5,147 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Descarga Archivos v1.4</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #283747;
-      color: #ffffff;
-      position: relative;
-    }
-
-    header {
-      background-color: #212F3C;
-      color: #ffffff;
-      text-align: center;
-      padding: 1rem 0;
-    }
-
-    main {
-      max-width: 1300px;
-      margin: 1rem auto;
-      padding: 1rem;
-      background-color: #34495E;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      position: relative;
-    }
-
-    h1 {
-      font-size: 24px;
-      color: #ffffff;
-      position: relative;
-      margin: 0;
-    }
-
-    p {
-      font-size: 14px;
-    }
-
-    label {
-      font-weight: bold;
-    }
-
-    select,
-    input[type="text"],
-    button {
-      margin: 5px;
-      padding: 8px;
-      border: 1px solid #212F3D;
-      border-radius: 4px;
-      font-size: 14px;
-      background-color: #212F3D;
-      color: #ffffff;
-    }
-
-    button {
-      background-color: #212F3D;
-      color: #ffffff;
-      border: none;
-      cursor: pointer;
-      font-family: Arial, sans-serif;
-      font-weight: bold;
-    }
-
-    button:hover {
-      background-color: #2C3E50;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-
-    th,
-    td {
-      border: 1px solid #212F3D;
-      padding: 8px;
-      text-align: left;
-    }
-
-    th {
-      background-color: #17202A;
-      color: #ffffff;
-    }
-
-    td.tamano,
-    td.fecha {
-      text-align: left;
-    }
-
-    table tr:nth-child(odd) {
-      background-color: #2C3E50;
-    }
-
-    table tr:nth-child(even) {
-      background-color: #212F3D;
-    }
-
-    .acordeon {
-      background-color: #212F3D;
-      padding: 1rem;
-      cursor: pointer;
-      position: absolute;
-      top: 0;
-      right: 0;
-      z-index: 1;
-    }
-
-    .contenido-acordeon {
-      display: none;
-      padding: 1rem;
-      background-color: #2C3E50;
-      color: #ffffff;
-    }
-
-    .mensaje {
-      font-size: 16px;
-      font-weight: bold;
-      padding: 10px;
-      border-radius: 4px;
-      margin-top: 10px;
-      text-align: center;
-      display: none;
-    }
-
-    #msjNoArchivos {
-      background-color: #E74C3C;
-      color: #000000;
-    }
-
-    #msjEspera {
-      background-color: #F4D03F;
-      color: black;
-    }
-
-    .centrar-checkbox {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
+</head>
 
 <body>
   <header>
@@ -209,7 +70,6 @@
   </main>
 
   <script>
-
     function obtenerAmbiente() {
       fetch('/service/api/ambiente')
         .then((response) => {
@@ -249,13 +109,15 @@
       })
         .then((response) => {
           if (!response.ok) {
-            throw new Error(
-              "Hubo un problema al obtener la lista de archivos."
-            );
+            return response.headers.get("X-Error-Message") || "Hubo un problema al obtener la lista de archivos.";
           }
           return response.json();
         })
         .then((data) => {
+          if (typeof data === "string") {
+            alert(data); // Mostrar mensaje de error en una alerta
+            return;
+          }
           if (data.length === 0) {
             document.getElementById("msjNoArchivos").style.display = "block";
           } else {
@@ -265,6 +127,7 @@
         })
         .catch((error) => {
           console.error(error);
+          alert("Ocurrió un error inesperado.");
         })
         .finally(() => {
           document.getElementById("msjEspera").style.display = "none";
@@ -275,48 +138,28 @@
       const archivosDiv = document.getElementById("archivos");
       archivosDiv.innerHTML = "";
 
-      const tabla = document.createElement("table");
-      const cabecera = document.createElement("tr");
+      let html = "<table><tr>";
       const headers = ["Nombre", "Tamaño", "Fecha (DD/MM/YYYY)", "Seleccionar"];
-      headers.forEach((header) => {
-        const th = document.createElement("th");
-        th.innerText = header;
-        cabecera.appendChild(th);
+      headers.forEach(header => {
+        html += `<th>${header}</th>`;
       });
-      tabla.appendChild(cabecera);
+      html += "</tr>";
 
-      archivos.forEach((archivo) => {
+      archivos.forEach(archivo => {
         const detalles = archivo.split("||");
-        const fila = document.createElement("tr");
-
-        const nombreCelda = document.createElement("td");
-        nombreCelda.innerText = detalles[0];
-        fila.appendChild(nombreCelda);
-
-        const tamanoCelda = document.createElement("td");
-        tamanoCelda.className = "tamano";
-        tamanoCelda.innerText = detalles[1];
-        fila.appendChild(tamanoCelda);
-
-        const fechaModificacionCelda = document.createElement("td");
-        fechaModificacionCelda.className = "fecha";
-        fechaModificacionCelda.innerText = detalles[2];
-        fila.appendChild(fechaModificacionCelda);
-
-        const seleccionarCelda = document.createElement("td");
-        seleccionarCelda.className = "centrar-checkbox";
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.value = detalles[0];
-        checkbox.addEventListener("change", handleCheckboxChange);
-        seleccionarCelda.appendChild(checkbox);
-        fila.appendChild(seleccionarCelda);
-        tabla.appendChild(fila);
+        html += "<tr>";
+        html += `<td>${detalles[0]}</td>`;
+        html += `<td class="tamano">${detalles[1]}</td>`;
+        html += `<td class="fecha">${detalles[2]}</td>`;
+        html += `<td class="centrar-checkbox"><input type="checkbox" value="${detalles[0]}" onchange="handleCheckboxChange(event)"></td>`;
+        html += "</tr>";
       });
-      archivosDiv.appendChild(tabla);
+
+      html += "</table>";
+      archivosDiv.innerHTML = html;
+
       const totalArchivos = archivos.length;
-      const totalArchivosInfo = document.getElementById("totalArchivosInfo");
-      totalArchivosInfo.textContent = `Archivos Encontrados: ${totalArchivos}`;
+      document.getElementById("totalArchivosInfo").textContent = `Archivos Encontrados: ${totalArchivos}`;
     }
 
     function handleCheckboxChange(event) {
@@ -341,11 +184,8 @@
         checkbox.checked = true;
         archivosSeleccionados.push(checkbox.value);
       });
-      document.getElementById("directorioDescarga").value =
-        document.getElementById("directorio").value;
-      document.getElementById("archivosDescarga").value = JSON.stringify(
-        archivosSeleccionados
-      );
+      document.getElementById("directorioDescarga").value = document.getElementById("directorio").value;
+      document.getElementById("archivosDescarga").value = JSON.stringify(archivosSeleccionados);
     }
 
     function descargarSeleccionados() {
@@ -371,7 +211,8 @@
         contenidoAcordeon.style.display = "block";
       }
     }
-    document.addEventListener("click", function (event) {
+
+    document.addEventListener("click", function(event) {
       const contenidoAcordeon = document.getElementById("contenidoAcordeon");
       const acordeon = document.querySelector(".acordeon");
 
@@ -404,14 +245,13 @@
     }
 
     var filtroInput = document.getElementById("filtro");
-    filtroInput.addEventListener("keypress", function (event) {
+    filtroInput.addEventListener("keypress", function(event) {
       if (event.key === "Enter") {
         listarArchivos();
       }
     });
 
   </script>
-  </head>
 </body>
 
 </html>

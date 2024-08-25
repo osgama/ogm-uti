@@ -5,108 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recuperar Contraseña</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #283747;
-            color: #ffffff;
-            position: relative;
-        }
-
-        header {
-            background-color: #212F3C;
-            color: #ffffff;
-            text-align: center;
-            padding: 1rem 0;
-        }
-
-        main {
-            max-width: 1300px;
-            margin: 1rem auto;
-            padding: 1rem;
-            background-color: #34495E;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            position: relative;
-        }
-
-        h1 {
-            font-size: 24px;
-            color: #ffffff;
-            position: relative;
-            margin: 0;
-        }
-
-        p {
-            font-size: 14px;
-        }
-
-        label {
-            font-weight: bold;
-        }
-
-        select,
-        input[type="text"],
-        button {
-            margin: 5px;
-            padding: 8px;
-            border: 1px solid #212F3D;
-            border-radius: 4px;
-            font-size: 14px;
-            background-color: #212F3D;
-            color: #ffffff;
-        }
-
-        button {
-            background-color: #212F3D;
-            color: #ffffff;
-            border: none;
-            cursor: pointer;
-            font-family: Arial, sans-serif;
-            font-weight: bold;
-        }
-
-        button:hover {
-            background-color: #2C3E50;
-        }
-
-        .acordeon {
-            background-color: #212F3D;
-            padding: 1rem;
-            cursor: pointer;
-            position: absolute;
-            top: 0;
-            right: 0;
-            z-index: 1;
-        }
-
-        .contenido-acordeon {
-            display: none;
-            padding: 1rem;
-            background-color: #2C3E50;
-            color: #ffffff;
-        }
-
-        .mensaje {
-            margin-top: 20px;
-            padding: 10px;
-            border: 1px solid;
-            border-radius: 4px;
-            text-align: center;
-            opacity: 0.9;
-        }
-
-        .exito {
-            border-color: green;
-            background-color: rgba(0, 128, 0, 0.2);
-        }
-
-        .error {
-            border-color: red;
-            background-color: rgba(255, 0, 0, 0.2);
-        }
-    </style>
+    <!-- Incluimos el archivo CSS consolidado -->
+    <link rel="stylesheet" href="styles.css">
+</head>
 
 <body>
     <header>
@@ -126,8 +27,6 @@
         <label for="nickname">Nickname:</label>
         <select id="nickname">
             <option value="user1">user1</option>
-            <option value="user2">user2</option>
-            <option value="user2">user2</option>
             <option value="user2">user2</option>
         </select>
         <button onclick="fetchPassword()">Obtener Contraseña</button>
@@ -181,9 +80,7 @@
                 contenidoAcordeon.style.display = "block";
             }
         }
-
     </script>
-  </head>
 </body>
 
 </html>

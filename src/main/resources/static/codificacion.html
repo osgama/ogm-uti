@@ -2,147 +2,11 @@
 <html lang="es">
 
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Codificación Token v1.4</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #283747;
-      color: #ffffff;
-      position: relative;
-    }
-
-    header {
-      background-color: #212f3c;
-      color: #ffffff;
-      text-align: center;
-      padding: 1rem 0;
-    }
-
-    main {
-      max-width: 1300px;
-      margin: 1rem auto;
-      padding: 1rem;
-      background-color: #34495e;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      position: relative;
-    }
-
-    h1 {
-      font-size: 24px;
-      color: #ffffff;
-      position: relative;
-      margin: 0;
-    }
-
-    p {
-      font-size: 14px;
-    }
-
-    label {
-      font-weight: bold;
-    }
-
-    select,
-    input[type="text"],
-    input[type="password"],
-    button {
-      margin: 5px;
-      padding: 8px;
-      border: 1px solid #212f3d;
-      border-radius: 4px;
-      font-size: 14px;
-      background-color: #212f3d;
-      color: #ffffff;
-    }
-
-    button {
-      background-color: #212f3d;
-      color: #ffffff;
-      border: none;
-      cursor: pointer;
-      font-family: Arial, sans-serif;
-      font-weight: bold;
-    }
-
-    button:hover {
-      background-color: #2c3e50;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-
-    th,
-    td {
-      border: 1px solid #212f3d;
-      padding: 8px;
-      text-align: left;
-    }
-
-    th {
-      background-color: #17202a;
-      color: #ffffff;
-    }
-
-    table tr:nth-child(odd) {
-      background-color: #2c3e50;
-    }
-
-    table tr:nth-child(even) {
-      background-color: #212f3d;
-    }
-
-    .mensaje {
-      margin-top: 20px;
-      padding: 10px;
-      border: 1px solid;
-      border-radius: 4px;
-      text-align: center;
-      opacity: 0.9;
-    }
-
-    .exito {
-      border-color: green;
-      background-color: rgba(0, 128, 0, 0.2);
-    }
-
-    .error {
-      border-color: red;
-      background-color: rgba(255, 0, 0, 0.2);
-    }
-
-    #paginacionControles {
-      margin-top: 20px;
-      text-align: center;
-    }
-
-    #mensajeResultado,
-    #paginacionControles {
-      display: none;
-    }
-
-    .acordeon {
-      background-color: #212F3D;
-      padding: 1rem;
-      cursor: pointer;
-      position: absolute;
-      top: 0;
-      right: 0;
-      z-index: 1;
-    }
-
-    .contenido-acordeon {
-      display: none;
-      padding: 1rem;
-      background-color: #2C3E50;
-      color: #ffffff;
-    }
-  </style>
+  <!-- Incluimos el archivo CSS consolidado -->
+  <link rel="stylesheet" href="styles.css">
+</head>
 
 <body>
   <header>
@@ -161,22 +25,23 @@
   <main>
     <form id="encryptForm">
       <label for="passwordEncrypt">Password:</label>
-      <input type="password" id="passwordEncrypt" required />
+      <input type="password" id="passwordEncrypt" required>
       <button type="submit">Encriptar</button>
     </form>
     <p>Resultado Encriptación: <span id="resultEncrypt"></span></p>
 
-    <!--
-      <form id="decryptForm">
+    <!-- Comentado temporalmente
+    <form id="decryptForm">
       <label for="passwordDecrypt">Datos encriptados:</label>
-      <input type="password" id="passwordDecrypt" required />
+      <input type="password" id="passwordDecrypt" required>
       <button type="submit">Desencriptar</button>
     </form>
-    <p>Resultado Desencriptación: <span id="resultDecrypt"></span></p>-->
+    <p>Resultado Desencriptación: <span id="resultDecrypt"></span></p>
+    -->
 
     <form id="urlEncodeForm">
       <label for="encodedData">Token:</label>
-      <input type="text" id="encodedData" required />
+      <input type="text" id="encodedData" required>
       <button type="submit">Codificar para URL</button>
     </form>
     <p>Token codificado para URL: <span id="resultUrlEncode"></span></p>
@@ -231,7 +96,8 @@
           });
       });
 
-      /*document.getElementById("decryptForm").addEventListener("submit", function (event) {
+      /* Comentado temporalmente
+      document.getElementById("decryptForm").addEventListener("submit", function (event) {
           event.preventDefault();
           const data = document.getElementById("passwordDecrypt").value;
           fetch("/service/api/crypto/decrypt", {
@@ -254,7 +120,8 @@
             .catch((error) => {
               displayMessage(error.message, "error");
             });
-        });*/
+        });
+      */
 
       function displayMessage(message, type) {
         const mensajeResultado = document.getElementById("mensajeResultado");
@@ -321,9 +188,7 @@
         contenidoAcordeon.style.display = "block";
       }
     }
-
   </script>
-  </head>
 </body>
 
 </html>
