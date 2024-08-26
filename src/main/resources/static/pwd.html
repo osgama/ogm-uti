@@ -28,7 +28,7 @@
 
     <script>
         function obtenerAmbiente() {
-            fetch('/service/api/ambiente')
+            fetch(`/service/api/ambiente`)
                 .then((response) => {
                     if (!response.ok) {
                         throw new Error('Hubo un problema al obtener el ambiente.');
@@ -49,7 +49,7 @@
 
         function fetchPassword() {
             var nickname = document.getElementById('nickname').value;
-            fetch('/service/api/getPassword?nickname=' + nickname)
+            fetch(`/service/api/getPassword?nickname=` + nickname)
                 .then(response => response.json())
                 .then(data => {
                     var mensajeDiv = document.getElementById('mensajeResultado');

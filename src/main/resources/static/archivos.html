@@ -67,7 +67,7 @@
     let archivosSeleccionados = [];
 
     function obtenerAmbiente() {
-      fetch('/service/api/ambiente')
+      fetch(`/service/api/ambiente`)
         .then((response) => {
           if (!response.ok) {
             throw new Error('Hubo un problema al obtener el ambiente.');
@@ -188,7 +188,7 @@
       const directorio = document.getElementById("directorio").value;
 
       // Verificar el ambiente antes de proceder
-      fetch('/service/api/ambiente')
+      fetch(`/service/api/ambiente`)
         .then(response => response.text())
         .then(ambiente => {
           let archivosSeleccionadosStr = JSON.stringify(archivosSeleccionados);

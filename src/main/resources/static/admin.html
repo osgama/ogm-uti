@@ -44,7 +44,7 @@
   <script>
 
     function obtenerAmbiente() {
-      fetch('/service/api/ambiente')
+      fetch(`/service/api/ambiente`)
         .then((response) => {
           if (!response.ok) {
             throw new Error('Hubo un problema al obtener el ambiente.');

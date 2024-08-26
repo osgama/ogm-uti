@@ -48,7 +48,7 @@
 
     <script>
         function obtenerAmbiente() {
-            fetch('/service/api/ambiente')
+            fetch(`/service/api/ambiente`)
                 .then((response) => {
                     if (!response.ok) {
                         throw new Error('Hubo un problema al obtener el ambiente.');
@@ -68,7 +68,7 @@
         };
 
         document.addEventListener('DOMContentLoaded', function () {
-            fetch('/service/api/configuracion')
+            fetch(`/service/api/configuracion`)
                 .then(response => response.json())
                 .then(data => {
                     const configDiv = document.getElementById('configuracion');
@@ -104,7 +104,7 @@
             DIAINICIAL = DIAINICIAL.replace(/-/g, '')
             DIAFINAL = DIAFINAL.replace(/-/g, '')
 
-            fetch('/service/api/configuracion', {
+            fetch(`/service/api/configuracion`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
