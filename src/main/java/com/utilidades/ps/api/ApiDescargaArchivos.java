@@ -87,10 +87,13 @@ public class ApiDescargaArchivos {
 
         List<File> archivosParaComprimir = new ArrayList<>();
         for (String nombreArchivo : archivosSeleccionados) {
+            // Elimina comillas adicionales si existen
+            nombreArchivo = nombreArchivo.replaceAll("[\"\\[\\]]", "").trim();
             File file = new File(directorioFinal, nombreArchivo);
             if (file.exists()) {
                 archivosParaComprimir.add(file);
             } else {
+                logger.error("El archivo no existe: " + file.getAbsolutePath());
                 return ResponseEntity.notFound().build();
             }
         }
