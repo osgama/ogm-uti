@@ -5,23 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recuperar Contraseña</title>
-    <!-- Incluimos el archivo CSS consolidado -->
     <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
     <header>
         <h1>Recuperar Contraseña <span id="ambiente"></span></h1>
-        <div class="acordeon" onclick="toggleAcordeon()">
+        <div class="acordeon">
             <h1>v1.4</h1>
         </div>
     </header>
-
-    <div class="contenido-acordeon" id="contenidoAcordeon">
-        <p>*****************************************************
-            ********************************************************************************************
-        </p>
-    </div>
 
     <main>
         <label for="nickname">Nickname:</label>
@@ -70,15 +63,6 @@
                     mensajeDiv.innerText = 'Error al recuperar la contraseña';
                     mensajeDiv.style.display = 'block';
                 });
-        }
-
-        function toggleAcordeon() {
-            const contenidoAcordeon = document.getElementById("contenidoAcordeon");
-            if (contenidoAcordeon.style.display === "block") {
-                contenidoAcordeon.style.display = "none";
-            } else {
-                contenidoAcordeon.style.display = "block";
-            }
         }
     </script>
 </body>

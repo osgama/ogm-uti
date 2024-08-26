@@ -11,16 +11,10 @@
 <body>
   <header>
     <h1>Descarga Archivos <span id="ambiente"></span></h1>
-    <div class="acordeon" onclick="toggleAcordeon()">
+    <div class="acordeon">
       <h1>v1.4</h1>
     </div>
   </header>
-
-  <div class="contenido-acordeon" id="contenidoAcordeon">
-    <p>*****************************************************
-      ********************************************************************************************
-    </p>
-  </div>
 
   <main>
     &nbsp;&nbsp;
@@ -255,25 +249,6 @@
           console.error("Error al verificar el ambiente:", error);
         });
     }
-
-    function toggleAcordeon() {
-      const contenidoAcordeon = document.getElementById("contenidoAcordeon");
-      if (contenidoAcordeon.style.display === "block") {
-        contenidoAcordeon.style.display = "none";
-      } else {
-        contenidoAcordeon.style.display = "block";
-      }
-    }
-
-    document.addEventListener("click", function (event) {
-      const contenidoAcordeon = document.getElementById("contenidoAcordeon");
-      const acordeon = document.querySelector(".acordeon");
-
-      if (event.target !== acordeon && !acordeon.contains(event.target) &&
-        event.target !== contenidoAcordeon && !contenidoAcordeon.contains(event.target)) {
-        contenidoAcordeon.style.display = "none";
-      }
-    });
 
     function limpiarSeleccion() {
       const checkboxes = document.querySelectorAll("input[type='checkbox']");

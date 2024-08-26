@@ -5,23 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configuración ReproSys</title>
-    <!-- Incluimos el archivo CSS consolidado -->
     <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
     <header>
         <h1>Configuración ReproSys <span id="ambiente"></span></h1>
-        <div class="acordeon" onclick="toggleAcordeon()">
+        <div class="acordeon">
             <h1>v1.4</h1>
         </div>
     </header>
-
-    <div class="contenido-acordeon" id="contenidoAcordeon">
-        <p>NOTA 1:
-            ***************************************************************************************************************************
-        </p>
-    </div>
 
     <main>
         <label for="DIAINICIAL">Fecha Inicial:</label>
@@ -125,15 +118,6 @@
             }).catch(error => {
                 console.error('Error al actualizar:', error);
             });
-        }
-
-        function toggleAcordeon() {
-            const contenidoAcordeon = document.getElementById("contenidoAcordeon");
-            if (contenidoAcordeon.style.display === "block") {
-                contenidoAcordeon.style.display = "none";
-            } else {
-                contenidoAcordeon.style.display = "block";
-            }
         }
     </script>
 </body>

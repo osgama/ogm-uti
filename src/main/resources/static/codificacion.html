@@ -4,7 +4,6 @@
 <head>
   <meta charset="UTF-8">
   <title>Codificación Token v1.4</title>
-  <!-- Incluimos el archivo CSS consolidado -->
   <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -15,12 +14,6 @@
       <h1>v1.4</h1>
     </div>
   </header>
-
-  <div class="contenido-acordeon" id="contenidoAcordeon">
-    <p>*****************************************************
-      ********************************************************************************************
-    </p>
-  </div>
 
   <main>
     <form id="encryptForm">
@@ -178,15 +171,6 @@
             new Option("Error al cargar servidores", "", true, true)
           );
         });
-    }
-
-    function toggleAcordeon() {
-      const contenidoAcordeon = document.getElementById("contenidoAcordeon");
-      if (contenidoAcordeon.style.display === "block") {
-        contenidoAcordeon.style.display = "none";
-      } else {
-        contenidoAcordeon.style.display = "block";
-      }
     }
   </script>
 </body>
