@@ -145,14 +145,13 @@ public class ApiDescargaArchivos {
     }
 
     private String obtenerDirectorioFinal(String directorio, String tipo) {
-        String directorioFinal = null;
         if ("1".equals(tipo)) {
             String directoriotmp = detalleArchivos.getDirectorio(Integer.parseInt(directorio));
-            directorioFinal = System.getenv("BASE_DIRECTORIO_LOGS" + directoriotmp);
+            return System.getenv("BASE_DIRECTORIO_LOGS") + directoriotmp;
         } else if ("2".equals(tipo)) {
-            directorioFinal = System.getenv("BASE_DIRECTORIO_LOGS" + directorio);
+            return System.getenv("BASE_DIRECTORIO_LOGS") + directorio;
         }
-        return directorioFinal;
+        return null;
     }
 
     private ContentDisposition generarNombreZip(String directorio, String tipo, String envir) {

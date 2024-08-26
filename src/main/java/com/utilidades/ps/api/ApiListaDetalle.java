@@ -65,9 +65,9 @@ public class ApiListaDetalle {
     private String obtenerDirectorioFinal(String directorio, String tipo) {
         if ("1".equals(tipo)) {
             String directoriotmp = detalleArchivos.getDirectorio(Integer.parseInt(directorio));
-            return System.getenv("BASE_DIRECTORIO_LOGS" + directoriotmp);
+            return System.getenv("BASE_DIRECTORIO_LOGS") + directoriotmp;
         } else if ("2".equals(tipo)) {
-            return System.getenv("BASE_DIRECTORIO_LOGS" + directorio);
+            return System.getenv("BASE_DIRECTORIO_LOGS") + directorio;
         }
         return null;
     }
