@@ -193,6 +193,7 @@
         .then(ambiente => {
           let archivosSeleccionadosStr = JSON.stringify(archivosSeleccionados);
           let password = null;
+          const tipo = '1';
 
           if (ambiente.trim().toUpperCase() === "PROD") {
             // Solicitar la contraseña si estamos en PROD
@@ -217,7 +218,10 @@
             let formData = new FormData();
             formData.append("directorio", directorio);
             formData.append("archivos", archivosSeleccionadosStr);
-            formData.append("password", password);  // Incluimos la contraseña si es PROD
+            formData.append("tipo", tipo); // Incluimos el tipo aquí
+            if (password) {
+              formData.append("password", password); // Incluimos la contraseña si es PROD
+            }
 
             fetch(`/service/api/descargar-zip`, {
               method: "POST",
@@ -269,7 +273,7 @@
         checkbox.checked = false;
       });
       archivosSeleccionados = [];
-      filtro.value = "";
+      document.getElementById("filtro").value = "";
     }
 
     var filtroInput = document.getElementById("filtro");
