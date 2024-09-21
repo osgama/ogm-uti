@@ -88,6 +88,6 @@ public class ApiListaDetalle {
             fileSize /= 1024;
             unitIndex++;
         }
-        return String.format("%.2f %s", fileSize, units[unitIndex]);
+        return "%.2f %s".formatted(fileSize, units[unitIndex]);
     }
 }

@@ -11,7 +11,7 @@ public class TokenService {
 
     public String getToken(String server, String username, String password) throws IOException, InterruptedException {
         logger.info(": : : : INICIA OBTENCION DE TOKEN");
-        String command = String.format("/app/get-token.sh %s %s %s", server, username, password);
+        String command = "/app/get-token.sh %s %s %s".formatted(server, username, password);
         Process process = Runtime.getRuntime().exec(command);
         BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
         BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
