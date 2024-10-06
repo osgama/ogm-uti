@@ -4,16 +4,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Descarga Archivos v1.4</title>
+  <title>Descarga Archivos</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
   <header>
     <h1>Descarga Archivos <span id="ambiente"></span></h1>
-    <div class="acordeon">
-      <h1>v1.4</h1>
-    </div>
   </header>
 
   <main>
@@ -59,6 +56,10 @@
 
     <p id="msjNoArchivos" class="mensaje">¡NO SE ENCONTRARON ARCHIVOS!</p>
     <p id="msjEspera" class="mensaje">Por favor espera... buscando archivos...</p>
+
+    <!-- Contenedor para mostrar mensajes de error -->
+    <div id="errorMessage" style="display:none; color:red; font-weight:bold;"></div>
+
     <input type="hidden" id="directorioDescarga" name="directorio" />
     <input type="hidden" id="archivosDescarga" name="archivos" />
   </main>
@@ -67,7 +68,7 @@
     let archivosSeleccionados = [];
 
     function obtenerAmbiente() {
-      fetch(`/service/api/ambiente`)
+      fetch(`http://localhost:9093/api/ambiente`)
         .then((response) => {
           if (!response.ok) {
             throw new Error('Hubo un problema al obtener el ambiente.');
@@ -78,7 +79,7 @@
           document.getElementById('ambiente').textContent = ambiente;
         })
         .catch((error) => {
-          console.error(error);
+          mostrarError('Error al obtener el ambiente.');
         });
     }
 
@@ -92,7 +93,7 @@
       const filtro = document.getElementById("filtro").value;
       const tipo = '1';
       limpiarSeleccion();
-      fetch(`/service/api/lista`, {
+      fetch(`http://localhost:9093/api/lista`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -105,15 +106,15 @@
       })
         .then((response) => {
           if (!response.ok) {
-            return response.headers.get("X-Error-Message") || "Hubo un problema al obtener la lista de archivos.";
+            const errorMessage = response.headers.get("X-Error-Message") || "Hubo un problema al obtener la lista de archivos.";
+            mostrarError(errorMessage);
+            return null;
           }
           return response.json();
         })
         .then((data) => {
-          if (typeof data === "string") {
-            alert(data); // Mostrar mensaje de error en una alerta
-            return;
-          }
+          if (data === null) return; // No procesar si hubo un error
+
           if (data.length === 0) {
             document.getElementById("msjNoArchivos").style.display = "block";
           } else {
@@ -122,8 +123,7 @@
           mostrarArchivos(data);
         })
         .catch((error) => {
-          console.error(error);
-          alert("Ocurrió un error inesperado.");
+          mostrarError("Ocurrió un error inesperado al listar los archivos.");
         })
         .finally(() => {
           document.getElementById("msjEspera").style.display = "none";
@@ -187,8 +187,7 @@
     function descargarSeleccionados() {
       const directorio = document.getElementById("directorio").value;
 
-      // Verificar el ambiente antes de proceder
-      fetch(`/service/api/ambiente`)
+      fetch(`http://localhost:9093/api/ambiente`)
         .then(response => response.text())
         .then(ambiente => {
           let archivosSeleccionadosStr = JSON.stringify(archivosSeleccionados);
@@ -196,34 +195,31 @@
           const tipo = '1';
 
           if (ambiente.trim().toUpperCase() === "PROD") {
-            // Solicitar la contraseña si estamos en PROD
             password = prompt("Introduce la contraseña para el archivo ZIP:");
             if (!password) {
-              alert("Debes proporcionar una contraseña.");
+              mostrarError("Debes proporcionar una contraseña.");
               return;
             }
           }
 
           if (archivosSeleccionados.length === 0) {
-            alert("Selecciona al menos un archivo para descargar.");
+            mostrarError("Selecciona al menos un archivo para descargar.");
             return;
           }
 
           if (archivosSeleccionados.length === 1 && ambiente.trim().toUpperCase() !== "PROD") {
-            // Si es un solo archivo y no es PROD, lo descarga directo
             const archivo = archivosSeleccionados[0];
-            window.location.href = `/service/api/descargar?directorio=${encodeURIComponent(directorio)}&archivo=${encodeURIComponent(archivo)}&tipo=1`;
+            window.location.href = `http://localhost:9093/api/descargar?directorio=${encodeURIComponent(directorio)}&archivo=${encodeURIComponent(archivo)}&tipo=1`;
           } else {
-            // Si es más de un archivo o estamos en PROD, descarga como ZIP
             let formData = new FormData();
             formData.append("directorio", directorio);
             formData.append("archivos", archivosSeleccionadosStr);
-            formData.append("tipo", tipo); // Incluimos el tipo aquí
+            formData.append("tipo", tipo);
             if (password) {
-              formData.append("password", password); // Incluimos la contraseña si es PROD
+              formData.append("password", password);
             }
 
-            fetch(`/service/api/descargar-zip`, {
+            fetch(`http://localhost:9093/api/descargar-zip`, {
               method: "POST",
               body: formData
             })
@@ -231,6 +227,7 @@
                 if (response.ok) {
                   return response.blob();
                 } else {
+                  mostrarError("Error al generar el archivo ZIP.");
                   throw new Error("Error al generar el archivo ZIP.");
                 }
               })
@@ -238,19 +235,18 @@
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement("a");
                 a.href = url;
-                a.download = "archivos.zip"; // Puedes ajustar el nombre del archivo aquí
+                a.download = "archivos.zip";
                 document.body.appendChild(a);
                 a.click();
                 a.remove();
               })
               .catch(error => {
-                console.error(error);
-                alert("Ocurrió un error al descargar los archivos.");
+                mostrarError("Ocurrió un error al descargar los archivos.");
               });
           }
         })
         .catch(error => {
-          console.error("Error al verificar el ambiente:", error);
+          mostrarError("Error al verificar el ambiente.");
         });
     }
 
@@ -283,6 +279,15 @@
       }
     });
 
+    // Función para mostrar errores en el div de errores
+    function mostrarError(mensaje) {
+      const errorDiv = document.getElementById("errorMessage");
+      errorDiv.textContent = mensaje;
+      errorDiv.style.display = "block";
+      setTimeout(() => {
+        errorDiv.style.display = "none"; // Ocultar el mensaje después de 5 segundos
+      }, 5000); // Ocultar después de 5 segundos
+    }
   </script>
 </body>
 

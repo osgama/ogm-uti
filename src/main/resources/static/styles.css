@@ -1,207 +1,172 @@
 /* Variables CSS para temas de color y fuente */
 :root {
-    --color-background: #283747;
-    --color-text: #ffffff;
-    --color-button: #212F3D;
-    --color-button-hover: #2C3E50;
-    --font-main: Arial, sans-serif;
-  }
-  
-  /* Estilos generales */
-  body {
-    font-family: var(--font-main);
-    margin: 0;
-    padding: 0;
-    background-color: var(--color-background);
-    color: var(--color-text);
-    position: relative;
-  }
-  
-  header {
-    background-color: var(--color-button);
-    color: var(--color-text);
-    text-align: center;
-    padding: 1rem 0;
-  }
-  
+  --color-background: #283747;
+  --color-text: #ffffff;
+  --color-button: #212F3D;
+  --color-button-hover: #2C3E50;
+  --font-main: Arial, sans-serif;
+}
+
+/* Estilos generales */
+body {
+  font-family: var(--font-main);
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+header {
+  background-color: var(--color-button);
+  color: var(--color-text);
+  text-align: center;
+  padding: 1rem 0;
+}
+
+main {
+  max-width: 1300px;
+  margin: 1rem auto;
+  padding: 1rem;
+  background-color: #34495E;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  font-size: 24px;
+  color: var(--color-text);
+}
+
+label {
+  font-weight: bold;
+  color: var(--color-text);
+  display: inline-block; /* Mantiene los labels alineados en línea */
+  margin-top: 10px;
+}
+
+input, select, button {
+  margin: 5px 0;
+  padding: 10px;
+  border: 1px solid var(--color-button);
+  border-radius: 4px;
+  font-size: 16px;
+  background-color: var(--color-button);
+  color: var(--color-text);
+  display: inline-block; /* Mantiene el diseño original en línea */
+}
+
+button {
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button:hover {
+  background-color: var(--color-button-hover);
+}
+
+/* Estilos para tablas */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+th, td {
+  border: 1px solid var(--color-button);
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background-color: #17202A;
+  color: var(--color-text);
+}
+
+table tr:nth-child(odd) {
+  background-color: #2C3E50;
+}
+
+table tr:nth-child(even) {
+  background-color: var(--color-button);
+}
+
+/* Estilos para mensajes de éxito y error */
+.mensaje, .message {
+  font-size: 16px;
+  font-weight: bold;
+  padding: 10px;
+  border-radius: 4px;
+  text-align: center;
+  display: none;
+  margin-top: 10px;
+}
+
+.message {
+  border: 1px solid #28a745; /* Verde oscuro */
+  background-color: #28a745;  /* Fondo verde oscuro */
+  color: #ffffff;             /* Texto blanco para mejor contraste */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Sombra para mejorar visibilidad */
+}
+
+.error {
+  border: 1px solid #e74c3c;  /* Rojo más intenso */
+  background-color: #e74c3c;  /* Fondo rojo intenso */
+  color: #ffffff;             /* Texto blanco para mejor contraste */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Sombra para mejorar visibilidad */
+}
+
+.exito {
+  border: 1px solid #28a745;  /* Verde oscuro */
+  background-color: #28a745;  /* Fondo verde oscuro */
+  color: #ffffff;             /* Texto blanco para mejor contraste */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Sombra para mejorar visibilidad */
+}
+
+#error {
+  color: #ffffff;             /* Texto blanco para error */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Sombra */
+}
+
+/* Estilos adicionales */
+#msjNoArchivos {
+  background-color: #E74C3C;
+  color: #000000;
+}
+
+#msjEspera {
+  background-color: #F4D03F;
+  color: black;
+}
+
+.centrar-checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+#paginacionControles {
+  margin-top: 20px;
+  text-align: center;
+}
+
+#mensajeResultado, #paginacionControles {
+  display: none; /* Ocultar inicialmente */
+}
+
+.espaciado-vertical, .espaciado-vertical-dos {
+  margin-top: 2rem;
+}
+
+@media (max-width: 600px) {
   main {
-    max-width: 1300px;
-    margin: 1rem auto;
-    padding: 1rem;
-    background-color: #34495E;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    position: relative;
+    padding: 0.5rem;
+    margin: 0.5rem;
   }
-  
-  h1 {
-    font-size: 24px;
-    color: var(--color-text);
-    margin: 0;
+
+  button, input[type="text"], select {
+    padding: 6px;
+    margin: 3px;
+    font-size: 12px;
   }
-  
-  p {
-    font-size: 14px;
-  }
-  
-  label {
-    font-weight: bold;
-    color: var(--color-text);
-  }
-  
-  select,
-  input[type="text"],
-  input[type="password"],
-  input[type="date"],
-  button {
-    margin: 5px;
-    padding: 8px;
-    border: 1px solid var(--color-button);
-    border-radius: 4px;
-    font-size: 14px;
-    background-color: var(--color-button);
-    color: var(--color-text);
-  }
-  
-  button {
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-  }
-  
-  button:hover {
-    background-color: var(--color-button-hover);
-  }
-  
-  /* Estilos para tablas */
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-  }
-  
-  th,
-  td {
-    border: 1px solid var(--color-button);
-    padding: 8px;
-    text-align: left;
-  }
-  
-  th {
-    background-color: #17202A;
-    color: var(--color-text);
-  }
-  
-  table tr:nth-child(odd) {
-    background-color: #2C3E50;
-  }
-  
-  table tr:nth-child(even) {
-    background-color: var(--color-button);
-  }
-  
-  td.tamano,
-  td.fecha {
-    text-align: left;
-  }
-  
-  /* Estilos para mensajes y estados */
-  .mensaje,
-  .message {
-    font-size: 16px;
-    font-weight: bold;
-    padding: 10px;
-    border-radius: 4px;
-    text-align: center;
-    display: none;
-  }
-  
-  .mensaje {
-    margin-top: 10px;
-  }
-  
-  .message {
-    border: 1px solid green;
-    background-color: rgba(0, 128, 0, 0.3);
-  }
-  
-  .error {
-    border: 1px solid red;
-    background-color: rgba(255, 0, 0, 0.3);
-    color: red;
-  }
-  
-  .exito {
-    border-color: green;
-    background-color: rgba(0, 128, 0, 0.2);
-  }
-  
-  #error {
-    color: red;
-  }
-  
-  /* Estilos para acordeón */
-  .acordeon {
-    background-color: var(--color-button);
-    padding: 1rem;
-    cursor: pointer;
-    position: absolute;
-    top: 0;
-    right: 0;
-    z-index: 1;
-  }
-  
-  .contenido-acordeon {
-    display: none;
-    padding: 1rem;
-    background-color: #2C3E50;
-    color: var(--color-text);
-  }
-  
-  /* Estilos adicionales */
-  #msjNoArchivos {
-    background-color: #E74C3C;
-    color: #000000;
-  }
-  
-  #msjEspera {
-    background-color: #F4D03F;
-    color: black;
-  }
-  
-  .centrar-checkbox {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-  }
-  
-  #paginacionControles {
-    margin-top: 20px;
-    text-align: center;
-  }
-  
-  #mensajeResultado,
-  #paginacionControles {
-    display: none; /* Ocultar inicialmente */
-  }
-  
-  .espaciado-vertical,
-  .espaciado-vertical-dos {
-    margin-top: 2rem;
-  }
-  
-  @media (max-width: 600px) {
-    main {
-      padding: 0.5rem;
-      margin: 0.5rem;
-    }
-  
-    button,
-    input[type="text"],
-    select {
-      padding: 6px;
-      margin: 3px;
-      font-size: 12px;
-    }
-  }
-  
+}
