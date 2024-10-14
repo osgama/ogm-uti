@@ -4,51 +4,58 @@
 # Obtiene la ruta donde está ubicado el script
 $scriptPath = $PSScriptRoot
 
-# Solicita al usuario que elija una opción
-Write-Host "Selecciona una opción para clonar los repositorios:"
-Write-Host "1. Clonar repositorios en 'repo1' "
-Write-Host "2. Clonar repositorios en 'repo2' "
+# Obtiene la ruta del perfil del usuario actual (para Documentos\Codigo)
+$userProfile = [System.Environment]::GetFolderPath('UserProfile')
+$rootDestinationPath = "$userProfile\Documents\Codigo"
+
+# Muestra el menú de opciones con asteriscos
+Write-Host "****************************************"
+Write-Host "*  Selecciona una opción para clonar repositorios:  *"
+Write-Host "****************************************"
+Write-Host "*  1. Clonar repositorios en 'repo1'                 *"
+Write-Host "*  2. Clonar repositorios en 'repo2'                 *"
+Write-Host "****************************************"
 $opcion = Read-Host "Introduce 1 o 2"
 
 # Variables dinámicas basadas en la opción seleccionada
 switch ($opcion) {
     1 {
         $reposFile = "$scriptPath\repos_opcion1.txt"  # Archivo de repositorios para la opción 1
-        $destinationPath = "$scriptPath\repo1"  # Carpeta para la opción 1
+        $destinationPath = "$rootDestinationPath\repo1"  # Carpeta en Documentos para la opción 1
         $logFile = "$destinationPath\clone_log_opcion1.txt"  # Log para la opción 1
     }
     2 {
         $reposFile = "$scriptPath\repos_opcion2.txt"  # Archivo de repositorios para la opción 2
-        $destinationPath = "$scriptPath\repo2"  # Carpeta para la opción 2
+        $destinationPath = "$rootDestinationPath\repo2"  # Carpeta en Documentos para la opción 2
         $logFile = "$destinationPath\clone_log_opcion2.txt"  # Log para la opción 2
     }
     default {
-        Write-Host "Opción no válida. Elige 1 o 2." -ForegroundColor Red
+        Write-Host "* Opción no válida. Elige 1 o 2. *" -ForegroundColor Red
         exit
     }
 }
 
-# Verifica si el archivo de repositorios existe y no está vacío
+# Verifica si el archivo de repositorios existe en la misma ruta que el script
 if (-not (Test-Path -Path $reposFile)) {
-    Write-Host "El archivo de repositorios $reposFile no existe." -ForegroundColor Red
+    Write-Host "* El archivo de repositorios $reposFile no existe en la ruta del script. *" -ForegroundColor Red
     exit
 }
 if ((Get-Content $reposFile).Count -eq 0) {
-    Write-Host "El archivo de repositorios $reposFile está vacío." -ForegroundColor Red
+    Write-Host "* El archivo de repositorios $reposFile está vacío. *" -ForegroundColor Red
     exit
 }
 
 # Si el directorio de destino no existe, lo crea
 if (-not (Test-Path -Path $destinationPath)) {
-    Write-Host "El directorio no existe, creando $destinationPath..." -ForegroundColor Yellow
+    Write-Host "* El directorio no existe, creando $destinationPath... *" -ForegroundColor Yellow
     New-Item -Path $destinationPath -ItemType Directory
     Add-Content -Path $logFile -Value "$(Get-Date) - Directorio $destinationPath creado."
 } else {
-    Write-Host "El directorio ya existe, continuando..." -ForegroundColor Green
+    Write-Host "* El directorio ya existe, continuando... *" -ForegroundColor Green
     Add-Content -Path $logFile -Value "$(Get-Date) - Directorio $destinationPath ya existía."
 }
 
-# Cambia el directorio a la ruta de destino
+# Cambia el directorio a la ruta de destino (Documentos\Codigo\repo1 o repo2)
 Set-Location -Path $destinationPath
 
 # Variables para el resumen final
@@ -58,7 +65,7 @@ $reposErrores = 0
 
 # Inicia el tiempo de ejecución del proceso
 $startTime = Get-Date
-Write-Host "Comenzando la clonación de repositorios a las $startTime"
+Write-Host "* Comenzando la clonación de repositorios a las $startTime *"
 
 # Lee el archivo de repositorios y clona cada repositorio
 Get-Content $reposFile | ForEach-Object {
