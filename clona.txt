@@ -1,5 +1,8 @@
-# Definir el destino fijo
-$rootDestinationPath = "C:\Users\USUARIO\Documents\Codigo"
+# Obtiene el perfil del usuario desde la variable de entorno
+$userProfile = [System.Environment]::GetFolderPath('UserProfile')
+
+# Definir el destino fijo basado en el perfil del usuario
+$rootDestinationPath = "$userProfile\Documents\Codigo"
 
 # Solicita al usuario que elija una opción
 Write-Host "Selecciona una opción para clonar los repositorios:"
