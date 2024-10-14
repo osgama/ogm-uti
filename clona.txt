@@ -1,0 +1,133 @@
+# Obtiene el perfil del usuario desde la variable de entorno
+$userProfile = [System.Environment]::GetFolderPath('UserProfile')
+
+# Solicita al usuario que elija una opción
+Write-Host "Selecciona una opción para clonar los repositorios:"
+Write-Host "1. Clonar repositorios desde repos_opcion1.txt"
+Write-Host "2. Clonar repositorios desde repos_opcion2.txt"
+$opcion = Read-Host "Introduce 1 o 2"
+
+# Variables dinámicas basadas en la opción seleccionada
+switch ($opcion) {
+    1 {
+        $reposFile = "$userProfile\repos_opcion1.txt"  # Archivo de repositorios para la opción 1
+        $destinationPath = "$userProfile\Repositorios_Opcion1"  # Carpeta para la opción 1
+        $logFile = "$destinationPath\clone_log_opcion1.txt"  # Log para la opción 1
+    }
+    2 {
+        $reposFile = "$userProfile\repos_opcion2.txt"  # Archivo de repositorios para la opción 2
+        $destinationPath = "$userProfile\Repositorios_Opcion2"  # Carpeta para la opción 2
+        $logFile = "$destinationPath\clone_log_opcion2.txt"  # Log para la opción 2
+    }
+    default {
+        Write-Host "Opción no válida. Elige 1 o 2." -ForegroundColor Red
+        exit
+    }
+}
+
+# Verifica si el archivo de repositorios existe y no está vacío
+if (-not (Test-Path -Path $reposFile)) {
+    Write-Host "El archivo de repositorios $reposFile no existe." -ForegroundColor Red
+    exit
+}
+if ((Get-Content $reposFile).Count -eq 0) {
+    Write-Host "El archivo de repositorios $reposFile está vacío." -ForegroundColor Red
+    exit
+}
+
+# Si el directorio no existe, lo crea
+if (-not (Test-Path -Path $destinationPath)) {
+    Write-Host "El directorio no existe, creando $destinationPath..." -ForegroundColor Yellow
+    New-Item -Path $destinationPath -ItemType Directory
+    Add-Content -Path $logFile -Value "$(Get-Date) - Directorio $destinationPath creado."
+} else {
+    Write-Host "El directorio ya existe, continuando..." -ForegroundColor Green
+    Add-Content -Path $logFile -Value "$(Get-Date) - Directorio $destinationPath ya existía."
+}
+
+# Cambia el directorio a la ruta de destino
+Set-Location -Path $destinationPath
+
+# Variables para el resumen final
+$reposEliminados = 0
+$reposClonados = 0
+$reposErrores = 0
+
+# Inicia el tiempo de ejecución del proceso
+$startTime = Get-Date
+Write-Host "Comenzando la clonación de repositorios a las $startTime"
+
+# Lee el archivo de repositorios y clona cada repositorio
+Get-Content $reposFile | ForEach-Object {
+    $repoUrl = $_
+    $repoName = $repoUrl.Split("/")[-1].Replace(".git", "")  # Extrae el nombre del repo de la URL
+    $repoPath = "$destinationPath\$repoName"
+
+    # Verifica si el repositorio ya fue clonado
+    if (Test-Path -Path $repoPath) {
+        Write-Host "* El repositorio $repoName ya existe, eliminando... *" -ForegroundColor Yellow
+        Remove-Item -Recurse -Force $repoPath
+        Add-Content -Path $logFile -Value "$(Get-Date) - Repositorio $repoName eliminado."
+        $reposEliminados++
+    }
+
+    # Intenta clonar el repositorio y captura cualquier error
+    try {
+        $repoStartTime = Get-Date
+        Write-Host "****************************************" -ForegroundColor Cyan
+        Write-Host "* Clonando el repositorio: $repoName *" -ForegroundColor Cyan
+        Write-Host "****************************************" -ForegroundColor Cyan
+
+        # Clona el repositorio
+        git clone $repoUrl
+        $repoEndTime = Get-Date
+        $repoDuration = $repoEndTime - $repoStartTime
+
+        Add-Content -Path $logFile -Value "$(Get-Date) - Repositorio $repoName clonado exitosamente en $repoDuration."
+        $reposClonados++
+    }
+    catch {
+        Write-Host "* Error al clonar el repositorio: $repoName *" -ForegroundColor Red
+        Add-Content -Path $logFile -Value "$(Get-Date) - Error al clonar $repoName: $_"
+        $reposErrores++
+    }
+}
+
+# Finaliza el tiempo de ejecución
+$endTime = Get-Date
+$duration = $endTime - $startTime
+Write-Host "****************************************" -ForegroundColor Green
+Write-Host "* Todos los repositorios han sido procesados en $duration *" -ForegroundColor Green
+Write-Host "****************************************" -ForegroundColor Green
+
+# Agregar al log el resumen final
+Add-Content -Path $logFile -Value "$(Get-Date) - Proceso de clonación finalizado en $duration."
+Add-Content -Path $logFile -Value "Resumen: $reposEliminados repositorios eliminados, $reposClonados repositorios clonados, $reposErrores errores."
+
+# Mostrar el resumen final en pantalla
+Write-Host "****************************************" -ForegroundColor Blue
+Write-Host "* Resumen del proceso *" -ForegroundColor Blue
+Write-Host "Repositorios eliminados: $reposEliminados" -ForegroundColor Blue
+Write-Host "Repositorios clonados: $reposClonados" -ForegroundColor Blue
+Write-Host "Errores encontrados: $reposErrores" -ForegroundColor Blue
+Write-Host "****************************************" -ForegroundColor Blue
+
+# Reproducir un sonido al finalizar el proceso (requiere sonido habilitado en el sistema)
+[console]::beep(1000,500)  # Un pitido al finalizar
+
+# Notificación visual con un mensaje al finalizar (para sistemas con notificaciones)
+Add-Type -TypeDefinition @"
+using System;
+using System.Runtime.InteropServices;
+public class ToastNotification
+{
+    [DllImport("user32.dll", CharSet = CharSet.Auto)]
+    public static extern bool MessageBeep(uint type);
+
+    public static void Show()
+    {
+        MessageBeep(0);
+    }
+}
+"@
+[ToastNotification]::Show()
