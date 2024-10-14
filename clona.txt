@@ -1,3 +1,6 @@
+# Configura la salida en UTF-8 para manejar correctamente acentos y caracteres especiales
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+
 # Obtiene la ruta donde está ubicado el script
 $scriptPath = $PSScriptRoot
 
@@ -103,3 +106,31 @@ Write-Host "****************************************" -ForegroundColor Green
 # Agregar al log el resumen final
 Add-Content -Path $logFile -Value "$(Get-Date) - Proceso de clonación finalizado en $duration."
 Add-Content -Path $logFile -Value "Resumen: $reposEliminados repositorios eliminados, $reposClonados repositorios clonados, $reposErrores errores."
+
+# Mostrar el resumen final en pantalla
+Write-Host "****************************************" -ForegroundColor Blue
+Write-Host "* Resumen del proceso *" -ForegroundColor Blue
+Write-Host "Repositorios eliminados: $reposEliminados" -ForegroundColor Blue
+Write-Host "Repositorios clonados: $reposClonados" -ForegroundColor Blue
+Write-Host "Errores encontrados: $reposErrores" -ForegroundColor Blue
+Write-Host "****************************************" -ForegroundColor Blue
+
+# Reproducir un sonido al finalizar el proceso (requiere sonido habilitado en el sistema)
+[console]::beep(1000,500)  # Un pitido al finalizar
+
+# Notificación visual con un mensaje al finalizar (para sistemas con notificaciones)
+Add-Type -TypeDefinition @"
+using System;
+using System.Runtime.InteropServices;
+public class ToastNotification
+{
+    [DllImport("user32.dll", CharSet = CharSet.Auto)]
+    public static extern bool MessageBeep(uint type);
+
+    public static void Show()
+    {
+        MessageBeep(0);
+    }
+}
+"@
+[ToastNotification]::Show()
