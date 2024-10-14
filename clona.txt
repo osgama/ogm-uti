@@ -1,25 +1,22 @@
-# Obtiene el perfil del usuario desde la variable de entorno
-$userProfile = [System.Environment]::GetFolderPath('UserProfile')
-
-# Definir el destino fijo basado en el perfil del usuario
-$rootDestinationPath = "$userProfile\Documents\Codigo"
+# Obtiene la ruta donde está ubicado el script
+$scriptPath = $PSScriptRoot
 
 # Solicita al usuario que elija una opción
 Write-Host "Selecciona una opción para clonar los repositorios:"
-Write-Host "1. Clonar repositorios en 'repo1' (desde repos_opcion1.txt)"
-Write-Host "2. Clonar repositorios en 'repo2' (desde repos_opcion2.txt)"
+Write-Host "1. Clonar repositorios en 'repo1' "
+Write-Host "2. Clonar repositorios en 'repo2' "
 $opcion = Read-Host "Introduce 1 o 2"
 
 # Variables dinámicas basadas en la opción seleccionada
 switch ($opcion) {
     1 {
-        $reposFile = "$rootDestinationPath\repos_opcion1.txt"  # Archivo de repositorios para la opción 1
-        $destinationPath = "$rootDestinationPath\repo1"  # Carpeta para la opción 1
+        $reposFile = "$scriptPath\repos_opcion1.txt"  # Archivo de repositorios para la opción 1
+        $destinationPath = "$scriptPath\repo1"  # Carpeta para la opción 1
         $logFile = "$destinationPath\clone_log_opcion1.txt"  # Log para la opción 1
     }
     2 {
-        $reposFile = "$rootDestinationPath\repos_opcion2.txt"  # Archivo de repositorios para la opción 2
-        $destinationPath = "$rootDestinationPath\repo2"  # Carpeta para la opción 2
+        $reposFile = "$scriptPath\repos_opcion2.txt"  # Archivo de repositorios para la opción 2
+        $destinationPath = "$scriptPath\repo2"  # Carpeta para la opción 2
         $logFile = "$destinationPath\clone_log_opcion2.txt"  # Log para la opción 2
     }
     default {
@@ -91,7 +88,7 @@ Get-Content $reposFile | ForEach-Object {
     }
     catch {
         Write-Host "* Error al clonar el repositorio: $repoName *" -ForegroundColor Red
-        Add-Content -Path $logFile -Value "$(Get-Date) - Error al clonar $repoName: $_"
+        Add-Content -Path $logFile -Value "$(Get-Date) - Error al clonar $repoName ${_}"
         $reposErrores++
     }
 }
@@ -106,31 +103,3 @@ Write-Host "****************************************" -ForegroundColor Green
 # Agregar al log el resumen final
 Add-Content -Path $logFile -Value "$(Get-Date) - Proceso de clonación finalizado en $duration."
 Add-Content -Path $logFile -Value "Resumen: $reposEliminados repositorios eliminados, $reposClonados repositorios clonados, $reposErrores errores."
-
-# Mostrar el resumen final en pantalla
-Write-Host "****************************************" -ForegroundColor Blue
-Write-Host "* Resumen del proceso *" -ForegroundColor Blue
-Write-Host "Repositorios eliminados: $reposEliminados" -ForegroundColor Blue
-Write-Host "Repositorios clonados: $reposClonados" -ForegroundColor Blue
-Write-Host "Errores encontrados: $reposErrores" -ForegroundColor Blue
-Write-Host "****************************************" -ForegroundColor Blue
-
-# Reproducir un sonido al finalizar el proceso (requiere sonido habilitado en el sistema)
-[console]::beep(1000,500)  # Un pitido al finalizar
-
-# Notificación visual con un mensaje al finalizar (para sistemas con notificaciones)
-Add-Type -TypeDefinition @"
-using System;
-using System.Runtime.InteropServices;
-public class ToastNotification
-{
-    [DllImport("user32.dll", CharSet = CharSet.Auto)]
-    public static extern bool MessageBeep(uint type);
-
-    public static void Show()
-    {
-        MessageBeep(0);
-    }
-}
-"@
-[ToastNotification]::Show()
