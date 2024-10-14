@@ -1,22 +1,22 @@
-# Obtiene el perfil del usuario desde la variable de entorno
-$userProfile = [System.Environment]::GetFolderPath('UserProfile')
+# Definir el destino fijo
+$rootDestinationPath = "C:\Users\USUARIO\Documents\Codigo"
 
 # Solicita al usuario que elija una opción
 Write-Host "Selecciona una opción para clonar los repositorios:"
-Write-Host "1. Clonar repositorios desde repos_opcion1.txt"
-Write-Host "2. Clonar repositorios desde repos_opcion2.txt"
+Write-Host "1. Clonar repositorios en 'repo1' (desde repos_opcion1.txt)"
+Write-Host "2. Clonar repositorios en 'repo2' (desde repos_opcion2.txt)"
 $opcion = Read-Host "Introduce 1 o 2"
 
 # Variables dinámicas basadas en la opción seleccionada
 switch ($opcion) {
     1 {
-        $reposFile = "$userProfile\repos_opcion1.txt"  # Archivo de repositorios para la opción 1
-        $destinationPath = "$userProfile\Repositorios_Opcion1"  # Carpeta para la opción 1
+        $reposFile = "$rootDestinationPath\repos_opcion1.txt"  # Archivo de repositorios para la opción 1
+        $destinationPath = "$rootDestinationPath\repo1"  # Carpeta para la opción 1
         $logFile = "$destinationPath\clone_log_opcion1.txt"  # Log para la opción 1
     }
     2 {
-        $reposFile = "$userProfile\repos_opcion2.txt"  # Archivo de repositorios para la opción 2
-        $destinationPath = "$userProfile\Repositorios_Opcion2"  # Carpeta para la opción 2
+        $reposFile = "$rootDestinationPath\repos_opcion2.txt"  # Archivo de repositorios para la opción 2
+        $destinationPath = "$rootDestinationPath\repo2"  # Carpeta para la opción 2
         $logFile = "$destinationPath\clone_log_opcion2.txt"  # Log para la opción 2
     }
     default {
@@ -35,7 +35,7 @@ if ((Get-Content $reposFile).Count -eq 0) {
     exit
 }
 
-# Si el directorio no existe, lo crea
+# Si el directorio de destino no existe, lo crea
 if (-not (Test-Path -Path $destinationPath)) {
     Write-Host "El directorio no existe, creando $destinationPath..." -ForegroundColor Yellow
     New-Item -Path $destinationPath -ItemType Directory
