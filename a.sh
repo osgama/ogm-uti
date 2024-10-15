@@ -3,7 +3,7 @@
 # Variables
 BASE_DIR="/opt/middleware/certs"
 DEST_DIR="$BASE_DIR/uno"
-ZIP_FILE="certificados.zip"
+TAR_FILE="certificados.tar"
 TEMP_DIR="/tmp/certificados_temp"
 HOSTNAME=$(hostname)
 ENV_DIR=""
@@ -36,32 +36,32 @@ if [[ ! -d "$DEST_DIR" ]]; then
     fi
 fi
 
-# Verificar si el archivo ZIP existe
-if [[ ! -f "$ZIP_FILE" ]]; then
-    echo "Error: El archivo $ZIP_FILE no existe en el directorio actual."
+# Verificar si el archivo TAR existe
+if [[ ! -f "$TAR_FILE" ]]; then
+    echo "Error: El archivo $TAR_FILE no existe en el directorio actual."
     exit 1
 fi
 
-# Crear un directorio temporal para descomprimir el ZIP
+# Crear un directorio temporal para descomprimir el TAR
 mkdir -p "$TEMP_DIR"
 if [[ $? -ne 0 ]]; then
     echo "Error: No se pudo crear el directorio temporal $TEMP_DIR."
     exit 1
 fi
 
-# Descomprimir el archivo ZIP en el directorio temporal
-echo "Descomprimiendo $ZIP_FILE en $TEMP_DIR..."
-unzip -q "$ZIP_FILE" -d "$TEMP_DIR"
+# Descomprimir el archivo TAR en el directorio temporal
+echo "Descomprimiendo $TAR_FILE en $TEMP_DIR..."
+tar -xf "$TAR_FILE" -C "$TEMP_DIR"
 
 if [[ $? -ne 0 ]]; then
-    echo "Error: Falló la descompresión del archivo $ZIP_FILE."
+    echo "Error: Falló la descompresión del archivo $TAR_FILE."
     rm -rf "$TEMP_DIR"
     exit 1
 fi
 
-# Verificar si la carpeta del ambiente existe en el ZIP
+# Verificar si la carpeta del ambiente existe en el TAR
 if [[ ! -d "$TEMP_DIR/$ENV_DIR" ]]; then
-    echo "Error: La carpeta $ENV_DIR no se encontró en el archivo ZIP."
+    echo "Error: La carpeta $ENV_DIR no se encontró en el archivo TAR."
     rm -rf "$TEMP_DIR"
     exit 1
 fi
