@@ -8,161 +8,159 @@ $scriptPath = $PSScriptRoot
 $userProfile = [System.Environment]::GetFolderPath('UserProfile')
 $rootDestinationPath = "$userProfile\Documents\Codigo"
 
+# Función para clonar repositorios
+function ClonarRepositorios {
+    param (
+        [string]$reposFile,
+        [string]$destinationPath,
+        [string]$logFile,
+        [string]$repoLabel
+    )
+
+    # Verifica si la carpeta base "Codigo" existe en Documentos, si no, la crea
+    if (-not (Test-Path -Path $rootDestinationPath)) {
+        Write-Host "**************************************************"
+        Write-Host "*  La carpeta base 'Codigo' no existe, creando... *"
+        Write-Host "**************************************************"
+        New-Item -Path $rootDestinationPath -ItemType Directory
+        Add-Content -Path $logFile -Value "$(Get-Date) - Carpeta base 'Codigo' creada en Documentos."
+    }
+
+    # Verifica si el archivo de repositorios existe en la misma ruta que el script
+    if (-not (Test-Path -Path $reposFile)) {
+        Write-Host "**************************************************"
+        Write-Host "*  El archivo de repositorios $reposFile no existe.  *"
+        Write-Host "**************************************************" -ForegroundColor Red
+        return
+    }
+    if ((Get-Content $reposFile).Count -eq 0) {
+        Write-Host "**************************************************"
+        Write-Host "*  El archivo de repositorios $reposFile está vacío. *"
+        Write-Host "**************************************************" -ForegroundColor Red
+        return
+    }
+
+    # Si el directorio de destino no existe, lo crea
+    if (-not (Test-Path -Path $destinationPath)) {
+        Write-Host "**************************************************"
+        Write-Host "*  El directorio no existe, creando $destinationPath...  *"
+        Write-Host "**************************************************" -ForegroundColor Yellow
+        New-Item -Path $destinationPath -ItemType Directory
+        Add-Content -Path $logFile -Value "$(Get-Date) - Directorio $destinationPath creado."
+    } else {
+        Write-Host "**************************************************"
+        Write-Host "*  El directorio $repoLabel ya existe, continuando...  *"
+        Write-Host "**************************************************" -ForegroundColor Green
+    }
+
+    # Cambia el directorio a la ruta de destino
+    Set-Location -Path $destinationPath
+
+    # Variables para el resumen final
+    $reposEliminados = 0
+    $reposClonados = 0
+    $reposErrores = 0
+
+    # Inicia el tiempo de ejecución del proceso
+    $startTime = Get-Date
+    Write-Host "**************************************************"
+    Write-Host "*  Comenzando la clonación de repositorios en $repoLabel a las $startTime  *"
+    Write-Host "**************************************************"
+
+    # Lee el archivo de repositorios y clona cada repositorio
+    Get-Content $reposFile | ForEach-Object {
+        $repoUrl = $_
+        $repoName = $repoUrl.Split("/")[-1].Replace(".git", "")  # Extrae el nombre del repo de la URL
+        $repoPath = "$destinationPath\$repoName"
+
+        # Verifica si el repositorio ya fue clonado
+        if (Test-Path -Path $repoPath) {
+            Write-Host "**************************************************"
+            Write-Host "*  El repositorio $repoName ya existe, eliminando...  *"
+            Write-Host "**************************************************" -ForegroundColor Yellow
+            Remove-Item -Recurse -Force $repoPath
+            Add-Content -Path $logFile -Value "$(Get-Date) - Repositorio $repoName eliminado."
+            $reposEliminados++
+        }
+
+        # Intenta clonar el repositorio y captura cualquier error
+        try {
+            $repoStartTime = Get-Date
+            Write-Host "**************************************************"
+            Write-Host "*  Clonando el repositorio: $repoName  *"
+            Write-Host "**************************************************" -ForegroundColor Cyan
+
+            # Clona el repositorio
+            git clone $repoUrl
+            $repoEndTime = Get-Date
+            $repoDuration = $repoEndTime - $repoStartTime
+
+            Add-Content -Path $logFile -Value "$(Get-Date) - Repositorio $repoName clonado exitosamente en $repoDuration."
+            $reposClonados++
+        }
+        catch {
+            Write-Host "**************************************************"
+            Write-Host "*  Error al clonar el repositorio: $repoName  *"
+            Write-Host "**************************************************" -ForegroundColor Red
+            Add-Content -Path $logFile -Value "$(Get-Date) - Error al clonar $repoName ${_}"
+            $reposErrores++
+        }
+    }
+
+    # Finaliza el tiempo de ejecución
+    $endTime = Get-Date
+    $duration = $endTime - $startTime
+    Write-Host "**************************************************"
+    Write-Host "*  Todos los repositorios de $repoLabel han sido procesados en $duration  *"
+    Write-Host "**************************************************" -ForegroundColor Green
+
+    # Agregar al log el resumen final
+    Add-Content -Path $logFile -Value "$(Get-Date) - Proceso de clonación finalizado en $duration."
+    Add-Content -Path $logFile -Value "Resumen: $reposEliminados repositorios eliminados, $reposClonados repositorios clonados, $reposErrores errores."
+}
+
 # Muestra el menú de opciones con asteriscos bien alineados
 Write-Host "**************************************************"
 Write-Host "*  Selecciona una opción para clonar repositorios  *"
 Write-Host "**************************************************"
 Write-Host "*  1. Clonar repositorios en 'repo1'              *"
 Write-Host "*  2. Clonar repositorios en 'repo2'              *"
-Write-Host "*  3. Salir                                       *"
+Write-Host "*  3. Clonar todos los repositorios (repo1 y repo2) *"
+Write-Host "*  4. Salir                                       *"
 Write-Host "**************************************************"
 $opcion = Read-Host "Introduce una opción"
 
-# Variables dinámicas basadas en la opción seleccionada
+# Procesa la opción seleccionada
 switch ($opcion) {
     1 {
-        $reposFile = "$scriptPath\repos_opcion1.txt"  # Archivo de repositorios para la opción 1
-        $destinationPath = "$rootDestinationPath\repo1"  # Carpeta en Documentos para la opción 1
-        $logFile = "$destinationPath\clone_log_opcion1.txt"  # Log para la opción 1
-        $seleccion = "repo1"
+        ClonarRepositorios -reposFile "$scriptPath\repos_opcion1.txt" `
+                           -destinationPath "$rootDestinationPath\repo1" `
+                           -logFile "$rootDestinationPath\repo1\clone_log_opcion1.txt" `
+                           -repoLabel "repo1"
     }
     2 {
-        $reposFile = "$scriptPath\repos_opcion2.txt"  # Archivo de repositorios para la opción 2
-        $destinationPath = "$rootDestinationPath\repo2"  # Carpeta en Documentos para la opción 2
-        $logFile = "$destinationPath\clone_log_opcion2.txt"  # Log para la opción 2
-        $seleccion = "repo2"
+        ClonarRepositorios -reposFile "$scriptPath\repos_opcion2.txt" `
+                           -destinationPath "$rootDestinationPath\repo2" `
+                           -logFile "$rootDestinationPath\repo2\clone_log_opcion2.txt" `
+                           -repoLabel "repo2"
     }
     3 {
+        # Opción para clonar todos los repositorios (repo1 y repo2)
+        ClonarRepositorios -reposFile "$scriptPath\repos_opcion1.txt" `
+                           -destinationPath "$rootDestinationPath\repo1" `
+                           -logFile "$rootDestinationPath\repo1\clone_log_opcion1.txt" `
+                           -repoLabel "repo1"
+        ClonarRepositorios -reposFile "$scriptPath\repos_opcion2.txt" `
+                           -destinationPath "$rootDestinationPath\repo2" `
+                           -logFile "$rootDestinationPath\repo2\clone_log_opcion2.txt" `
+                           -repoLabel "repo2"
+    }
+    4 {
         Write-Host "Saliendo del script..." -ForegroundColor Yellow
         exit
     }
     default {
-        Write-Host "* Opción no válida. Elige 1, 2 o 3. *" -ForegroundColor Red
+        Write-Host "* Opción no válida. Elige 1, 2, 3 o 4. *" -ForegroundColor Red
         exit
     }
 }
-
-# Confirmación antes de proceder
-Write-Host "**************************************************"
-Write-Host "*  Has seleccionado clonar repositorios en '$seleccion' *"
-Write-Host "*  Directorio de destino: $destinationPath *"
-Write-Host "**************************************************"
-$confirmacion = Read-Host "¿Deseas continuar? (S/N)"
-if ($confirmacion -ne 'S' -and $confirmacion -ne 's') {
-    Write-Host "Operación cancelada por el usuario." -ForegroundColor Yellow
-    exit
-}
-
-# Verifica si la carpeta base "Codigo" existe en Documentos, si no, la crea
-if (-not (Test-Path -Path $rootDestinationPath)) {
-    Write-Host "**************************************************"
-    Write-Host "*  La carpeta base 'Codigo' no existe, creando... *"
-    Write-Host "**************************************************"
-    New-Item -Path $rootDestinationPath -ItemType Directory
-    Add-Content -Path $logFile -Value "$(Get-Date) - Carpeta base 'Codigo' creada en Documentos."
-} else {
-    Write-Host "**************************************************"
-    Write-Host "*  La carpeta base 'Codigo' ya existe. Continuando... *"
-    Write-Host "**************************************************"
-}
-
-# Verifica si el archivo de repositorios existe en la misma ruta que el script
-if (-not (Test-Path -Path $reposFile)) {
-    Write-Host "**************************************************"
-    Write-Host "*  El archivo de repositorios $reposFile no existe.  *"
-    Write-Host "**************************************************" -ForegroundColor Red
-    exit
-}
-if ((Get-Content $reposFile).Count -eq 0) {
-    Write-Host "**************************************************"
-    Write-Host "*  El archivo de repositorios $reposFile está vacío. *"
-    Write-Host "**************************************************" -ForegroundColor Red
-    exit
-}
-
-# Si el directorio de destino no existe, lo crea
-if (-not (Test-Path -Path $destinationPath)) {
-    Write-Host "**************************************************"
-    Write-Host "*  El directorio no existe, creando $destinationPath...  *"
-    Write-Host "**************************************************" -ForegroundColor Yellow
-    New-Item -Path $destinationPath -ItemType Directory
-    Add-Content -Path $logFile -Value "$(Get-Date) - Directorio $destinationPath creado."
-} else {
-    Write-Host "**************************************************"
-    Write-Host "*  El directorio ya existe, continuando...  *"
-    Write-Host "**************************************************" -ForegroundColor Green
-}
-
-# Cambia el directorio a la ruta de destino (Documentos\Codigo\repo1 o repo2)
-Set-Location -Path $destinationPath
-
-# Variables para el resumen final
-$reposEliminados = 0
-$reposClonados = 0
-$reposErrores = 0
-
-# Inicia el tiempo de ejecución del proceso
-$startTime = Get-Date
-Write-Host "**************************************************"
-Write-Host "*  Comenzando la clonación de repositorios a las $startTime  *"
-Write-Host "**************************************************"
-
-# Lee el archivo de repositorios y clona cada repositorio
-Get-Content $reposFile | ForEach-Object {
-    $repoUrl = $_
-    $repoName = $repoUrl.Split("/")[-1].Replace(".git", "")  # Extrae el nombre del repo de la URL
-    $repoPath = "$destinationPath\$repoName"
-
-    # Verifica si el repositorio ya fue clonado
-    if (Test-Path -Path $repoPath) {
-        Write-Host "**************************************************"
-        Write-Host "*  El repositorio $repoName ya existe, eliminando...  *"
-        Write-Host "**************************************************" -ForegroundColor Yellow
-        Remove-Item -Recurse -Force $repoPath
-        Add-Content -Path $logFile -Value "$(Get-Date) - Repositorio $repoName eliminado."
-        $reposEliminados++
-    }
-
-    # Intenta clonar el repositorio y captura cualquier error
-    try {
-        $repoStartTime = Get-Date
-        Write-Host "**************************************************"
-        Write-Host "*  Clonando el repositorio: $repoName  *"
-        Write-Host "**************************************************" -ForegroundColor Cyan
-
-        # Clona el repositorio
-        git clone $repoUrl
-        $repoEndTime = Get-Date
-        $repoDuration = $repoEndTime - $repoStartTime
-
-        Add-Content -Path $logFile -Value "$(Get-Date) - Repositorio $repoName clonado exitosamente en $repoDuration."
-        $reposClonados++
-    }
-    catch {
-        Write-Host "**************************************************"
-        Write-Host "*  Error al clonar el repositorio: $repoName  *"
-        Write-Host "**************************************************" -ForegroundColor Red
-        Add-Content -Path $logFile -Value "$(Get-Date) - Error al clonar $repoName ${_}"
-        $reposErrores++
-    }
-}
-
-# Finaliza el tiempo de ejecución
-$endTime = Get-Date
-$duration = $endTime - $startTime
-Write-Host "**************************************************"
-Write-Host "*  Todos los repositorios han sido procesados en $duration  *"
-Write-Host "**************************************************" -ForegroundColor Green
-
-# Agregar al log el resumen final
-Add-Content -Path $logFile -Value "$(Get-Date) - Proceso de clonación finalizado en $duration."
-Add-Content -Path $logFile -Value "Resumen: $reposEliminados repositorios eliminados, $reposClonados repositorios clonados, $reposErrores errores."
-
-# Mostrar el resumen final en pantalla
-Write-Host "**************************************************"
-Write-Host "*  Resumen del proceso  *"
-Write-Host "**************************************************" -ForegroundColor Blue
-Write-Host "*  Repositorios eliminados: $reposEliminados  *"
-Write-Host "*  Repositorios clonados: $reposClonados  *"
-Write-Host "*  Errores encontrados: $reposErrores  *"
-Write-Host "**************************************************" -ForegroundColor Blue
