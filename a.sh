@@ -3,16 +3,18 @@
 # Variables
 BASE_DIR="/opt/middleware/certs"
 DEST_DIR="$BASE_DIR/uno"
+ZIP_FILE="certificados.zip"
+TEMP_DIR="/tmp/certificados_temp"
 HOSTNAME=$(hostname)
-TAR_FILE=""
+ENV_DIR=""
 
 # Detectar ambiente basado en hostname
 if [[ "$HOSTNAME" == *"dev"* || "$HOSTNAME" == *"DEV"* ]]; then
-    TAR_FILE="DEV.tar"
+    ENV_DIR="DEV"
 elif [[ "$HOSTNAME" == *"uat"* || "$HOSTNAME" == *"UAT"* ]]; then
-    TAR_FILE="UAT.tar"
+    ENV_DIR="UAT"
 elif [[ "$HOSTNAME" == *"prod"* || "$HOSTNAME" == *"PROD"* ]]; then
-    TAR_FILE="PROD.tar"
+    ENV_DIR="PROD"
 else
     echo "Error: Ambiente no reconocido en el hostname."
     exit 1
@@ -34,20 +36,45 @@ if [[ ! -d "$DEST_DIR" ]]; then
     fi
 fi
 
-# Verificar si el archivo TAR existe
-if [[ ! -f "$TAR_FILE" ]]; then
-    echo "Error: El archivo $TAR_FILE no existe en el directorio actual."
+# Verificar si el archivo ZIP existe
+if [[ ! -f "$ZIP_FILE" ]]; then
+    echo "Error: El archivo $ZIP_FILE no existe en el directorio actual."
     exit 1
 fi
 
-# Descomprimir el archivo TAR en el directorio destino
-echo "Descomprimiendo $TAR_FILE en $DEST_DIR..."
-tar -xf "$TAR_FILE" -C "$DEST_DIR"
+# Crear un directorio temporal para descomprimir el ZIP
+mkdir -p "$TEMP_DIR"
+if [[ $? -ne 0 ]]; then
+    echo "Error: No se pudo crear el directorio temporal $TEMP_DIR."
+    exit 1
+fi
+
+# Descomprimir el archivo ZIP en el directorio temporal
+echo "Descomprimiendo $ZIP_FILE en $TEMP_DIR..."
+unzip -q "$ZIP_FILE" -d "$TEMP_DIR"
+
+if [[ $? -ne 0 ]]; then
+    echo "Error: Falló la descompresión del archivo $ZIP_FILE."
+    rm -rf "$TEMP_DIR"
+    exit 1
+fi
+
+# Verificar si la carpeta del ambiente existe en el ZIP
+if [[ ! -d "$TEMP_DIR/$ENV_DIR" ]]; then
+    echo "Error: La carpeta $ENV_DIR no se encontró en el archivo ZIP."
+    rm -rf "$TEMP_DIR"
+    exit 1
+fi
+
+# Copiar el contenido de la carpeta correspondiente al ambiente al destino
+echo "Copiando archivos de $ENV_DIR a $DEST_DIR..."
+cp -r "$TEMP_DIR/$ENV_DIR/"* "$DEST_DIR/"
 
 if [[ $? -eq 0 ]]; then
-    echo "Descompresión completada exitosamente."
+    echo "Archivos copiados exitosamente."
 else
-    echo "Error: Falló la descompresión de $TAR_FILE."
+    echo "Error: No se pudieron copiar los archivos."
+    rm -rf "$TEMP_DIR"
     exit 1
 fi
 
@@ -59,7 +86,12 @@ if [[ $? -eq 0 ]]; then
     echo "Permisos aplicados correctamente."
 else
     echo "Error: No se pudieron aplicar los permisos."
+    rm -rf "$TEMP_DIR"
     exit 1
 fi
+
+# Limpiar: eliminar el directorio temporal y carpetas innecesarias
+echo "Limpiando archivos temporales..."
+rm -rf "$TEMP_DIR"
 
 echo "Proceso completado exitosamente."
