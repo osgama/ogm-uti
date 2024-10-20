@@ -3,15 +3,14 @@ package com.utilidades.ps.api;
 import org.slf4j.*;
 import java.io.*;
 import java.util.*;
-import java.nio.file.*;
-import java.nio.channels.*;
+import java.util.zip.*; // Para compresión sin encriptación
 import java.text.SimpleDateFormat;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.method.annotation.*;
-import net.lingala.zip4j.ZipFile;
-import net.lingala.zip4j.model.enums.*;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+import net.lingala.zip4j.ZipFile;  // Para compresión con encriptación
 import net.lingala.zip4j.model.ZipParameters;
+import net.lingala.zip4j.model.enums.*;
 import com.utilidades.ps.model.*;
 import com.utilidades.ps.servicio.*;
 
@@ -21,12 +20,11 @@ public class ApiArchivos {
 
     private static final Logger logger = LoggerFactory.getLogger(ApiArchivos.class);
     private final DetalleArchivos detalleArchivos;
+    private static final int BUFFER_SIZE = 16384; // Buffer para la transmisión de archivos
 
     public ApiArchivos(DetalleArchivos detalleArchivos) {
         this.detalleArchivos = detalleArchivos;
     }
-
-    private static final int BUFFER_SIZE = 16384; // Aumentar el buffer a 16 KB
 
     @PostMapping("/lista")
     public ResponseEntity<List<String>> listFiles(@RequestBody ListaArchivosRequest request) {
@@ -72,136 +70,162 @@ public class ApiArchivos {
         return ResponseEntity.ok(matchingFiles);
     }
 
-    @GetMapping("/descargar")
-    public ResponseEntity<StreamingResponseBody> downloadFile(
-            @RequestParam String directorio,
-            @RequestParam String archivo,
-            @RequestParam String tipo) {
-
-        String envir = System.getenv("ENVIRONMENT");
-        logger.info(": : : : INICIA DESCARGA DE ARCHIVO EN AMBIENTE: " + envir);
-
-        String directorioFinal = obtenerDirectorioFinal(directorio, tipo);
-        if (directorioFinal == null) {
-            logger.error(": : : : Directorio no válido");
-            return ResponseEntity.badRequest().body(null);
-        }
-
-        File file = new File(directorioFinal, archivo);
-        if (file.exists()) {
-            if ("PROD".equalsIgnoreCase(envir)) {
-                // En PROD, todos los archivos deben estar en un ZIP protegido con contraseña
-                return downloadFilesAsZip(directorio, Collections.singletonList(archivo), tipo, null);
-            } else {
-                // Modo normal para otros ambientes
-                StreamingResponseBody stream = outputStream -> {
-                    try (FileChannel fileChannel = FileChannel.open(file.toPath(), StandardOpenOption.READ)) {
-                        fileChannel.transferTo(0, fileChannel.size(), Channels.newChannel(outputStream));
-                    } catch (IOException e) {
-                        logger.error("Error al transmitir el archivo", e);
-                        throw new UncheckedIOException(e);
-                    }
-                };
-
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-                headers.setContentDisposition(ContentDisposition.attachment().filename(file.getName()).build());
-                logger.info(": : : : TERMINA DESCARGA DE ARCHIVO EN AMBIENTE: " + envir);
-                return new ResponseEntity<>(stream, headers, HttpStatus.OK);
-            }
-        } else {
-            logger.error(": : : : ERROR EN DESCARGA DE ARCHIVO EN AMBIENTE " + envir);
-            return ResponseEntity.notFound().build();
-        }
-    }
-
     @PostMapping("/descargar-zip")
     public ResponseEntity<StreamingResponseBody> downloadFilesAsZip(
             @RequestParam String directorio,
             @RequestParam("archivos") List<String> archivosSeleccionados,
             @RequestParam(required = false) String password,
             @RequestParam String tipo) {
-
+    
         String envir = System.getenv("ENVIRONMENT");
-        logger.info(": : : : INICIA CREACIÓN DE ZIP EN AMBIENTE: " + envir);
-
+        logger.info(": : : : INICIA PROCESO DE DESCARGA EN AMBIENTE: " + envir);
+    
         String directorioFinal = obtenerDirectorioFinal(directorio, tipo);
         if (directorioFinal == null) {
             logger.error(": : : : Directorio no válido");
             return ResponseEntity.badRequest().body(null);
         }
-
-        List<File> archivosParaComprimir = new ArrayList<>();
+    
+        List<File> archivosParaDescargar = new ArrayList<>();
+        long totalSize = 0;
+    
         for (String nombreArchivo : archivosSeleccionados) {
             nombreArchivo = nombreArchivo.replaceAll("[\"\\[\\]]", "").trim();
             File file = new File(directorioFinal, nombreArchivo);
-        
+    
             if (!file.exists()) {
                 logger.error("El archivo no existe: {}", file.getAbsolutePath());
                 return ResponseEntity.notFound().build();
             } else {
-                logger.info("Archivo encontrado: {}", file.getAbsolutePath());
-                archivosParaComprimir.add(file);
+                archivosParaDescargar.add(file);
+                totalSize += file.length(); // Acumular el tamaño total de los archivos seleccionados
             }
         }
-        
-        if (archivosParaComprimir.isEmpty()) {
-            return ResponseEntity.notFound().build();
+    
+        // Genera el nombre del ZIP utilizando el método generarNombreZip
+        ContentDisposition nombreZip = generarNombreZip(directorio, tipo, envir);
+    
+        // Verifica si el tamaño total excede 1 GB (1 GB = 1_073_741_824 bytes)
+        final long ONE_GB = 1_073_741_824L;
+    
+        // Si el tamaño total es mayor a 1 GB, comprimimos a ZIP
+        if (totalSize > ONE_GB) {
+            logger.info("El tamaño total de los archivos es mayor a 1 GB, se comprimirá en un ZIP.");
+            return comprimirYTransmitirZip(archivosParaDescargar, password, envir, nombreZip.getFilename());
+        } else {
+            // Si el tamaño es menor, se transmite directamente
+            if (archivosParaDescargar.size() == 1) {
+                return descargarArchivoDirecto(archivosParaDescargar.get(0), envir, nombreZip.getFilename());
+            } else {
+                logger.info("El tamaño total es menor a 1 GB, se enviarán los archivos individualmente.");
+                return comprimirYTransmitirZip(archivosParaDescargar, password, envir, nombreZip.getFilename());
+            }
         }
-
+    }
+    
+    // Método para comprimir y transmitir el archivo ZIP
+    private ResponseEntity<StreamingResponseBody> comprimirYTransmitirZip(List<File> archivosParaComprimir, String password, String envir, String nombreZip) {
+        // Si el ambiente es PROD y tenemos una contraseña, utilizamos Zip4j para encriptar el ZIP
+        if ("PROD".equalsIgnoreCase(envir) && password != null) {
+            return comprimirConEncriptacion(archivosParaComprimir, password, envir, nombreZip);
+        }
+    
+        // Para otros entornos, usamos `ZipOutputStream` para compresión sin encriptación
         StreamingResponseBody stream = outputStream -> {
-            // Genera el nombre del archivo zip, verificando que getFilename() no sea nulo
-            String nombreZip = Optional.ofNullable(generarNombreZip(directorio, tipo, envir).getFilename())
-                                       .orElse("Archivo-Desconocido");
-
-            // Crea el archivo temporal con el nombre generado (sin la extensión .zip)
-            File tempZip = new File("/opt/middleware", nombreZip);
-
+            try (ZipOutputStream zipOut = new ZipOutputStream(outputStream)) {
+                for (File file : archivosParaComprimir) {
+                    try (FileInputStream fis = new FileInputStream(file)) {
+                        ZipEntry zipEntry = new ZipEntry(file.getName());
+                        zipOut.putNextEntry(zipEntry);
+    
+                        byte[] bytes = new byte[BUFFER_SIZE];
+                        int length;
+                        while ((length = fis.read(bytes)) >= 0) {
+                            zipOut.write(bytes, 0, length);
+                        }
+                        zipOut.closeEntry();
+                    }
+                }
+                zipOut.finish();
+            } catch (IOException e) {
+                logger.error(": : : : ERROR AL COMPRIMIR LOS ARCHIVOS EN EL ZIP", e);
+                throw new UncheckedIOException(e);
+            }
+        };
+    
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentDisposition(ContentDisposition.attachment().filename(nombreZip).build());
+    
+        logger.info(": : : : SE TERMINA DE COMPRIMIR Y ENVIAR LOS ARCHIVOS EN EL ZIP");
+        return new ResponseEntity<>(stream, headers, HttpStatus.OK);
+    }
+    
+    // Método para comprimir archivos con encriptación usando Zip4j
+    private ResponseEntity<StreamingResponseBody> comprimirConEncriptacion(List<File> archivosParaComprimir, String password, String envir, String nombreZip) {
+        StreamingResponseBody stream = outputStream -> {
+            File tempZip = File.createTempFile("archivos_encriptados", ".zip");
             try (ZipFile zipFile = new ZipFile(tempZip)) {
                 ZipParameters parameters = new ZipParameters();
                 parameters.setCompressionMethod(CompressionMethod.DEFLATE);
-                parameters.setCompressionLevel(CompressionLevel.NORMAL);
-
-                if ("PROD".equalsIgnoreCase(envir) && password != null) {
-                    // Si es PROD, añadimos la contraseña
-                    parameters.setEncryptFiles(true);
-                    parameters.setEncryptionMethod(EncryptionMethod.AES);
-                    parameters.setAesKeyStrength(AesKeyStrength.KEY_STRENGTH_256);
-                    zipFile.setPassword(password.toCharArray());
-                }
-
+                parameters.setEncryptFiles(true); // Encriptar archivos
+                parameters.setEncryptionMethod(EncryptionMethod.AES);
+                parameters.setAesKeyStrength(AesKeyStrength.KEY_STRENGTH_256);
+                zipFile.setPassword(password.toCharArray());
+    
                 for (File file : archivosParaComprimir) {
                     zipFile.addFile(file, parameters);
                 }
-
-                // Enviar el ZIP resultante como StreamingResponseBody
-                logger.info(": : : : Archivos Comprimidos y enviados.");
-
+    
+                // Transmitir el ZIP al cliente
                 try (InputStream is = new FileInputStream(tempZip)) {
                     byte[] buffer = new byte[BUFFER_SIZE];
                     int bytesRead;
                     while ((bytesRead = is.read(buffer)) != -1) {
-                        outputStream.write(buffer, 0, bytesRead);
+                        outputStream.write(buffer, 0, bytesRead); // Transmitir el archivo ZIP encriptado
                     }
                 }
             } catch (IOException e) {
-                logger.error(": : : : ERROR EN CREACIÓN DE ZIP EN AMBIENTE: " + envir, e);
+                logger.error(": : : : ERROR AL COMPRIMIR Y ENVIAR ZIP ENCRIPTADO", e);
                 throw new UncheckedIOException(e);
             } finally {
                 if (tempZip.exists()) {
-                    tempZip.delete();
+                    tempZip.delete(); // Eliminar archivo temporal después de la transmisión
                 }
             }
         };
-
+    
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-        headers.setContentDisposition(generarNombreZip(directorio, tipo, envir));
-
-        logger.info(": : : : TERMINA CREACIÓN DE ZIP EN AMBIENTE: " + envir);
+        headers.setContentDisposition(ContentDisposition.attachment().filename(nombreZip).build());
+    
+        logger.info(": : : : SE TERMINA DE COMPRIMIR Y ENVIAR LOS ARCHIVOS ENCRIPTADOS");
         return new ResponseEntity<>(stream, headers, HttpStatus.OK);
     }
-
+    
+    // Método para descargar un archivo individual directamente
+    private ResponseEntity<StreamingResponseBody> descargarArchivoDirecto(File file, String envir, String nombreArchivo) {
+        StreamingResponseBody stream = outputStream -> {
+            try (FileInputStream fis = new FileInputStream(file)) {
+                byte[] buffer = new byte[BUFFER_SIZE];
+                int bytesRead;
+                while ((bytesRead = fis.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead); // Se transmite directamente al cliente
+                }
+            } catch (IOException e) {
+                logger.error(": : : : ERROR AL DESCARGAR ARCHIVO DIRECTO", e);
+                throw new UncheckedIOException(e);
+            }
+        };
+    
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentDisposition(ContentDisposition.attachment().filename(nombreArchivo).build());
+    
+        logger.info(": : : : SE ENVÍA EL ARCHIVO INDIVIDUAL DIRECTAMENTE");
+        return new ResponseEntity<>(stream, headers, HttpStatus.OK);
+    }
+    
     private String obtenerDirectorioFinal(String directorio, String tipo) {
         if ("1".equals(tipo)) {
             String directoriotmp = detalleArchivos.getDirectorio(Integer.parseInt(directorio));
@@ -228,7 +252,7 @@ public class ApiArchivos {
             fileSize /= 1024;
             unitIndex++;
         }
-        return "%.2f %s".formatted(fileSize, units[unitIndex]);
+        return String.format("%.2f %s", fileSize, units[unitIndex]);
     }
 
     private ContentDisposition generarNombreZip(String directorio, String tipo, String envir) {

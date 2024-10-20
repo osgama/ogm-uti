@@ -13,7 +13,7 @@ if [[ "$HOSTNAME" == *"dev"* || "$HOSTNAME" == *"DEV"* ]]; then
     ENV_DIR="DEV"
 elif [[ "$HOSTNAME" == *"uat"* || "$HOSTNAME" == *"UAT"* ]]; then
     ENV_DIR="UAT"
-elif [[ "$HOSTNAME" == *"prod"* || "$HOSTNAME" == *"PROD"* ]]; then
+elif [[ "$HOSTNAME" == *"prod"* || "$HOSTNAME" == *"PROD"* || "$HOSTNAME" == *"PROD"* || "$HOSTNAME" == *"PROD"*]]; then
     ENV_DIR="PROD"
 else
     echo "Error: Ambiente no reconocido en el hostname."
