@@ -8,13 +8,42 @@ $scriptPath = $PSScriptRoot
 $userProfile = [System.Environment]::GetFolderPath('UserProfile')
 $rootDestinationPath = "$userProfile\Documents\Codigo"
 
-# Lista de nombres de repositorios
-$reposNames = @("repo1", "repo2")
+# Guarda el directorio de inicio para volver a él después de cada clonación
+$originalDirectory = Get-Location
 
-# Función para clonar repositorios
+# Lista de nombres de repositorios
+$reposNames = @("dhalia", "camelia")
+
+# Menú de selección de rama
+Write-Host "**************************************************"
+Write-Host "*  Selecciona la rama que deseas clonar:          *"
+Write-Host "**************************************************"
+Write-Host "*  1. master                                      *"
+Write-Host "*  2. release/dev                                 *"
+Write-Host "*  3. release/uat                                 *"
+Write-Host "**************************************************"
+$ramaSeleccionada = Read-Host "Introduce una opción (1-3)"
+
+# Asigna la rama seleccionada según la entrada del usuario
+switch ($ramaSeleccionada) {
+    "1" { $branch = "master" }
+    "2" { $branch = "release/dev" }
+    "3" { $branch = "release/uat" }
+    default {
+        Write-Host "Opción no válida. Se seleccionará 'master' por defecto."
+        $branch = "master"
+    }
+}
+
+Write-Host "*  Clonando la rama seleccionada: $branch *"
+
+# Función para clonar repositorios en una rama específica
 function ClonarRepositorios {
     param (
-        [string]$repoName
+        [string]$repoName,
+        [ref]$totalClonados,
+        [ref]$totalEliminados,
+        [ref]$totalErrores
     )
 
     # Variables dinámicas para los nombres de archivos y carpetas
@@ -52,109 +81,114 @@ function ClonarRepositorios {
         Write-Host "**************************************************" -ForegroundColor Yellow
         New-Item -Path $destinationPath -ItemType Directory
         Add-Content -Path $logFile -Value "$(Get-Date) - Directorio $destinationPath creado."
-    } else {
-        Write-Host "**************************************************"
-        Write-Host "*  El directorio $repoName ya existe, continuando...  *"
-        Write-Host "**************************************************" -ForegroundColor Green
     }
 
     # Cambia el directorio a la ruta de destino
     Set-Location -Path $destinationPath
 
-    # Variables para el resumen final
-    $reposEliminados = 0
-    $reposClonados = 0
-    $reposErrores = 0
-
-    # Inicia el tiempo de ejecución del proceso
-    $startTime = Get-Date
-    Write-Host "**************************************************"
-    Write-Host "*  Comenzando la clonación de repositorios en $repoName a las $startTime  *"
-    Write-Host "**************************************************"
-
     # Lee el archivo de repositorios y clona cada repositorio
-    Get-Content $repoFile | ForEach-Object {
-        $repoUrl = $_
+    $reposUrls = Get-Content $repoFile
+    $totalRepos = $reposUrls.Count
+    $currentRepoIndex = 0
+
+    foreach ($repoUrl in $reposUrls) {
+        $currentRepoIndex++
         $repoNameInUrl = $repoUrl.Split("/")[-1].Replace(".git", "")  # Extrae el nombre del repo de la URL
         $repoPath = "$destinationPath\$repoNameInUrl"
 
-        # Verifica si el repositorio ya fue clonado
+        # Barra de progreso
+        Write-Progress -Activity "Clonando repositorios en $repoName" `
+                       -Status "Procesando $repoNameInUrl ($currentRepoIndex de $totalRepos)" `
+                       -PercentComplete (($currentRepoIndex / $totalRepos) * 100)
+
+        # Verifica si el repositorio ya fue clonado y muestra progreso
         if (Test-Path -Path $repoPath) {
             Write-Host "**************************************************"
             Write-Host "*  El repositorio $repoNameInUrl ya existe, eliminando...  *"
             Write-Host "**************************************************" -ForegroundColor Yellow
             Remove-Item -Recurse -Force $repoPath
             Add-Content -Path $logFile -Value "$(Get-Date) - Repositorio $repoNameInUrl eliminado."
-            $reposEliminados++
+            $totalEliminados.Value++
         }
 
         # Intenta clonar el repositorio y captura cualquier error
         try {
             $repoStartTime = Get-Date
             Write-Host "**************************************************"
-            Write-Host "*  Clonando el repositorio: $repoNameInUrl  *"
+            Write-Host "*  Clonando el repositorio: $repoNameInUrl en la rama $branch  *"
             Write-Host "**************************************************" -ForegroundColor Cyan
 
-            # Clona el repositorio
-            git clone $repoUrl
+            # Clona el repositorio en la rama especificada
+            git clone -b $branch $repoUrl
+            if ($LASTEXITCODE -ne 0) {
+                Write-Host "**************************************************"
+                Write-Host "*  Rama $branch no encontrada. Clonando master por defecto  *"
+                Write-Host "**************************************************" -ForegroundColor Yellow
+                git clone -b master $repoUrl
+            }
             $repoEndTime = Get-Date
             $repoDuration = $repoEndTime - $repoStartTime
 
-            Add-Content -Path $logFile -Value "$(Get-Date) - Repositorio $repoNameInUrl clonado exitosamente en $repoDuration."
-            $reposClonados++
+            Add-Content -Path $logFile -Value "$(Get-Date) - Repositorio $repoNameInUrl clonado en la rama $branch exitosamente en $repoDuration."
+            $totalClonados.Value++
         }
         catch {
             Write-Host "**************************************************"
             Write-Host "*  Error al clonar el repositorio: $repoNameInUrl  *"
             Write-Host "**************************************************" -ForegroundColor Red
-            Add-Content -Path $logFile -Value "$(Get-Date) - Error al clonar $repoNameInUrl ${_}"
-            $reposErrores++
+            Add-Content -Path $logFile -Value "$(Get-Date) - Error al clonar $repoNameInUrl en la rama $branch ${_}"
+            $totalErrores.Value++
         }
     }
 
-    # Finaliza el tiempo de ejecución
-    $endTime = Get-Date
-    $duration = $endTime - $startTime
-    Write-Host "**************************************************"
-    Write-Host "*  Todos los repositorios de $repoName han sido procesados en $duration  *"
-    Write-Host "**************************************************" -ForegroundColor Green
-
-    # Agregar al log el resumen final
-    Add-Content -Path $logFile -Value "$(Get-Date) - Proceso de clonación finalizado en $duration."
-    Add-Content -Path $logFile -Value "Resumen: $reposEliminados repositorios eliminados, $reposClonados repositorios clonados, $reposErrores errores."
-
-    # Muestra el resumen del proceso
-    Write-Host "**************************************************"
-    Write-Host "*  Resumen del proceso en $repoName  *"
-    Write-Host "**************************************************" -ForegroundColor Blue
-    Write-Host "*  Repositorios eliminados: $reposEliminados  *"
-    Write-Host "*  Repositorios clonados: $reposClonados  *"
-    Write-Host "*  Errores encontrados: $reposErrores  *"
-    Write-Host "**************************************************" -ForegroundColor Blue
+    # Vuelve al directorio original
+    Set-Location -Path $originalDirectory
 }
 
-# Muestra el menú de opciones con asteriscos bien alineados
-Write-Host "**************************************************"
-Write-Host "*  Selecciona una opción para clonar repositorios  *"
-Write-Host "**************************************************"
-Write-Host "*  1. Clonar repositorios en 'repo1'              *"
-Write-Host "*  2. Clonar repositorios en 'repo2'              *"
-Write-Host "*  3. Clonar todos los repositorios (repo1 y repo2) *"
-Write-Host "*  4. Salir                                       *"
-Write-Host "**************************************************"
-$opcion = Read-Host "Introduce una opción"
+# Bucle principal del menú
+while ($true) {
+    # Muestra el menú de opciones con asteriscos bien alineados
+    Write-Host "**************************************************"
+    Write-Host "*  Selecciona una opción para clonar repositorios  *"
+    Write-Host "**************************************************"
+    Write-Host "*  1. Clonar repositorios en 'dhalia'              *"
+    Write-Host "*  2. Clonar repositorios en 'camelia'             *"
+    Write-Host "*  3. Clonar todos los repositorios (dhalia y camelia) *"
+    Write-Host "*  4. Salir                                       *"
+    Write-Host "**************************************************"
+    $opcion = Read-Host "Introduce una opción"
 
-# Validación de la opción ingresada
-if ($opcion -eq "1" -or $opcion -eq "2") {
-    # Llamamos a la función con el repositorio seleccionado (repo1 o repo2)
-    ClonarRepositorios -repoName $reposNames[$opcion - 1]
-} elseif ($opcion -eq "3") {
-    # Clonar ambos repositorios
-    foreach ($repo in $reposNames) {
-        ClonarRepositorios -repoName $repo
+    # Inicializamos las variables para el resumen combinado
+    $totalClonados = [ref]0
+    $totalEliminados = [ref]0
+    $totalErrores = [ref]0
+
+    # Validación de la opción ingresada
+    if ($opcion -eq "1" -or $opcion -eq "2") {
+        # Llamamos a la función con el repositorio seleccionado (dhalia o camelia)
+        ClonarRepositorios -repoName $reposNames[$opcion - 1] -totalClonados $totalClonados -totalEliminados $totalEliminados -totalErrores $totalErrores
+    } elseif ($opcion -eq "3") {
+        # Clonar ambos repositorios con resumen combinado
+        foreach ($repo in $reposNames) {
+            ClonarRepositorios -repoName $repo -totalClonados $totalClonados -totalEliminados $totalEliminados -totalErrores $totalErrores
+        }
+
+        # Mostrar el resumen combinado
+        Write-Host "**************************************************"
+        Write-Host "*  Resumen combinado de todos los repositorios    *"
+        Write-Host "**************************************************" -ForegroundColor Blue
+        Write-Host "*  Repositorios eliminados: $($totalEliminados.Value)  *"
+        Write-Host "*  Repositorios clonados: $($totalClonados.Value)  *"
+        Write-Host "*  Errores encontrados: $($totalErrores.Value)  *"
+        Write-Host "**************************************************" -ForegroundColor Blue
+
+    } elseif ($opcion -eq "4") {
+        Write-Host "Saliendo del script..." -ForegroundColor Yellow
+        break  # Salir del bucle
+    } else {
+        Write-Host "* Opción no válida. Elige 1, 2, 3 o 4. *" -ForegroundColor Red
     }
-} elseif ($opcion -eq "4") {
-    Write-Host "Saliendo del script..." -ForegroundColor Yellow
-} else {
-    Write-Host "* Opción no válida. Elige 1, 2, 3 o 4. *" -ForegroundColor Red
+
+    # Agregar un espacio antes de volver a mostrar el menú
+    Write-Host "`n"
 }
