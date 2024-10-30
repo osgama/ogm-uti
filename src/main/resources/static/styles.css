@@ -21,6 +21,7 @@ header {
   color: var(--color-text);
   text-align: center;
   padding: 1rem 0;
+  position: relative;
 }
 
 main {
@@ -39,7 +40,7 @@ h1 {
 label {
   font-weight: bold;
   color: var(--color-text);
-  display: inline-block; /* Mantiene los labels alineados en línea */
+  display: inline-block;
   margin-top: 10px;
 }
 
@@ -51,7 +52,7 @@ input, select, button {
   font-size: 16px;
   background-color: var(--color-button);
   color: var(--color-text);
-  display: inline-block; /* Mantiene el diseño original en línea */
+  display: inline-block;
 }
 
 button {
@@ -102,29 +103,29 @@ table tr:nth-child(even) {
 }
 
 .message {
-  border: 1px solid #28a745; /* Verde oscuro */
-  background-color: #28a745;  /* Fondo verde oscuro */
-  color: #ffffff;             /* Texto blanco para mejor contraste */
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Sombra para mejorar visibilidad */
+  border: 1px solid #28a745;
+  background-color: #28a745;
+  color: #ffffff;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .error {
-  border: 1px solid #e74c3c;  /* Rojo más intenso */
-  background-color: #e74c3c;  /* Fondo rojo intenso */
-  color: #ffffff;             /* Texto blanco para mejor contraste */
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Sombra para mejorar visibilidad */
+  border: 1px solid #e74c3c;
+  background-color: #e74c3c;
+  color: #ffffff;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .exito {
-  border: 1px solid #28a745;  /* Verde oscuro */
-  background-color: #28a745;  /* Fondo verde oscuro */
-  color: #ffffff;             /* Texto blanco para mejor contraste */
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Sombra para mejorar visibilidad */
+  border: 1px solid #28a745;
+  background-color: #28a745;
+  color: #ffffff;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 #error {
-  color: #ffffff;             /* Texto blanco para error */
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Sombra */
+  color: #ffffff;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 /* Estilos adicionales */
@@ -151,11 +152,20 @@ table tr:nth-child(even) {
 }
 
 #mensajeResultado, #paginacionControles {
-  display: none; /* Ocultar inicialmente */
+  display: none;
 }
 
 .espaciado-vertical, .espaciado-vertical-dos {
   margin-top: 2rem;
+}
+
+/* Estilo para la versión */
+.version {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  font-size: 14px;
+  color: #ffffff;
 }
 
 @media (max-width: 600px) {

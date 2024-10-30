@@ -105,19 +105,19 @@ public class ApiArchivos {
         // Genera el nombre del ZIP utilizando el método generarNombreZip
         ContentDisposition nombreZip = generarNombreZip(directorio, tipo, envir);
     
-        // Verifica si el tamaño total excede 1 GB (1 GB = 1_073_741_824 bytes)
-        final long ONE_GB = 1_073_741_824L;
+        // Verifica si el tamaño total excede 100 MB (100 MB = 104,857,600 bytes)
+        final long ONE_HUNDRED_MB = 104_857_600L;
     
-        // Si el tamaño total es mayor a 1 GB, comprimimos a ZIP
-        if (totalSize > ONE_GB) {
-            logger.info("El tamaño total de los archivos es mayor a 1 GB, se comprimirá en un ZIP.");
+        // Si el tamaño total es mayor a 100 MB, comprimimos a ZIP
+        if (totalSize > ONE_HUNDRED_MB) {
+            logger.info("El tamaño total de los archivos es mayor a 100 MB, se comprimirá en un ZIP.");
             return comprimirYTransmitirZip(archivosParaDescargar, password, envir, nombreZip.getFilename());
         } else {
             // Si el tamaño es menor, se transmite directamente
             if (archivosParaDescargar.size() == 1) {
                 return descargarArchivoDirecto(archivosParaDescargar.get(0), envir, nombreZip.getFilename());
             } else {
-                logger.info("El tamaño total es menor a 1 GB, se enviarán los archivos individualmente.");
+                logger.info("El tamaño total es menor a 100 MB, se enviarán los archivos individualmente.");
                 return comprimirYTransmitirZip(archivosParaDescargar, password, envir, nombreZip.getFilename());
             }
         }
@@ -138,17 +138,18 @@ public class ApiArchivos {
                         ZipEntry zipEntry = new ZipEntry(file.getName());
                         zipOut.putNextEntry(zipEntry);
     
-                        byte[] bytes = new byte[BUFFER_SIZE];
+                        byte[] buffer = new byte[BUFFER_SIZE]; // Buffer para transmitir en chunks
                         int length;
-                        while ((length = fis.read(bytes)) >= 0) {
-                            zipOut.write(bytes, 0, length);
+                        while ((length = fis.read(buffer)) >= 0) {
+                            zipOut.write(buffer, 0, length); // Enviar chunks al cliente
+                            outputStream.flush(); // Forzar el envío inmediato de cada chunk
                         }
                         zipOut.closeEntry();
                     }
                 }
-                zipOut.finish();
+                zipOut.finish(); // Termina la compresión
             } catch (IOException e) {
-                logger.error(": : : : ERROR AL COMPRIMIR LOS ARCHIVOS EN EL ZIP", e);
+                logger.error(": : : : ERROR AL COMPRIMIR Y TRANSMITIR ARCHIVO GRANDE", e);
                 throw new UncheckedIOException(e);
             }
         };
@@ -157,7 +158,6 @@ public class ApiArchivos {
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         headers.setContentDisposition(ContentDisposition.attachment().filename(nombreZip).build());
     
-        logger.info(": : : : SE TERMINA DE COMPRIMIR Y ENVIAR LOS ARCHIVOS EN EL ZIP");
         return new ResponseEntity<>(stream, headers, HttpStatus.OK);
     }
     
@@ -177,16 +177,17 @@ public class ApiArchivos {
                     zipFile.addFile(file, parameters);
                 }
     
-                // Transmitir el ZIP al cliente
+                // Transmitir el archivo ZIP encriptado en chunks
                 try (InputStream is = new FileInputStream(tempZip)) {
-                    byte[] buffer = new byte[BUFFER_SIZE];
+                    byte[] buffer = new byte[BUFFER_SIZE]; // Buffer de chunks
                     int bytesRead;
                     while ((bytesRead = is.read(buffer)) != -1) {
-                        outputStream.write(buffer, 0, bytesRead); // Transmitir el archivo ZIP encriptado
+                        outputStream.write(buffer, 0, bytesRead); // Enviar chunks al cliente
+                        outputStream.flush(); // Forzar el envío inmediato de cada chunk
                     }
                 }
             } catch (IOException e) {
-                logger.error(": : : : ERROR AL COMPRIMIR Y ENVIAR ZIP ENCRIPTADO", e);
+                logger.error(": : : : ERROR AL COMPRIMIR Y TRANSMITIR ZIP ENCRIPTADO", e);
                 throw new UncheckedIOException(e);
             } finally {
                 if (tempZip.exists()) {
@@ -199,7 +200,6 @@ public class ApiArchivos {
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         headers.setContentDisposition(ContentDisposition.attachment().filename(nombreZip).build());
     
-        logger.info(": : : : SE TERMINA DE COMPRIMIR Y ENVIAR LOS ARCHIVOS ENCRIPTADOS");
         return new ResponseEntity<>(stream, headers, HttpStatus.OK);
     }
     
