@@ -1,6 +1,13 @@
 # Configura la salida en UTF-8 para manejar correctamente acentos y caracteres especiales
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
+# Define un archivo de log global para todas las operaciones
+$globalLogFile = "$PSScriptRoot\global_clone_log.txt"
+
+# Añade un separador de operaciones con asteriscos
+Add-Content -Path $globalLogFile -Value "**************************************************"
+Add-Content -Path $globalLogFile -Value "$(Get-Date) - Iniciando nueva ejecución del script."
+
 # Obtiene la ruta donde está ubicado el script
 $scriptPath = $PSScriptRoot
 
@@ -41,60 +48,58 @@ Write-Host "*  Clonando la rama seleccionada: $branch *"
 function ClonarRepositorios {
     param (
         [string]$repoName,
-        [string]$destinationPath, # Ruta de destino
+        [string]$destinationPath, # Ruta de destino personalizada o predeterminada
         [ref]$totalClonados,
         [ref]$totalEliminados,
         [ref]$totalErrores
     )
 
-    # Variables dinámicas para los nombres de archivos y carpetas
-    $repoFile = "$scriptPath\repos_$repoName.txt"
-    $logFile = "$destinationPath\$repoName\clone_log_$repoName.txt"
-    $repoDestinationPath = "$destinationPath\$repoName"
-
-    # Verifica si la carpeta de destino base existe, si no, la crea
-    if (-not (Test-Path -Path $destinationPath)) {
+    # Definir la carpeta principal del repositorio y luego la subcarpeta de la rama
+    $repoParentFolder = "$destinationPath\$repoName"
+    $repoBranchFolder = "$repoParentFolder\$branch"
+    
+    # Verifica si la carpeta de destino padre existe, si no, la crea
+    if (-not (Test-Path -Path $repoParentFolder)) {
         Write-Host "**************************************************"
-        Write-Host "*  La carpeta de destino no existe, creando...   *"
+        Write-Host "*  Creando carpeta principal para $repoName...   *"
         Write-Host "**************************************************"
-        New-Item -Path $destinationPath -ItemType Directory
-        Add-Content -Path $logFile -Value "$(Get-Date) - Carpeta base '$destinationPath' creada."
+        New-Item -Path $repoParentFolder -ItemType Directory
+        Add-Content -Path $globalLogFile -Value "$(Get-Date) - Carpeta principal '$repoParentFolder' creada."
     }
 
+    # Si la subcarpeta de la rama ya existe, la eliminamos
+    if (Test-Path -Path $repoBranchFolder) {
+        Write-Host "**************************************************"
+        Write-Host "*  La carpeta $repoBranchFolder ya existe, eliminando...  *"
+        Write-Host "**************************************************" -ForegroundColor Yellow
+        Remove-Item -Recurse -Force $repoBranchFolder
+        Add-Content -Path $globalLogFile -Value "$(Get-Date) - Carpeta de rama $repoBranchFolder eliminada."
+        $totalEliminados.Value++
+    }
+
+    # Crear la subcarpeta de la rama
+    New-Item -Path $repoBranchFolder -ItemType Directory
+    Add-Content -Path $globalLogFile -Value "$(Get-Date) - Carpeta de rama $repoBranchFolder creada."
+
+    # Cambia el directorio a la carpeta de la rama para hacer el clon dentro
+    Set-Location -Path $repoBranchFolder
+
     # Verifica si el archivo de repositorios existe en la misma ruta que el script
+    $repoFile = "$scriptPath\repos_$repoName.txt"
     if (-not (Test-Path -Path $repoFile)) {
         Write-Host "**************************************************"
         Write-Host "*  El archivo de repositorios $repoFile no existe.  *"
         Write-Host "**************************************************" -ForegroundColor Red
+        Add-Content -Path $globalLogFile -Value "$(Get-Date) - Error: El archivo de repositorios $repoFile no existe."
         return
     }
     if ((Get-Content $repoFile).Count -eq 0) {
         Write-Host "**************************************************"
         Write-Host "*  El archivo de repositorios $repoFile está vacío. *"
         Write-Host "**************************************************" -ForegroundColor Red
+        Add-Content -Path $globalLogFile -Value "$(Get-Date) - Error: El archivo de repositorios $repoFile está vacío."
         return
     }
-
-    # Si el directorio de destino no existe, lo crea
-    if (-not (Test-Path -Path $repoDestinationPath)) {
-        Write-Host "**************************************************"
-        Write-Host "*  El directorio no existe, creando $repoDestinationPath...  *"
-        Write-Host "**************************************************" -ForegroundColor Yellow
-        New-Item -Path $repoDestinationPath -ItemType Directory
-        Add-Content -Path $logFile -Value "$(Get-Date) - Directorio $repoDestinationPath creado."
-    } else {
-        Write-Host "**************************************************"
-        Write-Host "*  El directorio $repoDestinationPath ya existe, eliminando...  *"
-        Write-Host "**************************************************" -ForegroundColor Yellow
-        Remove-Item -Recurse -Force $repoDestinationPath
-        Add-Content -Path $logFile -Value "$(Get-Date) - Directorio $repoDestinationPath eliminado."
-        $totalEliminados.Value++
-        # Vuelve a crear el directorio eliminado
-        New-Item -Path $repoDestinationPath -ItemType Directory
-    }
-
-    # Cambia el directorio a la carpeta del repositorio para hacer el clon dentro
-    Set-Location -Path $repoDestinationPath
 
     # Lee el archivo de repositorios y clona cada repositorio en la rama especificada
     $reposUrls = Get-Content $repoFile
@@ -115,12 +120,13 @@ function ClonarRepositorios {
                 git clone -b master $repoUrl .
             }
             $totalClonados.Value++
+            Add-Content -Path $globalLogFile -Value "$(Get-Date) - Repositorio $repoNameInUrl clonado en la rama $branch."
         }
         catch {
             Write-Host "**************************************************"
             Write-Host "*  Error al clonar el repositorio: $repoNameInUrl  *"
             Write-Host "**************************************************" -ForegroundColor Red
-            Add-Content -Path $logFile -Value "$(Get-Date) - Error al clonar $repoNameInUrl en la rama $branch ${_}"
+            Add-Content -Path $globalLogFile -Value "$(Get-Date) - Error al clonar $repoNameInUrl en la rama $branch ${_}"
             $totalErrores.Value++
         }
     }
@@ -139,7 +145,8 @@ while ($true) {
     Write-Host "*  2. Clonar repositorios en 'camelia'                       *"
     Write-Host "*  3. Clonar todos los repositorios (dhalia y camelia)       *"
     Write-Host "*  4. Descargar ambos repositorios en carpeta personalizada  *"
-    Write-Host "*  5. Salir                                                  *"
+    Write-Host "*  5. Restablecer logs (borrar contenido de log)             *"
+    Write-Host "*  6. Salir                                                  *"
     Write-Host "**************************************************"
     $opcion = Read-Host "Introduce una opción"
 
@@ -170,10 +177,18 @@ while ($true) {
                                -totalClonados $totalClonados -totalEliminados $totalEliminados -totalErrores $totalErrores
         }
     } elseif ($opcion -eq "5") {
+        # Restablecer logs (borrar todo el contenido del log)
+        Clear-Content -Path $globalLogFile
+        Write-Host "**************************************************"
+        Write-Host "*  Los logs han sido restablecidos.              *"
+        Write-Host "**************************************************"
+        Add-Content -Path $globalLogFile -Value "$(Get-Date) - Logs restablecidos."
+    } elseif ($opcion -eq "6") {
         Write-Host "Saliendo del script..." -ForegroundColor Yellow
+        Add-Content -Path $globalLogFile -Value "$(Get-Date) - Script finalizado."
         break  # Salir del bucle
     } else {
-        Write-Host "* Opción no válida. Elige 1, 2, 3, 4 o 5. *" -ForegroundColor Red
+        Write-Host "* Opción no válida. Elige 1, 2, 3, 4, 5 o 6. *" -ForegroundColor Red
     }
 
     # Agregar un espacio antes de volver a mostrar el menú
