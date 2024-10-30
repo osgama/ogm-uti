@@ -44,6 +44,33 @@ switch ($ramaSeleccionada) {
 
 Write-Host "*  Clonando la rama seleccionada: $branch *"
 
+# Función para mostrar el resumen separado por repositorio
+function MostrarResumenPorRepo {
+    param (
+        [string]$repoName,
+        [ref]$totalClonados,
+        [ref]$totalEliminados,
+        [ref]$totalErrores
+    )
+
+    # Mostrar en consola
+    Write-Host "**************************************************"
+    Write-Host "*          Resumen de la operación para $repoName   *"
+    Write-Host "**************************************************"
+    Write-Host "*  Repositorios clonados: $($totalClonados.Value)                   *"
+    Write-Host "*  Carpetas eliminadas: $($totalEliminados.Value)                   *"
+    Write-Host "*  Errores encontrados: $($totalErrores.Value)                      *"
+    Write-Host "**************************************************" -ForegroundColor Green
+
+    # Guardar el resumen en los logs
+    Add-Content -Path $globalLogFile -Value "**************************************************"
+    Add-Content -Path $globalLogFile -Value "$(Get-Date) - Resumen para '$repoName':"
+    Add-Content -Path $globalLogFile -Value "Repositorios clonados: $($totalClonados.Value)"
+    Add-Content -Path $globalLogFile -Value "Carpetas eliminadas: $($totalEliminados.Value)"
+    Add-Content -Path $globalLogFile -Value "Errores encontrados: $($totalErrores.Value)"
+    Add-Content -Path $globalLogFile -Value "**************************************************"
+}
+
 # Función para clonar repositorios en una rama específica y en una ruta especificada
 function ClonarRepositorios {
     param (
@@ -91,6 +118,7 @@ function ClonarRepositorios {
         Write-Host "*  El archivo de repositorios $repoFile no existe.  *"
         Write-Host "**************************************************" -ForegroundColor Red
         Add-Content -Path $globalLogFile -Value "$(Get-Date) - Error: El archivo de repositorios $repoFile no existe."
+        $totalErrores.Value++
         return
     }
     if ((Get-Content $repoFile).Count -eq 0) {
@@ -98,6 +126,7 @@ function ClonarRepositorios {
         Write-Host "*  El archivo de repositorios $repoFile está vacío. *"
         Write-Host "**************************************************" -ForegroundColor Red
         Add-Content -Path $globalLogFile -Value "$(Get-Date) - Error: El archivo de repositorios $repoFile está vacío."
+        $totalErrores.Value++
         return
     }
 
@@ -133,6 +162,9 @@ function ClonarRepositorios {
 
     # Vuelve al directorio original
     Set-Location -Path $originalDirectory
+
+    # Mostrar el resumen para este repositorio
+    MostrarResumenPorRepo -repoName $repoName -totalClonados $totalClonados -totalEliminados $totalEliminados -totalErrores $totalErrores
 }
 
 # Bucle principal del menú
