@@ -130,7 +130,7 @@ function ClonarRepositorios {
         return
     }
 
-    # Lee el archivo de repositorios y clona cada repositorio en la rama especificada
+    # Lee el archivo de repositorios y clona cada repositorio en la carpeta actual
     $reposUrls = Get-Content $repoFile
     foreach ($repoUrl in $reposUrls) {
         $repoNameInUrl = $repoUrl.Split("/")[-1].Replace(".git", "")  # Extrae el nombre del repo de la URL
@@ -141,12 +141,12 @@ function ClonarRepositorios {
             Write-Host "*  Clonando el repositorio: $repoNameInUrl en la rama $branch  *"
             Write-Host "**************************************************" -ForegroundColor Cyan
 
-            git clone -b $branch $repoUrl .
+            git clone -b $branch $repoUrl
             if ($LASTEXITCODE -ne 0) {
                 Write-Host "**************************************************"
                 Write-Host "*  Rama $branch no encontrada. Clonando master por defecto  *"
                 Write-Host "**************************************************" -ForegroundColor Yellow
-                git clone -b master $repoUrl .
+                git clone -b master $repoUrl
             }
             $totalClonados.Value++
             Add-Content -Path $globalLogFile -Value "$(Get-Date) - Repositorio $repoNameInUrl clonado en la rama $branch."
