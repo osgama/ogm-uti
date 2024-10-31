@@ -1,0 +1,1 @@
+find /ruta/al/directorio -type d -exec ls -ld {} \; > estructura_directorios.txt
