@@ -46,28 +46,13 @@ if [[ ! -d "$RUTA_AMBIENTE" ]]; then
     exit 1
 fi
 
-# 4. Crear la estructura de directorios en la ruta base y copiar archivos del ambiente
-echo "Copiando la estructura de $ENV_DIR a $RUTA_BASE..." | tee -a "$LOG_FILE"
-for carpeta in properties logback certs; do
-    # Crear directorio en RUTA_BASE si no existe
-    ruta_destino="$RUTA_BASE/$carpeta"
-    if [[ ! -d "$ruta_destino" ]]; then
-        echo "Creando directorio: $ruta_destino" | tee -a "$LOG_FILE"
-        mkdir -p "$ruta_destino"
-        if [[ $? -ne 0 ]]; then
-            echo "Error: Fallo al crear el directorio $ruta_destino." | tee -a "$LOG_FILE"
-            exit 1
-        fi
-    fi
-    
-    # Copiar los archivos del ambiente al directorio correspondiente
-    echo "Copiando archivos de $RUTA_AMBIENTE/$carpeta a $ruta_destino" | tee -a "$LOG_FILE"
-    cp -r "$RUTA_AMBIENTE/$carpeta/"* "$ruta_destino/" >> "$LOG_FILE" 2>&1
-    if [[ $? -ne 0 ]]; then
-        echo "Error: Fallo al copiar archivos a $ruta_destino." | tee -a "$LOG_FILE"
-        exit 1
-    fi
-done
+# 4. Copiar todo el contenido del ambiente a la ruta base
+echo "Copiando todo el contenido de $RUTA_AMBIENTE a $RUTA_BASE..." | tee -a "$LOG_FILE"
+cp -r "$RUTA_AMBIENTE/"* "$RUTA_BASE/" >> "$LOG_FILE" 2>&1
+if [[ $? -ne 0 ]]; then
+    echo "Error: Fallo al copiar el contenido de $RUTA_AMBIENTE a $RUTA_BASE." | tee -a "$LOG_FILE"
+    exit 1
+fi
 
 # 5. Verificar la copia de configuraciones mediante el archivo de validación dinámico
 VALIDACION_FILE="$RUTA_BASE/properties/validacion-$ENV_DIR.txt"
