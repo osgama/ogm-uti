@@ -3,17 +3,17 @@
 # Variables de rutas
 RUTA_BASE="/opt/miapp"
 RUTA_TMP="$RUTA_BASE/tmp"
-TAR_ARCHIVO="$RUTA_TMP/configuracion.tar"  # Nombre actualizado del archivo .tar
+TAR_ARCHIVO="$RUTA_TMP/configuracion.tar"
+TXT_ARCHIVO="$RUTA_TMP/estructura_directorios.txt"
 LOG_FILE="$RUTA_TMP/ajusta_configuracion.log"
 
 # Inicializar log
 echo "$(date): Iniciando ajuste de configuración." >> "$LOG_FILE"
 
-# Obtener el hostname y definir el ambiente (dev, uat, prod)
+# Detectar ambiente basado en el hostname
 HOSTNAME=$(hostname)
 ENV_DIR=""
 
-# Detectar ambiente basado en el hostname
 if [[ "$HOSTNAME" == *"dev"* || "$HOSTNAME" == *"DEV"* ]]; then
     ENV_DIR="dev"
 elif [[ "$HOSTNAME" == *"uat"* || "$HOSTNAME" == *"UAT"* ]]; then
@@ -25,11 +25,24 @@ else
     exit 1
 fi
 
-# 1. Verificar si el archivo .tar existe
-if [[ ! -f "$TAR_ARCHIVO" ]]; then
-    echo "Error: El archivo $TAR_ARCHIVO no se encuentra. Asegúrate de que esté disponible en $RUTA_TMP." | tee -a "$LOG_FILE"
+# 1. Verificar si el archivo de estructura existe y crear directorios faltantes
+if [[ ! -f "$TXT_ARCHIVO" ]]; then
+    echo "Error: El archivo $TXT_ARCHIVO no se encuentra." | tee -a "$LOG_FILE"
     exit 1
 fi
+
+echo "Creando directorios desde $TXT_ARCHIVO..." | tee -a "$LOG_FILE"
+while IFS= read -r linea; do
+    ruta_destino="$RUTA_BASE/$linea"
+    if [[ ! -d "$ruta_destino" ]]; then
+        echo "Creando directorio: $ruta_destino" | tee -a "$LOG_FILE"
+        mkdir -p "$ruta_destino"
+        if [[ $? -ne 0 ]]; then
+            echo "Error: Fallo al crear el directorio $ruta_destino." | tee -a "$LOG_FILE"
+            exit 1
+        fi
+    fi
+done < "$TXT_ARCHIVO"
 
 # 2. Descomprimir el .tar en la ruta temporal
 echo "Descomprimiendo el archivo $TAR_ARCHIVO en $RUTA_TMP..." | tee -a "$LOG_FILE"
@@ -54,7 +67,7 @@ if [[ $? -ne 0 ]]; then
     exit 1
 fi
 
-# 5. Verificar la copia de configuraciones mediante el archivo de validación dinámico
+# 5. Validar la copia de configuraciones específica para el ambiente
 VALIDACION_FILE="$RUTA_BASE/properties/validacion-$ENV_DIR.txt"
 if [[ -f "$VALIDACION_FILE" ]]; then
     echo "Validación exitosa: Configuración de $ENV_DIR copiada correctamente." | tee -a "$LOG_FILE"
@@ -63,13 +76,13 @@ else
     exit 1
 fi
 
-# 6. Limpiar archivos y carpetas temporales si el proceso fue exitoso
-echo "Limpiando archivos temporales en $RUTA_TMP..." | tee -a "$LOG_FILE"
-rm -rf "$RUTA_TMP/dev" "$RUTA_TMP/uat" "$RUTA_TMP/prod" "$TAR_ARCHIVO" >> "$LOG_FILE" 2>&1
+# 6. Limpiar archivos temporales solo si todo el proceso fue exitoso
+echo "Limpieza de archivos temporales en $RUTA_TMP..." | tee -a "$LOG_FILE"
+rm -f "$TAR_ARCHIVO" "$TXT_ARCHIVO"
 if [[ $? -eq 0 ]]; then
     echo "Limpieza completada exitosamente." | tee -a "$LOG_FILE"
 else
     echo "Advertencia: Hubo un problema al limpiar archivos temporales." | tee -a "$LOG_FILE"
 fi
 
-echo "$(date): Proceso completado correctamente." | tee -a "$LOG_FILE"
+echo "$(date): Proceso completado correctamente para el ambiente $ENV_DIR." | tee -a "$LOG_FILE"
