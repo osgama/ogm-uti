@@ -1,1 +1,8 @@
 find /ruta/al/directorio -type d -exec ls -ld {} \; > estructura_directorios.txt
+
+
+
+# Dockerfile
+COPY configuracion.tar /opt/miapp/tmp/
+COPY ajusta_configuracion.sh /opt/miapp/tmp/
+RUN chmod +x /opt/miapp/tmp/ajusta_configuracion.sh
