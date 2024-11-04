@@ -13,3 +13,9 @@ COPY ajusta_configuracion.sh /opt/miapp/tmp/
 # Dar permisos de ejecución al script
 RUN chmod +x /opt/miapp/tmp/ajusta_configuracion.sh
 
+UPDATE tu_tabla
+SET VALOR = CASE
+    WHEN EMPRESA = 1 AND LLAVE = 'nickname1' THEN 'Nueva descripción para el primer registro'
+    WHEN EMPRESA = 2 AND LLAVE = 'nickname2' THEN 'Nueva descripción para el segundo registro'
+END
+WHERE (EMPRESA = 1 AND LLAVE = 'nickname1') OR (EMPRESA = 2 AND LLAVE = 'nickname2');
