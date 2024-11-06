@@ -7,12 +7,15 @@ from time import sleep
 # Configuración de Artifactory
 artifactory_url = "https://tuservidorartifactory.com/artifactory"
 repo_name = "tu-repositorio"
-base_path = "rutabase"  # Ruta base en Artifactory
-username = "tu_usuario"
-password = "tu_contraseña"
+base_path = "rutabase"
+username_artifactory = "tu_usuario_artifactory"
+password_artifactory = "tu_contraseña_artifactory"
 
-# Carpeta raíz que contiene `properties`, `sql`, `otros`
-root_folder = "C:/ruta/a/la/raiz"
+# Configuración de Udeploy
+udeploy_url = "https://tuservidorudeploy.com"
+udeploy_component = "nombre_del_componente_en_udeploy"
+username_udeploy = "tu_usuario_udeploy"
+password_udeploy = "tu_contraseña_udeploy"
 
 # Opciones de carpetas
 folders_options = {
@@ -57,14 +60,14 @@ def get_next_version(artifactory_url, repo_name, base_path, folder_name, usernam
     # Si todos los intentos fallan, no continuar y lanzar excepción
     raise Exception(f"No se pudo obtener la versión de {folder_name} después de {MAX_RETRIES} intentos. Abortando subida.")
 
-# Paso 1: Crear un archivo .tar para cada carpeta seleccionada
+# Función para empaquetar la carpeta en un archivo .tar
 def create_tar(folder_path, output_path):
     with tarfile.open(output_path, "w") as tar:
         tar.add(folder_path, arcname=os.path.basename(folder_path))
     print(f"Archivo .tar creado en {output_path}")
 
-# Paso 2: Subir el archivo a Artifactory
-def upload_to_artifactory(file_path, artifactory_url, repo_name, base_path, version, folder_name, username, password):
+# Función para subir el archivo a Artifactory
+def upload_to_artifactory(file_path, artifactory_url, repo_name, base_path, version, folder_name):
     file_name = os.path.basename(file_path)
     target_path = f"{artifactory_url}/{repo_name}/{base_path}/{folder_name}/{version}/{file_name}"
 
@@ -72,16 +75,37 @@ def upload_to_artifactory(file_path, artifactory_url, repo_name, base_path, vers
         response = requests.put(
             target_path,
             data=file_to_upload,
-            auth=HTTPBasicAuth(username, password)
+            auth=HTTPBasicAuth(username_artifactory, password_artifactory)
         )
 
     if response.status_code == 201:
         print(f"Archivo {file_path} subido exitosamente a {target_path}")
+        return target_path  # Devuelve la URL del archivo en Artifactory
     else:
-        print(f"Error al subir el archivo {file_name} a {target_path}: {response.status_code} - {response.text}")
+        print(f"Error al subir el archivo: {response.status_code} - {response.text}")
+        return None
 
-# Paso 3: Empaquetar y subir las carpetas seleccionadas
-def package_and_upload_folders(selection, root_folder, artifactory_url, repo_name, base_path, username, password):
+# Función para importar la versión en Udeploy
+def import_version_to_udeploy(component, version_name, artifactory_path):
+    url = f"{udeploy_url}/cli/version/importVersion"
+    headers = {'Content-Type': 'application/json'}
+    data = {
+        "component": component,
+        "version": version_name,
+        "sourceConfigPlugin": "Artifactory",
+        "properties": {
+            "artifactPath": artifactory_path  # Ruta completa del artefacto en Artifactory
+        }
+    }
+
+    response = requests.post(url, json=data, headers=headers, auth=HTTPBasicAuth(username_udeploy, password_udeploy))
+    if response.status_code == 200:
+        print(f"Versión {version_name} importada correctamente en Udeploy.")
+    else:
+        print(f"Error al importar la versión en Udeploy: {response.status_code} - {response.text}")
+
+# Función principal para empaquetar, subir e importar la versión
+def package_and_upload_folders(selection):
     # Obtener carpetas según la selección
     folders_to_process = folders_options.get(selection, [])
     
@@ -98,16 +122,22 @@ def package_and_upload_folders(selection, root_folder, artifactory_url, repo_nam
 
         try:
             # Obtener la siguiente versión específica de la carpeta
-            version = get_next_version(artifactory_url, repo_name, base_path, folder_name, username, password)
+            version = get_next_version(artifactory_url, repo_name, base_path, folder_name, username_artifactory, password_artifactory)
             
             # Definir el archivo .tar de salida
-            output_tar_path = os.path.join(root_folder, f"{folder_name}.tar")
+            output_tar_path = os.path.join(os.getcwd(), f"{folder_name}.tar")
 
             # Crear el archivo .tar
             create_tar(folder_path, output_tar_path)
 
             # Subir el archivo .tar a Artifactory
-            upload_to_artifactory(output_tar_path, artifactory_url, repo_name, base_path, version, folder_name, username, password)
+            artifactory_path = upload_to_artifactory(output_tar_path, artifactory_url, repo_name, base_path, version, folder_name)
+            if not artifactory_path:
+                print("Error en la subida a Artifactory, abortando.")
+                continue
+
+            # Importar la versión en Udeploy
+            import_version_to_udeploy(udeploy_component, version, artifactory_path)
 
             # Eliminar el archivo .tar local
             os.remove(output_tar_path)
@@ -116,6 +146,6 @@ def package_and_upload_folders(selection, root_folder, artifactory_url, repo_nam
         except Exception as e:
             print(f"No se pudo procesar la carpeta {folder_name} debido a un error: {e}")
 
-# Ejecución: solicita al usuario la selección de carpetas
-selection = input("Ingresa el número de selección (1-4) para las carpetas a empaquetar y subir: ")
-package_and_upload_folders(selection, root_folder, artifactory_url, repo_name, base_path, username, password)
+# Ejecución del script
+selection = input("Ingresa el número de selección (1-4) para las carpetas a empaquetar, subir y registrar en Udeploy: ")
+package_and_upload_folders(selection)
