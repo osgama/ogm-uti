@@ -1,19 +1,19 @@
 :root {
-    /* Paleta de colores ultra oscuros */
-    --color-background: #0a0a0a; /* Negro intenso absoluto */
-    --color-card-bg: #141414; /* Fondo de tarjeta en negro ahumado */
-    --color-text: #a8a8a8; /* Gris medio para texto */
-    --color-accent: #102027; /* Azul negro profundo */
-    --color-secondary-accent: #1b1b1b; /* Negro con un toque grisáceo */
-    --color-button: #102027; /* Azul oscuro para botones */
-    --color-button-hover: #1e3a47; /* Azul oscuro más claro al hacer hover */
-    --border-radius: 8px; /* Bordes más definidos */
-    --font-main: 'Inter', sans-serif; /* Tipografía moderna y premium */
+    /* Paleta de colores pastel */
+    --color-background: #cccccc; /* Cambia a un tono gris más oscuro */
+    --color-card-bg: #d6d6d6; /* Fondo de tarjeta en blanco */
+    --color-text: #2c3e50; /* Azul marino oscuro para texto */
+    --color-accent: #5a7d9a; /* Azul pastel */
+    --color-secondary-accent: #e9ecef; /* Gris claro pastel */
+    --color-button: #ef5350; /* Rojo pastel */
+    --color-button-hover: #d32f2f; /* Rojo más intenso */
+    --border-radius: 12px; /* Bordes redondeados */
+    --font-main: 'Nunito', sans-serif; /* Tipografía moderna y amigable */
 
     /* Colores de mensajes */
-    --color-success: #388e3c; /* Verde oscuro */
-    --color-error: #c62828; /* Rojo intenso */
-    --color-warning: #f57c00; /* Naranja oscuro */
+    --color-success: #81c784; /* Verde pastel */
+    --color-error: #f48fb1; /* Rojo suave */
+    --color-warning: #ffb74d; /* Naranja pastel */
 }
 
 body {
@@ -21,55 +21,51 @@ body {
     color: var(--color-text);
     font-family: var(--font-main);
     font-size: 15px;
-    line-height: 1.8;
+    line-height: 1.7;
 }
 
 header {
-    background-color: #0d0d0d; /* Fondo negro absoluto para el encabezado */
+    background-color: var(--color-secondary-accent);
     padding: 1.5rem;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.9);
-    border-bottom: 1px solid var(--color-accent);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border-bottom: 2px solid var(--color-accent);
     text-align: center;
 }
 
 header h1 {
-    font-size: 2.4rem;
+    font-size: 2rem;
     color: var(--color-text);
-    font-weight: 700;
-    text-shadow: 0 0 15px rgba(16, 32, 39, 0.6); /* Resplandor oscuro sutil */
+    font-weight: 600;
 }
 
 main {
-    max-width: 1100px;
+    max-width: 1200px;
     margin: 40px auto;
     padding: 40px;
     background-color: var(--color-card-bg);
     border-radius: var(--border-radius);
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 1); /* Sombra profunda y marcada */
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
     transition: background-color 0.4s ease, transform 0.4s ease;
-    border: 1px solid var(--color-secondary-accent);
 }
 
 main:hover {
-    background-color: #1a1a1a; /* Un poco más claro al hover */
-    border-color: var(--color-accent); /* Cambio de borde */
+    background-color: #f1f3f5; /* Ligero cambio al hover */
     transform: scale(1.02);
 }
 
 input, select {
     padding: 12px;
     border-radius: var(--border-radius);
-    border: 1px solid #264653; /* Azul negro */
+    border: 1px solid #ced4da;
     font-size: 1rem;
     color: var(--color-text);
-    background-color: #121212; /* Fondo ultra oscuro */
+    background-color: #ffffff; /* Fondo blanco suave */
     transition: all 0.3s ease;
-    box-shadow: inset 0 0 8px rgba(16, 32, 39, 0.5); /* Sombra interna */
 }
 
 input:focus, select:focus {
     border-color: var(--color-accent);
-    box-shadow: 0 0 15px rgba(16, 32, 39, 0.6); /* Efecto de foco más intenso */
+    box-shadow: 0 0 10px rgba(90, 125, 154, 0.2);
 }
 
 button {
@@ -82,13 +78,12 @@ button {
     border: none;
     border-radius: var(--border-radius);
     transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
-    box-shadow: 0 8px 20px rgba(16, 32, 39, 0.7); /* Sombra marcada */
 }
 
 button:hover {
     background-color: var(--color-button-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(30, 58, 71, 0.8); /* Sombra de hover más intensa */
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(211, 47, 47, 0.2);
 }
 
 .mensaje {
@@ -99,7 +94,6 @@ button:hover {
     text-align: center;
     font-weight: 600;
     font-size: 1rem;
-    box-shadow: 0 0 15px rgba(16, 32, 39, 0.5); /* Sombra azul tenue */
 }
 
 .mensaje.exito {
@@ -140,11 +134,10 @@ button:hover {
     width: 60%;
     padding: 10px;
     border-radius: var(--border-radius);
-    border: 1px solid #264653;
-    background-color: #121212;
+    border: 1px solid #ced4da;
+    background-color: #ffffff;
     color: var(--color-text);
     font-size: 0.95rem;
-    box-shadow: inset 0 0 8px rgba(16, 32, 39, 0.5);
 }
 
 #servicios-page .button-group {
@@ -154,14 +147,13 @@ button:hover {
 }
 
 #servicios-page button {
-    background-color: #102027;
+    background-color: #ef5350;
     padding: 12px 20px;
     font-size: 1rem;
-    box-shadow: 0 8px 20px rgba(16, 32, 39, 0.7);
 }
 
 #servicios-page button:hover {
-    background-color: #1e3a47;
-    transform: scale(1.03);
-    box-shadow: 0 10px 30px rgba(30, 58, 71, 0.8);
+    background-color: #d32f2f;
+    transform: scale(1.05);
+    box-shadow: 0 5px 20px rgba(211, 47, 47, 0.2);
 }

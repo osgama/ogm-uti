@@ -1,0 +1,110 @@
+:root {
+    /* Nueva paleta de colores en tonos oscuros y azul pastel */
+    --color-background: #151515; /* Fondo oscuro profundo */
+    --color-card-bg: #222831; /* Fondo de tarjeta más neutro */
+    --color-text: #ececec; /* Texto más claro */
+    --color-accent: #5cacee; /* Azul pastel para acentos */
+    --color-secondary-accent: #1f1f1f; /* Fondo de elementos secundarios */
+    --color-button: #5cacee; /* Botón en azul pastel */
+    --color-button-hover: #76c3ff; /* Tonalidad más clara al hacer hover */
+    --border-radius: 10px; /* Bordes redondeados */
+    --font-main: 'Poppins', sans-serif; /* Tipografía moderna */
+
+    /* Colores de mensajes */
+    --color-success: #6fcf97; /* Verde suave */
+    --color-error: #f78c6b; /* Rojo pastel */
+    --color-warning: #ffd966; /* Amarillo pastel */
+}
+
+body {
+    background-color: var(--color-background);
+    color: var(--color-text);
+    font-family: var(--font-main);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+header {
+    background-color: var(--color-secondary-accent);
+    text-align: center;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border-bottom: 2px solid var(--color-accent);
+}
+
+header h1 {
+    font-size: 1.4rem;
+    color: #ffffff;
+}
+
+main {
+    max-width: 1100px;
+    margin: 25px auto;
+    padding: 25px;
+    background-color: var(--color-card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+main:hover {
+    background-color: #2a2a36; /* Efecto de resalte */
+    transform: scale(1.02);
+}
+
+input, select {
+    padding: 10px;
+    border-radius: var(--border-radius);
+    border: 1px solid #444;
+    font-size: 0.9rem;
+    color: var(--color-text);
+    background-color: #2e2e38; /* Fondo más oscuro */
+    transition: all 0.3s ease;
+}
+
+input:focus, select:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 7px rgba(92, 172, 238, 0.6);
+}
+
+button {
+    font-weight: bold;
+    cursor: pointer;
+    background-color: var(--color-button);
+    color: #ffffff;
+    padding: 10px 15px;
+    font-size: 0.9rem;
+    border: none;
+    border-radius: var(--border-radius);
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+button:hover {
+    background-color: var(--color-button-hover);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(92, 172, 238, 0.4);
+}
+
+.mensaje {
+    padding: 12px;
+    border-radius: var(--border-radius);
+    margin-top: 12px;
+    display: none;
+    text-align: center;
+    font-weight: bold;
+    color: #ffffff;
+    font-size: 0.9rem;
+}
+
+.mensaje.exito {
+    background-color: var(--color-success);
+}
+
+.mensaje.error {
+    background-color: var(--color-error);
+}
+
+.mensaje.warning {
+    background-color: var(--color-warning);
+    color: #1f1f1f;
+}

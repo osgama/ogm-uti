@@ -14,12 +14,14 @@
     </header>
 
     <main>
-        <label for="nickname">Nickname:</label>
-        <select id="nickname">
-            <option value="user1">user1</option>
-            <option value="user2">user2</option>
-        </select>
-        <button onclick="fetchPassword()">Obtener Contraseña</button>
+        <form class="form-container">
+            <label for="nickname">Nickname:</label>
+            <select id="nickname" class="form-control">
+                <option value="user1">user1</option>
+                <option value="user2">user2</option>
+            </select>
+            <button type="button" onclick="fetchPassword()">Obtener Contraseña</button>
+        </form>
         <div id="mensajeResultado" class="mensaje"></div>
     </main>
 

@@ -1,19 +1,19 @@
 :root {
-    /* Paleta de colores ultra oscuros */
-    --color-background: #0a0a0a; /* Negro intenso absoluto */
-    --color-card-bg: #141414; /* Fondo de tarjeta en negro ahumado */
-    --color-text: #a8a8a8; /* Gris medio para texto */
-    --color-accent: #102027; /* Azul negro profundo */
-    --color-secondary-accent: #1b1b1b; /* Negro con un toque grisáceo */
-    --color-button: #102027; /* Azul oscuro para botones */
-    --color-button-hover: #1e3a47; /* Azul oscuro más claro al hacer hover */
-    --border-radius: 8px; /* Bordes más definidos */
-    --font-main: 'Inter', sans-serif; /* Tipografía moderna y premium */
+    /* Paleta de colores ultra oscuros y sobrios */
+    --color-background: #0d0d0d; /* Negro profundo para el fondo */
+    --color-card-bg: #181818; /* Fondo de tarjeta en negro azabache */
+    --color-text: #b3b3b3; /* Gris claro, elegante para el texto */
+    --color-accent: #1f3b4d; /* Azul petróleo oscuro */
+    --color-secondary-accent: #16222a; /* Azul grisáceo muy oscuro */
+    --color-button: #1f3b4d; /* Azul petróleo oscuro */
+    --color-button-hover: #274d65; /* Azul más claro para hover */
+    --border-radius: 10px; /* Bordes más discretos */
+    --font-main: 'Helvetica Neue', sans-serif; /* Tipografía moderna y sobria */
 
     /* Colores de mensajes */
-    --color-success: #388e3c; /* Verde oscuro */
-    --color-error: #c62828; /* Rojo intenso */
-    --color-warning: #f57c00; /* Naranja oscuro */
+    --color-success: #4caf50; /* Verde oscuro */
+    --color-error: #d32f2f; /* Rojo intenso */
+    --color-warning: #ffa000; /* Amarillo mostaza */
 }
 
 body {
@@ -25,18 +25,18 @@ body {
 }
 
 header {
-    background-color: #0d0d0d; /* Fondo negro absoluto para el encabezado */
+    background-color: #0f0f0f; /* Fondo aún más oscuro para el encabezado */
     padding: 1.5rem;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.9);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
     border-bottom: 1px solid var(--color-accent);
     text-align: center;
 }
 
 header h1 {
-    font-size: 2.4rem;
+    font-size: 2.2rem;
     color: var(--color-text);
     font-weight: 700;
-    text-shadow: 0 0 15px rgba(16, 32, 39, 0.6); /* Resplandor oscuro sutil */
+    text-shadow: 0 0 10px rgba(31, 59, 77, 0.5); /* Efecto de resplandor sutil */
 }
 
 main {
@@ -45,13 +45,13 @@ main {
     padding: 40px;
     background-color: var(--color-card-bg);
     border-radius: var(--border-radius);
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 1); /* Sombra profunda y marcada */
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.9); /* Sombra profunda */
     transition: background-color 0.4s ease, transform 0.4s ease;
     border: 1px solid var(--color-secondary-accent);
 }
 
 main:hover {
-    background-color: #1a1a1a; /* Un poco más claro al hover */
+    background-color: #202020; /* Un poco más claro al hover */
     border-color: var(--color-accent); /* Cambio de borde */
     transform: scale(1.02);
 }
@@ -59,17 +59,17 @@ main:hover {
 input, select {
     padding: 12px;
     border-radius: var(--border-radius);
-    border: 1px solid #264653; /* Azul negro */
+    border: 1px solid #2c3e50; /* Borde azul oscuro */
     font-size: 1rem;
     color: var(--color-text);
-    background-color: #121212; /* Fondo ultra oscuro */
+    background-color: #141414; /* Fondo negro intenso */
     transition: all 0.3s ease;
-    box-shadow: inset 0 0 8px rgba(16, 32, 39, 0.5); /* Sombra interna */
+    box-shadow: inset 0 0 5px rgba(31, 59, 77, 0.4); /* Sombra interna sutil */
 }
 
 input:focus, select:focus {
     border-color: var(--color-accent);
-    box-shadow: 0 0 15px rgba(16, 32, 39, 0.6); /* Efecto de foco más intenso */
+    box-shadow: 0 0 12px rgba(31, 59, 77, 0.6); /* Efecto de foco azul */
 }
 
 button {
@@ -82,13 +82,13 @@ button {
     border: none;
     border-radius: var(--border-radius);
     transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
-    box-shadow: 0 8px 20px rgba(16, 32, 39, 0.7); /* Sombra marcada */
+    box-shadow: 0 6px 15px rgba(31, 59, 77, 0.6); /* Sombra azul petróleo */
 }
 
 button:hover {
     background-color: var(--color-button-hover);
     transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(30, 58, 71, 0.8); /* Sombra de hover más intensa */
+    box-shadow: 0 8px 25px rgba(39, 77, 101, 0.8); /* Sombra intensa */
 }
 
 .mensaje {
@@ -99,7 +99,7 @@ button:hover {
     text-align: center;
     font-weight: 600;
     font-size: 1rem;
-    box-shadow: 0 0 15px rgba(16, 32, 39, 0.5); /* Sombra azul tenue */
+    box-shadow: 0 0 10px rgba(31, 59, 77, 0.5); /* Efecto azul tenue */
 }
 
 .mensaje.exito {
@@ -140,11 +140,11 @@ button:hover {
     width: 60%;
     padding: 10px;
     border-radius: var(--border-radius);
-    border: 1px solid #264653;
-    background-color: #121212;
+    border: 1px solid #2c3e50;
+    background-color: #141414;
     color: var(--color-text);
     font-size: 0.95rem;
-    box-shadow: inset 0 0 8px rgba(16, 32, 39, 0.5);
+    box-shadow: inset 0 0 5px rgba(31, 59, 77, 0.4);
 }
 
 #servicios-page .button-group {
@@ -154,14 +154,15 @@ button:hover {
 }
 
 #servicios-page button {
-    background-color: #102027;
+    background-color: #1f3b4d;
     padding: 12px 20px;
     font-size: 1rem;
-    box-shadow: 0 8px 20px rgba(16, 32, 39, 0.7);
+    box-shadow: 0 6px 15px rgba(31, 59, 77, 0.6);
 }
 
 #servicios-page button:hover {
-    background-color: #1e3a47;
+    background-color: #274d65;
     transform: scale(1.03);
-    box-shadow: 0 10px 30px rgba(30, 58, 71, 0.8);
+    box-shadow: 0 8px 25px rgba(39, 77, 101, 0.8);
 }
+

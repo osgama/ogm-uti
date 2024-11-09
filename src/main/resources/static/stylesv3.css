@@ -1,0 +1,167 @@
+:root {
+    /* Colores principales */
+    --color-background: #1a2238;         /* Azul oscuro profundo */
+    --color-card-bg: #252f45;            /* Fondo gris azulado oscuro */
+    --color-text: #e0e6ed;               /* Texto gris claro pastel */
+    --color-accent: #5dade2;             /* Cian pastel para acentos */
+    --color-secondary-accent: #2e3b54;   /* Azul grisáceo intermedio */
+    --color-button: #5dade2;             /* Cian pastel para botones */
+    --color-button-hover: #76b8e5;       /* Cian más claro en hover */
+    --border-radius: 6px;
+    --font-main: 'Roboto', sans-serif;
+  
+    /* Colores de mensajes */
+    --color-success: #82e0aa;            /* Verde pastel para éxito */
+    --color-error: #e57373;              /* Rojo pastel para errores */
+    --color-warning: #f7dc6f;            /* Amarillo pastel para advertencias */
+  }
+  
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    background-color: var(--color-background);
+    color: var(--color-text);
+    font-family: var(--font-main);
+    line-height: 1.6;
+  }
+  
+  /* Cambia los títulos a un tono blanco pastel */
+  header h1, h2, h3, h4, h5, h6 {
+    color: #e0e6ed;
+  }
+  
+  header {
+    background-color: var(--color-secondary-accent);
+    text-align: center;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  main {
+    max-width: 1000px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: var(--color-card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+    transition: background-color 0.3s ease;
+  }
+  
+  main:hover {
+    background-color: #33415c;
+  }
+  
+  .form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .form-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  label {
+    font-weight: bold;
+    color: var(--color-text);
+    width: 100px;
+  }
+  
+  input, select {
+    padding: 10px;
+    border-radius: var(--border-radius);
+    border: none;
+    font-size: 1rem;
+    color: var(--color-text);
+    background-color: var(--color-secondary-accent);
+    width: 200px;
+    transition: all 0.3s ease;
+  }
+  
+  .button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  button {
+    font-weight: bold;
+    cursor: pointer;
+    background-color: var(--color-button);
+    color: #ffffff;
+    padding: 10px;
+    border: none;
+    border-radius: var(--border-radius);
+    transition: background-color 0.3s ease;
+  }
+  
+  button:hover {
+    background-color: var(--color-button-hover);
+  }
+  
+  .mensaje {
+    padding: 12px;
+    border-radius: var(--border-radius);
+    margin-top: 10px;
+    display: none;
+    text-align: center;
+    font-weight: bold;
+    color: #ffffff;
+  }
+  
+  /* Estilos para mensajes */
+  .mensaje.exito {
+    background-color: var(--color-success);
+  }
+  
+  .mensaje.error {
+    background-color: var(--color-error);
+  }
+  
+  .mensaje.warning {
+    background-color: var(--color-warning);
+    color: #333333;
+  }
+  
+  .table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+    overflow: hidden;
+    border-radius: var(--border-radius);
+  }
+  
+  .table th, .table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #444;
+    background-color: var(--color-card-bg);
+  }
+  
+  .table th {
+    background-color: #3c4a65;
+    color: #ffffff;
+  }
+  
+  .table tr:nth-child(odd) {
+    background-color: #2e3b54;
+  }
+  
+  .table tr:nth-child(even) {
+    background-color: #374560;
+  }
+  
+  #totalArchivosInfo {
+    float: right;
+    line-height: 3rem;
+    margin-right: 30px;
+    font-weight: bold;
+    color: var(--color-text);
+  }
+  

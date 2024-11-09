@@ -1,0 +1,151 @@
+/* Estilos generales (comunes)*/
+
+:root {
+    /* Paleta en negros y grises */
+    --color-background: #101010; /* Fondo negro profundo */
+    --color-card-bg: #1b1b1b; /* Fondo de tarjeta gris oscuro */
+    --color-text: #dcdcdc; /* Texto gris claro */
+    --color-accent: #6c757d; /* Gris azulado como acento */
+    --color-secondary-accent: #2a2a2a; /* Gris más oscuro */
+    --color-button: #6c757d; /* Botón en gris azulado */
+    --color-button-hover: #868e96; /* Tonalidad más clara al hacer hover */
+    --border-radius: 10px; /* Bordes redondeados */
+    --font-main: 'Poppins', sans-serif; /* Tipografía moderna */
+
+    /* Colores de mensajes */
+    --color-success: #5cb85c; /* Verde más suave */
+    --color-error: #d9534f; /* Rojo oscuro */
+    --color-warning: #f0ad4e; /* Amarillo apagado */
+}
+
+body {
+    background-color: var(--color-background);
+    color: var(--color-text);
+    font-family: var(--font-main);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+header {
+    background-color: var(--color-secondary-accent);
+    text-align: center;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border-bottom: 2px solid var(--color-accent);
+}
+
+header h1 {
+    font-size: 1.4rem;
+    color: #ffffff;
+}
+
+main {
+    max-width: 1100px;
+    margin: 25px auto;
+    padding: 25px;
+    background-color: var(--color-card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+main:hover {
+    background-color: #242424; /* Efecto de resalte */
+    transform: scale(1.02);
+}
+
+input, select {
+    padding: 10px;
+    border-radius: var(--border-radius);
+    border: 1px solid #444;
+    font-size: 0.9rem;
+    color: var(--color-text);
+    background-color: #2d2d2d; /* Fondo gris oscuro */
+    transition: all 0.3s ease;
+}
+
+input:focus, select:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 7px rgba(108, 117, 125, 0.6);
+}
+
+button {
+    font-weight: bold;
+    cursor: pointer;
+    background-color: var(--color-button);
+    color: #ffffff;
+    padding: 10px 15px;
+    font-size: 0.9rem;
+    border: none;
+    border-radius: var(--border-radius);
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+button:hover {
+    background-color: var(--color-button-hover);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(108, 117, 125, 0.4);
+}
+
+.mensaje {
+    padding: 12px;
+    border-radius: var(--border-radius);
+    margin-top: 12px;
+    display: none;
+    text-align: center;
+    font-weight: bold;
+    color: #ffffff;
+    font-size: 0.9rem;
+}
+
+.mensaje.exito {
+    background-color: var(--color-success);
+}
+
+.mensaje.error {
+    background-color: var(--color-error);
+}
+
+.mensaje.warning {
+    background-color: var(--color-warning);
+    color: #333333;
+}
+
+/* Estilos específicos para servicios.html */
+/* Estilos específicos para servicios.html */
+#servicios-page .form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Espacio entre cada fila */
+}
+
+#servicios-page .form-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+#servicios-page label {
+    min-width: 100px; /* Ancho mínimo para las etiquetas */
+    padding-right: 10px;
+    font-weight: bold;
+    color: var(--color-text);
+}
+
+#servicios-page input,
+#servicios-page select {
+    width: 50%; /* Los inputs y selects ocupan el 50% del contenedor */
+    padding: 8px;
+    border-radius: var(--border-radius);
+    border: 1px solid #444;
+    background-color: #2d2d2d;
+    color: var(--color-text);
+    font-size: 0.9rem;
+}
+
+#servicios-page .button-group {
+    display: flex;
+    gap: 10px; /* Espacio entre los botones */
+    justify-content: flex-start;
+}
+

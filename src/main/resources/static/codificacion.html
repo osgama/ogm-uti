@@ -13,23 +13,21 @@
   </header>
 
   <main>
-    <form id="encryptForm">
+    <form id="encryptForm" class="form-container">
       <label for="passwordEncrypt">Password:</label>
       <input type="password" id="passwordEncrypt" required>
       <button type="submit">Encriptar</button>
     </form>
     <p>Resultado Encriptación: <span id="resultEncrypt"></span></p>
 
-    <!-- Comentado temporalmente
-    <form id="decryptForm">
+    <form id="decryptForm" class="form-container">
       <label for="passwordDecrypt">Datos encriptados:</label>
       <input type="password" id="passwordDecrypt" required>
       <button type="submit">Desencriptar</button>
     </form>
     <p>Resultado Desencriptación: <span id="resultDecrypt"></span></p>
-    -->
 
-    <form id="urlEncodeForm">
+    <form id="urlEncodeForm" class="form-container">
       <label for="encodedData">Token:</label>
       <input type="text" id="encodedData" required>
       <button type="submit">Codificar para URL</button>
@@ -86,32 +84,30 @@
           });
       });
 
-      /* Comentado temporalmente
       document.getElementById("decryptForm").addEventListener("submit", function (event) {
-          event.preventDefault();
-          const data = document.getElementById("passwordDecrypt").value;
-          fetch("/service/api/crypto/decrypt", {
-            method: "POST",
-            headers: {
-              "Content-Type": "text/plain",
-            },
-            body: data,
+        event.preventDefault();
+        const data = document.getElementById("passwordDecrypt").value;
+        fetch("/service/api/crypto/decrypt", {
+          method: "POST",
+          headers: {
+            "Content-Type": "text/plain",
+          },
+          body: data,
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Error en la desencriptación");
+            }
+            return response.text();
           })
-            .then((response) => {
-              if (!response.ok) {
-                throw new Error("Error en la desencriptación");
-              }
-              return response.text();
-            })
-            .then((text) => {
-              document.getElementById("resultDecrypt").textContent = text;
-              displayMessage("Desencriptación exitosa.", "exito");
-            })
-            .catch((error) => {
-              displayMessage(error.message, "error");
-            });
-        });
-      */
+          .then((text) => {
+            document.getElementById("resultDecrypt").textContent = text;
+            displayMessage("Desencriptación exitosa.", "exito");
+          })
+          .catch((error) => {
+            displayMessage(error.message, "error");
+          });
+      });
 
       function displayMessage(message, type) {
         const mensajeResultado = document.getElementById("mensajeResultado");

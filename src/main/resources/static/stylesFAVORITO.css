@@ -1,0 +1,175 @@
+:root {
+    /* Colores principales */
+    --color-background: #0e0e10;        /* Negro profundo */
+    --color-card-bg: #1a1a1d;           /* Gris oscuro para contenedores */
+    --color-text: #d1d5db;              /* Gris claro para texto */
+    --color-accent: #48a9a6;            /* Verde azulado (teal) para acentos */
+    --color-secondary-accent: #2d2d34;  /* Gris oscuro para contraste */
+    --color-button: #48a9a6;            /* Verde azulado para botones */
+    --color-button-hover: #59bdb9;      /* Verde azulado más claro para hover */
+    --border-radius: 6px;
+    --font-main: 'Roboto', sans-serif;
+  
+    /* Colores de mensajes */
+    --color-success: #4caf50;           /* Verde para éxito */
+    --color-error: #e57373;             /* Rojo suave para errores */
+    --color-warning: #ffb74d;           /* Naranja pastel para advertencias */
+  }
+  
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    background-color: var(--color-background);
+    color: var(--color-text);
+    font-family: var(--font-main);
+    line-height: 1.6;
+  }
+  
+  /* Títulos en gris claro */
+  header h1, h2, h3, h4, h5, h6 {
+    color: #ffffff;
+  }
+  
+  header {
+    background-color: var(--color-secondary-accent);
+    text-align: center;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  main {
+    max-width: 1000px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: var(--color-card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+  
+  main:hover {
+    background-color: #232328;
+    transform: scale(1.01);
+  }
+  
+  .form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .form-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  label {
+    font-weight: bold;
+    color: var(--color-text);
+    width: 120px; /* Ajuste de ancho para alineación */
+  }
+  
+  input, select {
+    padding: 12px;
+    border-radius: var(--border-radius);
+    border: 1px solid #333;
+    font-size: 1rem;
+    color: var(--color-text);
+    background-color: #1e1e23;
+    width: 200px;
+    transition: all 0.3s ease;
+  }
+  
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 5px rgba(72, 169, 166, 0.5);
+  }
+  
+  .button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  button {
+    font-weight: bold;
+    cursor: pointer;
+    background-color: var(--color-button);
+    color: #ffffff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--border-radius);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  
+  button:hover {
+    background-color: var(--color-button-hover);
+    transform: translateY(-2px);
+  }
+  
+  .mensaje {
+    padding: 12px;
+    border-radius: var(--border-radius);
+    margin-top: 10px;
+    display: none;
+    text-align: center;
+    font-weight: bold;
+    color: #ffffff;
+  }
+  
+  /* Estilos para mensajes */
+  .mensaje.exito {
+    background-color: var(--color-success);
+  }
+  
+  .mensaje.error {
+    background-color: var(--color-error);
+  }
+  
+  .mensaje.warning {
+    background-color: var(--color-warning);
+    color: #333333;
+  }
+  
+  .table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+    overflow: hidden;
+    border-radius: var(--border-radius);
+  }
+  
+  .table th, .table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #444;
+    background-color: var(--color-card-bg);
+  }
+  
+  .table th {
+    background-color: #2a2a32;
+    color: #ffffff;
+  }
+  
+  .table tr:nth-child(odd) {
+    background-color: #1d1d23;
+  }
+  
+  .table tr:nth-child(even) {
+    background-color: #24242a;
+  }
+  
+  #totalArchivosInfo {
+    float: right;
+    line-height: 3rem;
+    margin-right: 30px;
+    font-weight: bold;
+    color: var(--color-text);
+  }
+  

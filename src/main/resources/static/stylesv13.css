@@ -1,0 +1,167 @@
+:root {
+    /* Paleta de colores oscuros y acentos azules */
+    --color-background: #121212; /* Negro profundo para el fondo */
+    --color-card-bg: #1e1e1e; /* Fondo de tarjeta en gris muy oscuro */
+    --color-text: #cccccc; /* Gris claro para texto */
+    --color-accent: #1565c0; /* Azul acento vibrante */
+    --color-secondary-accent: #1e88e5; /* Azul más claro para efectos */
+    --color-button: #1565c0; /* Azul oscuro para botones */
+    --color-button-hover: #1e88e5; /* Azul más claro al hacer hover */
+    --border-radius: 12px; /* Bordes redondeados */
+    --font-main: 'Roboto', sans-serif; /* Tipografía moderna y clara */
+
+    /* Colores de mensajes */
+    --color-success: #4caf50; /* Verde pastel */
+    --color-error: #e57373; /* Rojo pastel */
+    --color-warning: #ffa726; /* Naranja pastel */
+}
+
+body {
+    background-color: var(--color-background);
+    color: var(--color-text);
+    font-family: var(--font-main);
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+header {
+    background-color: #1a1a1a; /* Fondo oscuro del encabezado */
+    padding: 1.5rem;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+    border-bottom: 2px solid var(--color-accent);
+    text-align: center;
+}
+
+header h1 {
+    font-size: 2rem;
+    color: var(--color-text);
+    font-weight: 600;
+    text-shadow: 0 0 5px var(--color-accent); /* Efecto de sombra azul */
+}
+
+main {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 40px;
+    background-color: var(--color-card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+    transition: background-color 0.4s ease, transform 0.4s ease;
+    border: 1px solid var(--color-accent); /* Borde sutil azul */
+}
+
+main:hover {
+    background-color: #292929; /* Un poco más claro al hover */
+    border-color: var(--color-secondary-accent); /* Cambio de borde */
+    transform: scale(1.03);
+}
+
+input, select {
+    padding: 12px;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--color-accent);
+    font-size: 1rem;
+    color: var(--color-text);
+    background-color: #1c1c1c; /* Fondo muy oscuro */
+    transition: all 0.3s ease;
+    box-shadow: 0 0 8px rgba(21, 101, 192, 0.3); /* Efecto de luz azul */
+}
+
+input:focus, select:focus {
+    border-color: var(--color-secondary-accent);
+    box-shadow: 0 0 12px rgba(30, 136, 229, 0.5); /* Azul más intenso */
+}
+
+button {
+    font-weight: bold;
+    cursor: pointer;
+    background-color: var(--color-button);
+    color: #ffffff;
+    padding: 12px 20px;
+    font-size: 1rem;
+    border: none;
+    border-radius: var(--border-radius);
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+    box-shadow: 0 4px 15px rgba(21, 101, 192, 0.4); /* Sombra azul */
+}
+
+button:hover {
+    background-color: var(--color-button-hover);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(30, 136, 229, 0.5); /* Azul más claro */
+}
+
+.mensaje {
+    padding: 14px;
+    border-radius: var(--border-radius);
+    margin-top: 20px;
+    display: none;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1rem;
+    box-shadow: 0 0 10px rgba(21, 101, 192, 0.3); /* Efecto azul */
+}
+
+.mensaje.exito {
+    background-color: var(--color-success);
+}
+
+.mensaje.error {
+    background-color: var(--color-error);
+}
+
+.mensaje.warning {
+    background-color: var(--color-warning);
+    color: #333;
+}
+
+/* Estilos específicos para servicios.html */
+#servicios-page .form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+#servicios-page .form-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+#servicios-page label {
+    min-width: 120px;
+    padding-right: 15px;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+#servicios-page input,
+#servicios-page select {
+    width: 60%;
+    padding: 10px;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--color-accent);
+    background-color: #1c1c1c;
+    color: var(--color-text);
+    font-size: 0.95rem;
+    box-shadow: 0 0 8px rgba(21, 101, 192, 0.3); /* Efecto azul */
+}
+
+#servicios-page .button-group {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-start;
+}
+
+#servicios-page button {
+    background-color: #1565c0;
+    padding: 12px 20px;
+    font-size: 1rem;
+    box-shadow: 0 4px 15px rgba(21, 101, 192, 0.4); /* Sombra azul */
+}
+
+#servicios-page button:hover {
+    background-color: #1e88e5;
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(30, 136, 229, 0.5); /* Azul más claro */
+}

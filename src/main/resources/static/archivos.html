@@ -14,7 +14,6 @@
   </header>
 
   <main>
-    &nbsp;&nbsp;
     <label for="directorio">Directorio:</label>
     <select id="directorio" name="directorio">
       <option value="1">logs 1</option>
@@ -40,25 +39,21 @@
       <option value="21">logs 21</option>
     </select>
 
-    &nbsp;&nbsp;
     <label for="filtro">Filtro:</label>
     <input type="text" id="filtro" name="filtro" placeholder="Filtro de archivos">
     <button onclick="listarArchivos()">Buscar</button>
     <button onclick="descargarSeleccionados()">Descargar</button>
     <button onclick="seleccionarTodos()">Seleccionar Todos</button>
     <button onclick="limpiar()">Limpiar</button>
-    &nbsp;&nbsp;
 
-    <span id="totalArchivosInfo"
-      style="float: right; line-height: 3rem; margin-right: 30px; font-family: Arial, sans-serif; font-weight: bold;"></span>
+    <span id="totalArchivosInfo"></span>
     <div id="div3"></div>
     <div id="archivos"></div>
 
-    <p id="msjNoArchivos" class="mensaje">¡NO SE ENCONTRARON ARCHIVOS!</p>
-    <p id="msjEspera" class="mensaje">Por favor espera... buscando archivos...</p>
+    <p id="msjNoArchivos" class="mensaje warning">¡NO SE ENCONTRARON ARCHIVOS!</p>
+    <p id="msjEspera" class="mensaje warning">Por favor espera... buscando archivos...</p>
 
-    <!-- Contenedor para mostrar mensajes de error -->
-    <div id="errorMessage" style="display:none; color:red; font-weight:bold;"></div>
+    <div id="errorMessage" class="mensaje error"></div>
 
     <input type="hidden" id="directorioDescarga" name="directorio" />
     <input type="hidden" id="archivosDescarga" name="archivos" />
@@ -113,7 +108,7 @@
           return response.json();
         })
         .then((data) => {
-          if (data === null) return; // No procesar si hubo un error
+          if (data === null) return;
 
           if (data.length === 0) {
             document.getElementById("msjNoArchivos").style.display = "block";
@@ -279,14 +274,13 @@
       }
     });
 
-    // Función para mostrar errores en el div de errores
     function mostrarError(mensaje) {
       const errorDiv = document.getElementById("errorMessage");
       errorDiv.textContent = mensaje;
       errorDiv.style.display = "block";
       setTimeout(() => {
-        errorDiv.style.display = "none"; // Ocultar el mensaje después de 5 segundos
-      }, 5000); // Ocultar después de 5 segundos
+        errorDiv.style.display = "none";
+      }, 5000);
     }
   </script>
 </body>

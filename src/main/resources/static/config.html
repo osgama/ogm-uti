@@ -14,33 +14,35 @@
     </header>
 
     <main>
-        <label for="DIAINICIAL">Fecha Inicial:</label>
-        <input type="date" id="DIAINICIAL">
-        &nbsp;&nbsp;
+        <form class="form-container">
+            <label for="DIAINICIAL">Fecha Inicial:</label>
+            <input type="date" id="DIAINICIAL" class="form-control">
+            &nbsp;&nbsp;
 
-        <label for="DIAFINAL">Fecha Final:</label>
-        <input type="date" id="DIAFINAL">
-        &nbsp;&nbsp;
+            <label for="DIAFINAL">Fecha Final:</label>
+            <input type="date" id="DIAFINAL" class="form-control">
+            &nbsp;&nbsp;
 
-        <label for="REPROCESO">Tipo de Reproceso:</label>
-        <select id="REPROCESO" name="REPROCESO" class="espaciado-vertical-dos">
-            <optgroup label="Reprocesos con">
-                <option value="A">A *********************************</option>
-                <option value="I">I *********************************</option>
-                <option value="C">C *********************************</option>
-                <option value="F">F *********************************</option>
-            </optgroup>
-            <optgroup label="Reprocesos sin">
-                <option value="E">E *********************************</option>
-                <option value="B">B *********************************</option>
-                <option value="D">D *********************************</option>
-            </optgroup>
-        </select>
+            <label for="REPROCESO">Tipo de Reproceso:</label>
+            <select id="REPROCESO" name="REPROCESO" class="espaciado-vertical-dos form-control">
+                <optgroup label="Reprocesos con">
+                    <option value="A">A *********************************</option>
+                    <option value="I">I *********************************</option>
+                    <option value="C">C *********************************</option>
+                    <option value="F">F *********************************</option>
+                </optgroup>
+                <optgroup label="Reprocesos sin">
+                    <option value="E">E *********************************</option>
+                    <option value="B">B *********************************</option>
+                    <option value="D">D *********************************</option>
+                </optgroup>
+            </select>
 
-        <button onclick="actualizarConfiguracion()">Actualizar</button>
+            <button type="button" onclick="actualizarConfiguracion()">Actualizar</button>
+        </form>
 
         <h2>Configuración Actual ReproSys.ini</h2>
-        <div id="configuracion"></div>
+        <div id="configuracion" class="mensaje"></div>
     </main>
 
     <script>
