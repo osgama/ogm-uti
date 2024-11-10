@@ -26,14 +26,14 @@ body {
 
 header {
     background-color: #0d0d0d; /* Fondo negro absoluto para el encabezado */
-    padding: 1.5rem;
+    padding: .5rem;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.9);
     border-bottom: 1px solid var(--color-accent);
     text-align: center;
 }
 
 header h1 {
-    font-size: 2.4rem;
+    font-size: 1.0rem;
     color: var(--color-text);
     font-weight: 700;
     text-shadow: 0 0 15px rgba(16, 32, 39, 0.6); /* Resplandor oscuro sutil */
@@ -53,7 +53,7 @@ main {
 main:hover {
     background-color: #1a1a1a; /* Un poco más claro al hover */
     border-color: var(--color-accent); /* Cambio de borde */
-    transform: scale(1.02);
+    transform: scale(0.9);
 }
 
 input, select {
