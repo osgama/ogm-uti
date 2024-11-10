@@ -1,19 +1,16 @@
 :root {
-    /* Paleta de colores ultra oscuros */
-    --color-background: #0a0a0a; /* Negro intenso absoluto */
-    --color-card-bg: #141414; /* Fondo de tarjeta en negro ahumado */
-    --color-text: #a8a8a8; /* Gris medio para texto */
-    --color-accent: #102027; /* Azul negro profundo */
-    --color-secondary-accent: #1b1b1b; /* Negro con un toque grisáceo */
-    --color-button: #102027; /* Azul oscuro para botones */
-    --color-button-hover: #1e3a47; /* Azul oscuro más claro al hacer hover */
-    --border-radius: 8px; /* Bordes más definidos */
-    --font-main: 'Inter', sans-serif; /* Tipografía moderna y premium */
-
-    /* Colores de mensajes */
-    --color-success: #388e3c; /* Verde oscuro */
-    --color-error: #c62828; /* Rojo intenso */
-    --color-warning: #f57c00; /* Naranja oscuro */
+    --color-background: #0a0a0a;
+    --color-card-bg: #141414;
+    --color-text: #a8a8a8;
+    --color-accent: #102027;
+    --color-secondary-accent: #1b1b1b;
+    --color-button: #102027;
+    --color-button-hover: #1e3a47;
+    --border-radius: 8px;
+    --font-main: 'Inter', sans-serif;
+    --color-success: #388e3c;
+    --color-error: #c62828;
+    --color-warning: #f57c00;
 }
 
 body {
@@ -25,7 +22,7 @@ body {
 }
 
 header {
-    background-color: #0d0d0d; /* Fondo negro absoluto para el encabezado */
+    background-color: var(--color-secondary-accent);
     padding: .5rem;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.9);
     border-bottom: 1px solid var(--color-accent);
@@ -36,7 +33,7 @@ header h1 {
     font-size: 1.0rem;
     color: var(--color-text);
     font-weight: 700;
-    text-shadow: 0 0 15px rgba(16, 32, 39, 0.6); /* Resplandor oscuro sutil */
+    text-shadow: 0 0 15px rgba(16, 32, 39, 0.6);
 }
 
 main {
@@ -45,31 +42,31 @@ main {
     padding: 40px;
     background-color: var(--color-card-bg);
     border-radius: var(--border-radius);
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 1); /* Sombra profunda y marcada */
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 1);
     transition: background-color 0.4s ease, transform 0.4s ease;
     border: 1px solid var(--color-secondary-accent);
 }
 
 main:hover {
-    background-color: #1a1a1a; /* Un poco más claro al hover */
-    border-color: var(--color-accent); /* Cambio de borde */
+    background-color: #1a1a1a;
+    border-color: var(--color-accent);
     transform: scale(0.9);
 }
 
 input, select {
     padding: 12px;
     border-radius: var(--border-radius);
-    border: 1px solid #264653; /* Azul negro */
+    border: 1px solid #264653;
     font-size: 1rem;
     color: var(--color-text);
-    background-color: #121212; /* Fondo ultra oscuro */
+    background-color: #121212;
     transition: all 0.3s ease;
-    box-shadow: inset 0 0 8px rgba(16, 32, 39, 0.5); /* Sombra interna */
+    box-shadow: inset 0 0 8px rgba(16, 32, 39, 0.5);
 }
 
 input:focus, select:focus {
     border-color: var(--color-accent);
-    box-shadow: 0 0 15px rgba(16, 32, 39, 0.6); /* Efecto de foco más intenso */
+    box-shadow: 0 0 15px rgba(16, 32, 39, 0.6);
 }
 
 button {
@@ -82,13 +79,13 @@ button {
     border: none;
     border-radius: var(--border-radius);
     transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
-    box-shadow: 0 8px 20px rgba(16, 32, 39, 0.7); /* Sombra marcada */
+    box-shadow: 0 8px 20px rgba(16, 32, 39, 0.7);
 }
 
 button:hover {
     background-color: var(--color-button-hover);
     transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(30, 58, 71, 0.8); /* Sombra de hover más intensa */
+    box-shadow: 0 10px 30px rgba(30, 58, 71, 0.8);
 }
 
 .mensaje {
@@ -99,7 +96,7 @@ button:hover {
     text-align: center;
     font-weight: 600;
     font-size: 1rem;
-    box-shadow: 0 0 15px rgba(16, 32, 39, 0.5); /* Sombra azul tenue */
+    box-shadow: 0 0 15px rgba(16, 32, 39, 0.5);
 }
 
 .mensaje.exito {
@@ -126,7 +123,7 @@ button:hover {
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    margin-bottom: 20px; /* Espacio vertical entre las filas */
+    margin-bottom: 20px;
 }
 
 #servicios-page label {
@@ -154,14 +151,14 @@ button:hover {
 }
 
 #servicios-page button {
-    background-color: #102027;
+    background-color: var(--color-button);
     padding: 12px 20px;
     font-size: 1rem;
     box-shadow: 0 8px 20px rgba(16, 32, 39, 0.7);
 }
 
 #servicios-page button:hover {
-    background-color: #1e3a47;
+    background-color: var(--color-button-hover);
     transform: scale(1.03);
     box-shadow: 0 10px 30px rgba(30, 58, 71, 0.8);
 }
