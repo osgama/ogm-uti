@@ -1,19 +1,19 @@
 :root {
     /* Paleta de colores pastel */
-    --color-background: #cccccc; /* Cambia a un tono gris más oscuro */
-    --color-card-bg: #d6d6d6; /* Fondo de tarjeta en blanco */
-    --color-text: #2c3e50; /* Azul marino oscuro para texto */
-    --color-accent: #5a7d9a; /* Azul pastel */
-    --color-secondary-accent: #e9ecef; /* Gris claro pastel */
-    --color-button: #ef5350; /* Rojo pastel */
-    --color-button-hover: #d32f2f; /* Rojo más intenso */
-    --border-radius: 12px; /* Bordes redondeados */
-    --font-main: 'Nunito', sans-serif; /* Tipografía moderna y amigable */
+    --color-background: #cccccc;
+    --color-card-bg: #d6d6d6;
+    --color-text: #2c3e50;
+    --color-accent: #5a7d9a;
+    --color-secondary-accent: #e9ecef;
+    --color-button: #ef5350;
+    --color-button-hover: #d32f2f;
+    --border-radius: 12px;
+    --font-main: 'Nunito', sans-serif;
 
     /* Colores de mensajes */
-    --color-success: #81c784; /* Verde pastel */
-    --color-error: #f48fb1; /* Rojo suave */
-    --color-warning: #ffb74d; /* Naranja pastel */
+    --color-success: #81c784;
+    --color-error: #f48fb1;
+    --color-warning: #ffb74d;
 }
 
 body {
@@ -46,11 +46,12 @@ main {
     border-radius: var(--border-radius);
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
     transition: background-color 0.4s ease, transform 0.4s ease;
+    border: 1px solid var(--color-secondary-accent);
 }
 
 main:hover {
-    background-color: #f1f3f5; /* Ligero cambio al hover */
-    transform: scale(1.02);
+    background-color: #f1f3f5;
+    transform: scale(1.03);
 }
 
 input, select {
@@ -59,7 +60,7 @@ input, select {
     border: 1px solid #ced4da;
     font-size: 1rem;
     color: var(--color-text);
-    background-color: #ffffff; /* Fondo blanco suave */
+    background-color: #ffffff;
     transition: all 0.3s ease;
 }
 
@@ -78,12 +79,13 @@ button {
     border: none;
     border-radius: var(--border-radius);
     transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+    box-shadow: 0 8px 20px rgba(211, 47, 47, 0.2);
 }
 
 button:hover {
     background-color: var(--color-button-hover);
     transform: translateY(-3px);
-    box-shadow: 0 4px 15px rgba(211, 47, 47, 0.2);
+    box-shadow: 0 10px 30px rgba(211, 47, 47, 0.2);
 }
 
 .mensaje {
@@ -94,6 +96,7 @@ button:hover {
     text-align: center;
     font-weight: 600;
     font-size: 1rem;
+    box-shadow: 0 0 15px rgba(211, 47, 47, 0.15);
 }
 
 .mensaje.exito {
@@ -120,6 +123,7 @@ button:hover {
     display: flex;
     align-items: center;
     justify-content: flex-start;
+    margin-bottom: 20px; /* Espacio vertical entre las filas */
 }
 
 #servicios-page label {
@@ -131,7 +135,6 @@ button:hover {
 
 #servicios-page input,
 #servicios-page select {
-    width: 60%;
     padding: 10px;
     border-radius: var(--border-radius);
     border: 1px solid #ced4da;
@@ -147,13 +150,13 @@ button:hover {
 }
 
 #servicios-page button {
-    background-color: #ef5350;
+    background-color: var(--color-button);
     padding: 12px 20px;
     font-size: 1rem;
 }
 
 #servicios-page button:hover {
-    background-color: #d32f2f;
+    background-color: var(--color-button-hover);
     transform: scale(1.05);
-    box-shadow: 0 5px 20px rgba(211, 47, 47, 0.2);
+    box-shadow: 0 10px 30px rgba(211, 47, 47, 0.2);
 }

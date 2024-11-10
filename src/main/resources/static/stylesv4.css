@@ -1,79 +1,59 @@
 :root {
     /* Colores principales */
-    --color-background: #000000;         /* Fondo negro */
-    --color-card-bg: #1a1a1a;            /* Fondo de tarjetas en negro oscuro */
-    --color-text: #e0e0e0;               /* Texto en gris claro */
-    --color-accent: #5dade2;             /* Azul claro para acentos */
-    --color-secondary-accent: #2b2b2b;   /* Gris oscuro para contraste */
-    --color-button: #5dade2;             /* Azul claro para botones */
-    --color-button-hover: #76b8e5;       /* Azul más claro en hover */
+    --color-background: #000000;
+    --color-card-bg: #1a1a1a;
+    --color-text: #e0e0e0;
+    --color-accent: #5dade2;
+    --color-secondary-accent: #2b2b2b;
+    --color-button: #5dade2;
+    --color-button-hover: #76b8e5;
     --border-radius: 6px;
     --font-main: 'Roboto', sans-serif;
-  
+
     /* Colores de mensajes */
-    --color-success: #82e0aa;            /* Verde pastel para éxito */
-    --color-error: #e57373;              /* Rojo suave para errores */
-    --color-warning: #f7dc6f;            /* Amarillo pastel para advertencias */
-  }
-  
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-  
-  body {
+    --color-success: #82e0aa;
+    --color-error: #e57373;
+    --color-warning: #f7dc6f;
+}
+
+body {
     background-color: var(--color-background);
     color: var(--color-text);
     font-family: var(--font-main);
     line-height: 1.6;
-  }
-  
-  /* Cambia los títulos a gris claro */
-  header h1, h2, h3, h4, h5, h6 {
-    color: #ffffff;
-  }
-  
-  header {
+}
+
+header {
     background-color: var(--color-secondary-accent);
     text-align: center;
     padding: 1.5rem;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  }
-  
-  main {
+    border-bottom: 2px solid var(--color-accent);
+}
+
+header h1 {
+    font-size: 2rem;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+main {
     max-width: 1000px;
     margin: 20px auto;
     padding: 20px;
     background-color: var(--color-card-bg);
     border-radius: var(--border-radius);
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-    transition: background-color 0.3s ease;
-  }
-  
-  main:hover {
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    border: 1px solid var(--color-secondary-accent);
+}
+
+main:hover {
     background-color: #333333;
-  }
-  
-  .form-container {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-  
-  .form-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  label {
-    font-weight: bold;
-    color: var(--color-text);
-    width: 100px;
-  }
-  
-  input, select {
+    transform: scale(1.03);
+}
+
+input, select {
     padding: 10px;
     border-radius: var(--border-radius);
     border: none;
@@ -82,30 +62,33 @@
     background-color: var(--color-secondary-accent);
     width: 200px;
     transition: all 0.3s ease;
-  }
-  
-  .button-group {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-  }
-  
-  button {
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 5px rgba(93, 173, 226, 0.5);
+}
+
+button {
     font-weight: bold;
     cursor: pointer;
     background-color: var(--color-button);
     color: #ffffff;
-    padding: 10px;
+    padding: 10px 20px;
     border: none;
     border-radius: var(--border-radius);
-    transition: background-color 0.3s ease;
-  }
-  
-  button:hover {
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+    box-shadow: 0 8px 20px rgba(93, 173, 226, 0.3);
+}
+
+button:hover {
     background-color: var(--color-button-hover);
-  }
-  
-  .mensaje {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(118, 184, 229, 0.4);
+}
+
+.mensaje {
     padding: 12px;
     border-radius: var(--border-radius);
     margin-top: 10px;
@@ -113,55 +96,66 @@
     text-align: center;
     font-weight: bold;
     color: #ffffff;
-  }
-  
-  /* Estilos para mensajes */
-  .mensaje.exito {
+    box-shadow: 0 0 15px rgba(93, 173, 226, 0.3);
+}
+
+.mensaje.exito {
     background-color: var(--color-success);
-  }
-  
-  .mensaje.error {
+}
+
+.mensaje.error {
     background-color: var(--color-error);
-  }
-  
-  .mensaje.warning {
+}
+
+.mensaje.warning {
     background-color: var(--color-warning);
-    color: #333333;
-  }
-  
-  .table {
-    width: 100%;
-    margin-top: 20px;
-    border-collapse: collapse;
-    overflow: hidden;
-    border-radius: var(--border-radius);
-  }
-  
-  .table th, .table td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #444;
-    background-color: var(--color-card-bg);
-  }
-  
-  .table th {
-    background-color: #3c4a65;
-    color: #ffffff;
-  }
-  
-  .table tr:nth-child(odd) {
-    background-color: #2e3b54;
-  }
-  
-  .table tr:nth-child(even) {
-    background-color: #374560;
-  }
-  
-  #totalArchivosInfo {
-    float: right;
-    line-height: 3rem;
-    margin-right: 30px;
+    color: #333;
+}
+
+/* Estilos específicos para servicios.html */
+#servicios-page .form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+#servicios-page .form-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-bottom: 20px; /* Espacio vertical entre las filas */
+}
+
+#servicios-page label {
     font-weight: bold;
     color: var(--color-text);
-  }
-  
+    width: 100px;
+}
+
+#servicios-page input,
+#servicios-page select {
+    padding: 10px;
+    border-radius: var(--border-radius);
+    border: none;
+    background-color: var(--color-secondary-accent);
+    color: var(--color-text);
+    font-size: 0.95rem;
+}
+
+#servicios-page .button-group {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-start;
+}
+
+#servicios-page button {
+    background-color: var(--color-button);
+    padding: 12px 20px;
+    font-size: 1rem;
+}
+
+#servicios-page button:hover {
+    background-color: var(--color-button-hover);
+    transform: scale(1.05);
+    box-shadow: 0 10px 30px rgba(118, 184, 229, 0.4);
+}

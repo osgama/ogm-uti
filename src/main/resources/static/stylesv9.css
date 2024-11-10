@@ -1,26 +1,26 @@
 :root {
-    /* Nueva paleta de colores en tonos oscuros y pastel */
-    --color-background: #181818; /* Fondo oscuro */
-    --color-card-bg: #252525; /* Fondo de tarjeta más suave */
-    --color-text: #f1f1f1; /* Texto claro */
-    --color-accent: #82c8a0; /* Verde pastel */
-    --color-secondary-accent: #303030; /* Fondo de elementos secundarios */
-    --color-button: #82c8a0; /* Color de botón pastel */
-    --color-button-hover: #9fd8b8; /* Más claro al hacer hover */
-    --border-radius: 10px; /* Bordes más redondeados */
-    --font-main: 'Poppins', sans-serif; /* Tipografía moderna */
+    /* Colores principales */
+    --color-background: #181818;
+    --color-card-bg: #252525;
+    --color-text: #f1f1f1;
+    --color-accent: #82c8a0;
+    --color-secondary-accent: #303030;
+    --color-button: #82c8a0;
+    --color-button-hover: #9fd8b8;
+    --border-radius: 10px;
+    --font-main: 'Poppins', sans-serif;
 
     /* Colores de mensajes */
-    --color-success: #50d890; /* Verde suave */
-    --color-error: #f28b82; /* Rojo pastel */
-    --color-warning: #f5c16c; /* Amarillo suave */
+    --color-success: #50d890;
+    --color-error: #f28b82;
+    --color-warning: #f5c16c;
 }
 
 body {
     background-color: var(--color-background);
     color: var(--color-text);
     font-family: var(--font-main);
-    font-size: 14px; /* Tamaño un poco más grande */
+    font-size: 14px;
     line-height: 1.6;
 }
 
@@ -48,7 +48,7 @@ main {
 }
 
 main:hover {
-    background-color: #2e2e2e; /* Efecto de resalte */
+    background-color: #2e2e2e;
     transform: scale(1.02);
 }
 
@@ -58,7 +58,7 @@ input, select {
     border: 1px solid #444;
     font-size: 0.9rem;
     color: var(--color-text);
-    background-color: #2f2f2f; /* Fondo oscuro */
+    background-color: #2f2f2f;
     transition: all 0.3s ease;
 }
 
@@ -106,5 +106,54 @@ button:hover {
 
 .mensaje.warning {
     background-color: var(--color-warning);
-    color: #333333;
+    color: #333;
+}
+
+/* Estilos específicos para servicios.html */
+#servicios-page .form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+#servicios-page .form-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-bottom: 20px; /* Espacio vertical entre las filas */
+}
+
+#servicios-page label {
+    min-width: 120px;
+    padding-right: 15px;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+#servicios-page input,
+#servicios-page select {
+    padding: 10px;
+    border-radius: var(--border-radius);
+    border: 1px solid #444;
+    background-color: #2f2f2f;
+    color: var(--color-text);
+    font-size: 0.95rem;
+}
+
+#servicios-page .button-group {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-start;
+}
+
+#servicios-page button {
+    background-color: var(--color-button);
+    padding: 12px 20px;
+    font-size: 1rem;
+}
+
+#servicios-page button:hover {
+    background-color: var(--color-button-hover);
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(130, 200, 160, 0.4);
 }

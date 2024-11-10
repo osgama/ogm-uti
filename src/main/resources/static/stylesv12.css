@@ -1,19 +1,19 @@
 :root {
     /* Paleta de colores oscuros intensos */
-    --color-background: #121212; /* Negro profundo para el fondo */
-    --color-card-bg: #1e1e1e; /* Fondo de tarjeta en gris muy oscuro */
-    --color-text: #cccccc; /* Gris claro para texto */
-    --color-accent: #37474f; /* Azul oscuro grisáceo */
-    --color-secondary-accent: #263238; /* Azul grisáceo más oscuro */
-    --color-button: #37474f; /* Botón en azul oscuro */
-    --color-button-hover: #455a64; /* Azul más claro al hacer hover */
-    --border-radius: 12px; /* Bordes redondeados */
-    --font-main: 'Roboto', sans-serif; /* Tipografía moderna y clara */
+    --color-background: #121212;
+    --color-card-bg: #1e1e1e;
+    --color-text: #cccccc;
+    --color-accent: #37474f;
+    --color-secondary-accent: #263238;
+    --color-button: #37474f;
+    --color-button-hover: #455a64;
+    --border-radius: 12px;
+    --font-main: 'Roboto', sans-serif;
 
     /* Colores de mensajes */
-    --color-success: #4caf50; /* Verde pastel */
-    --color-error: #e57373; /* Rojo pastel */
-    --color-warning: #ffa726; /* Naranja pastel */
+    --color-success: #4caf50;
+    --color-error: #e57373;
+    --color-warning: #ffa726;
 }
 
 body {
@@ -25,7 +25,7 @@ body {
 }
 
 header {
-    background-color: #1a1a1a; /* Tono más oscuro para el fondo del encabezado */
+    background-color: #1a1a1a;
     padding: 1.5rem;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
     border-bottom: 2px solid var(--color-accent);
@@ -49,7 +49,7 @@ main {
 }
 
 main:hover {
-    background-color: #292929; /* Un poco más claro al hover */
+    background-color: #292929;
     transform: scale(1.03);
 }
 
@@ -59,7 +59,7 @@ input, select {
     border: 1px solid #546e7a;
     font-size: 1rem;
     color: var(--color-text);
-    background-color: #1c1c1c; /* Fondo muy oscuro */
+    background-color: #1c1c1c;
     transition: all 0.3s ease;
 }
 
@@ -120,6 +120,7 @@ button:hover {
     display: flex;
     align-items: center;
     justify-content: flex-start;
+    margin-bottom: 20px; /* Espacio vertical entre las filas */
 }
 
 #servicios-page label {
@@ -131,7 +132,6 @@ button:hover {
 
 #servicios-page input,
 #servicios-page select {
-    width: 60%;
     padding: 10px;
     border-radius: var(--border-radius);
     border: 1px solid #546e7a;
@@ -147,13 +147,13 @@ button:hover {
 }
 
 #servicios-page button {
-    background-color: #37474f;
+    background-color: var(--color-button);
     padding: 12px 20px;
     font-size: 1rem;
 }
 
 #servicios-page button:hover {
-    background-color: #455a64;
+    background-color: var(--color-button-hover);
     transform: scale(1.05);
     box-shadow: 0 5px 20px rgba(69, 90, 100, 0.4);
 }

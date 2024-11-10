@@ -1,19 +1,19 @@
 :root {
     /* Paleta de colores equilibrada */
-    --color-background: #d9d9d9; /* Gris claro para el fondo general */
-    --color-card-bg: #f0f0f0; /* Fondo de tarjeta en gris más claro */
-    --color-text: #2a2a2a; /* Gris oscuro para texto */
-    --color-accent: #4a6572; /* Azul grisáceo oscuro */
-    --color-secondary-accent: #b0bec5; /* Azul grisáceo claro */
-    --color-button: #4a6572; /* Botones en azul grisáceo */
-    --color-button-hover: #627c91; /* Azul más intenso al hacer hover */
-    --border-radius: 12px; /* Bordes redondeados */
-    --font-main: 'Segoe UI', sans-serif; /* Tipografía moderna y clara */
+    --color-background: #d9d9d9;
+    --color-card-bg: #f0f0f0;
+    --color-text: #2a2a2a;
+    --color-accent: #4a6572;
+    --color-secondary-accent: #b0bec5;
+    --color-button: #4a6572;
+    --color-button-hover: #627c91;
+    --border-radius: 12px;
+    --font-main: 'Segoe UI', sans-serif;
 
     /* Colores de mensajes */
-    --color-success: #81c784; /* Verde pastel */
-    --color-error: #ef5350; /* Rojo pastel */
-    --color-warning: #ffb74d; /* Naranja pastel */
+    --color-success: #81c784;
+    --color-error: #ef5350;
+    --color-warning: #ffb74d;
 }
 
 body {
@@ -46,10 +46,11 @@ main {
     border-radius: var(--border-radius);
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
     transition: background-color 0.4s ease, transform 0.4s ease;
+    border: 1px solid var(--color-secondary-accent);
 }
 
 main:hover {
-    background-color: #e0e0e0; /* Un poco más oscuro al hover */
+    background-color: #e0e0e0;
     transform: scale(1.03);
 }
 
@@ -59,7 +60,7 @@ input, select {
     border: 1px solid #a0a4a8;
     font-size: 1rem;
     color: var(--color-text);
-    background-color: #ffffff; /* Fondo blanco suave */
+    background-color: #ffffff;
     transition: all 0.3s ease;
 }
 
@@ -78,12 +79,13 @@ button {
     border: none;
     border-radius: var(--border-radius);
     transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+    box-shadow: 0 8px 20px rgba(74, 101, 114, 0.3);
 }
 
 button:hover {
     background-color: var(--color-button-hover);
     transform: translateY(-3px);
-    box-shadow: 0 4px 15px rgba(98, 124, 145, 0.3);
+    box-shadow: 0 10px 30px rgba(74, 101, 114, 0.3);
 }
 
 .mensaje {
@@ -94,6 +96,7 @@ button:hover {
     text-align: center;
     font-weight: 600;
     font-size: 1rem;
+    box-shadow: 0 0 15px rgba(74, 101, 114, 0.2);
 }
 
 .mensaje.exito {
@@ -120,6 +123,7 @@ button:hover {
     display: flex;
     align-items: center;
     justify-content: flex-start;
+    margin-bottom: 20px; /* Espacio vertical entre las filas */
 }
 
 #servicios-page label {
@@ -131,7 +135,6 @@ button:hover {
 
 #servicios-page input,
 #servicios-page select {
-    width: 60%;
     padding: 10px;
     border-radius: var(--border-radius);
     border: 1px solid #a0a4a8;
@@ -147,13 +150,13 @@ button:hover {
 }
 
 #servicios-page button {
-    background-color: #4a6572;
+    background-color: var(--color-button);
     padding: 12px 20px;
     font-size: 1rem;
 }
 
 #servicios-page button:hover {
-    background-color: #627c91;
+    background-color: var(--color-button-hover);
     transform: scale(1.05);
-    box-shadow: 0 5px 20px rgba(98, 124, 145, 0.3);
+    box-shadow: 0 10px 30px rgba(74, 101, 114, 0.3);
 }

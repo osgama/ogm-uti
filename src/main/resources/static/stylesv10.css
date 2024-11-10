@@ -1,21 +1,19 @@
-/* Estilos generales (comunes)*/
-
 :root {
-    /* Paleta en negros y grises */
-    --color-background: #101010; /* Fondo negro profundo */
-    --color-card-bg: #1b1b1b; /* Fondo de tarjeta gris oscuro */
-    --color-text: #dcdcdc; /* Texto gris claro */
-    --color-accent: #6c757d; /* Gris azulado como acento */
-    --color-secondary-accent: #2a2a2a; /* Gris más oscuro */
-    --color-button: #6c757d; /* Botón en gris azulado */
-    --color-button-hover: #868e96; /* Tonalidad más clara al hacer hover */
-    --border-radius: 10px; /* Bordes redondeados */
-    --font-main: 'Poppins', sans-serif; /* Tipografía moderna */
+    /* Paleta de colores en tonos negros y grises */
+    --color-background: #101010;
+    --color-card-bg: #1b1b1b;
+    --color-text: #dcdcdc;
+    --color-accent: #6c757d;
+    --color-secondary-accent: #2a2a2a;
+    --color-button: #6c757d;
+    --color-button-hover: #868e96;
+    --border-radius: 10px;
+    --font-main: 'Poppins', sans-serif;
 
     /* Colores de mensajes */
-    --color-success: #5cb85c; /* Verde más suave */
-    --color-error: #d9534f; /* Rojo oscuro */
-    --color-warning: #f0ad4e; /* Amarillo apagado */
+    --color-success: #5cb85c;
+    --color-error: #d9534f;
+    --color-warning: #f0ad4e;
 }
 
 body {
@@ -50,7 +48,7 @@ main {
 }
 
 main:hover {
-    background-color: #242424; /* Efecto de resalte */
+    background-color: #242424;
     transform: scale(1.02);
 }
 
@@ -60,7 +58,7 @@ input, select {
     border: 1px solid #444;
     font-size: 0.9rem;
     color: var(--color-text);
-    background-color: #2d2d2d; /* Fondo gris oscuro */
+    background-color: #2d2d2d;
     transition: all 0.3s ease;
 }
 
@@ -108,25 +106,25 @@ button:hover {
 
 .mensaje.warning {
     background-color: var(--color-warning);
-    color: #333333;
+    color: #333;
 }
 
-/* Estilos específicos para servicios.html */
 /* Estilos específicos para servicios.html */
 #servicios-page .form-container {
     display: flex;
     flex-direction: column;
-    gap: 20px; /* Espacio entre cada fila */
+    gap: 20px;
 }
 
 #servicios-page .form-row {
     display: flex;
     align-items: center;
     justify-content: flex-start;
+    margin-bottom: 20px; /* Espacio vertical entre las filas */
 }
 
 #servicios-page label {
-    min-width: 100px; /* Ancho mínimo para las etiquetas */
+    min-width: 100px;
     padding-right: 10px;
     font-weight: bold;
     color: var(--color-text);
@@ -134,7 +132,6 @@ button:hover {
 
 #servicios-page input,
 #servicios-page select {
-    width: 50%; /* Los inputs y selects ocupan el 50% del contenedor */
     padding: 8px;
     border-radius: var(--border-radius);
     border: 1px solid #444;
@@ -145,7 +142,18 @@ button:hover {
 
 #servicios-page .button-group {
     display: flex;
-    gap: 10px; /* Espacio entre los botones */
+    gap: 10px;
     justify-content: flex-start;
 }
 
+#servicios-page button {
+    background-color: var(--color-button);
+    padding: 12px 20px;
+    font-size: 1rem;
+}
+
+#servicios-page button:hover {
+    background-color: var(--color-button-hover);
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(108, 117, 125, 0.4);
+}

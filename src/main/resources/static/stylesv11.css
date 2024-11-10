@@ -1,19 +1,19 @@
 :root {
     /* Paleta de colores azul oscuro */
-    --color-background: #0b1c2d; /* Azul noche profundo */
-    --color-card-bg: #14273e; /* Azul grisáceo oscuro */
-    --color-text: #e0e8f0; /* Blanco azulado */
-    --color-accent: #1c3b57; /* Azul petróleo */
-    --color-secondary-accent: #1a2a3a; /* Azul más oscuro */
-    --color-button: #1c3b57; /* Azul petróleo */
-    --color-button-hover: #285270; /* Azul más claro al hacer hover */
-    --border-radius: 14px; /* Bordes redondeados */
-    --font-main: 'Montserrat', sans-serif; /* Tipografía moderna */
+    --color-background: #0b1c2d;
+    --color-card-bg: #14273e;
+    --color-text: #e0e8f0;
+    --color-accent: #1c3b57;
+    --color-secondary-accent: #1a2a3a;
+    --color-button: #1c3b57;
+    --color-button-hover: #285270;
+    --border-radius: 14px;
+    --font-main: 'Montserrat', sans-serif;
 
     /* Colores de mensajes */
-    --color-success: #2e7d32; /* Verde oscuro */
-    --color-error: #d32f2f; /* Rojo oscuro */
-    --color-warning: #f9a825; /* Amarillo dorado */
+    --color-success: #2e7d32;
+    --color-error: #d32f2f;
+    --color-warning: #f9a825;
 }
 
 body {
@@ -119,9 +119,9 @@ button:hover {
 #servicios-page .form-row {
     display: flex;
     align-items: center;
-    justify-content: flex-start; /* Alineación más tradicional */
+    justify-content: flex-start;
+    margin-bottom: 20px; /* Espacio vertical entre las filas */
 }
-
 
 #servicios-page label {
     min-width: 120px;
@@ -132,7 +132,6 @@ button:hover {
 
 #servicios-page input,
 #servicios-page select {
-    width: 65%;
     padding: 12px;
     border-radius: var(--border-radius);
     border: 1px solid #4d5d70;
@@ -148,13 +147,13 @@ button:hover {
 }
 
 #servicios-page button {
-    background-color: #1c3b57;
+    background-color: var(--color-button);
     padding: 14px 22px;
     font-size: 1rem;
 }
 
 #servicios-page button:hover {
-    background-color: #285270;
+    background-color: var(--color-button-hover);
     transform: scale(1.07);
     box-shadow: 0 8px 28px rgba(28, 59, 87, 0.4);
 }
