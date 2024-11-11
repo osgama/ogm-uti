@@ -1,14 +1,15 @@
 :root {
-    --color-background: #0b1c2d;
-    --color-card-bg: #14273e;
-    --color-text: #e0e8f0;
-    --color-accent: #1c3b57;
-    --color-secondary-accent: #1a2a3a;
-    --color-button: #1c3b57;
-    --color-button-hover: #285270;
-    --border-radius: 14px;
-    --font-main: 'Montserrat', sans-serif;
-    --color-success: #4caf50;
+    --color-background: #1c1f24;
+    --color-card-bg: #2a2f35;
+    --color-text: #d9d9d9;
+    --color-accent: #4fc3a1;
+    --color-secondary-accent: #3a5a58;
+    --color-button: #4fc3a1;
+    --color-button-hover: #66d1b3;
+    --border-radius: 8px;
+    --font-main: 'Roboto', sans-serif;
+    --color-header-bg: #2d3238;
+    --color-success: #66bb6a;
     --color-error: #e57373;
     --color-warning: #ffb74d;
 }
@@ -22,10 +23,10 @@ body {
 }
 
 header {
-    background-color: var(--color-secondary-accent);
+    background-color: var(--color-header-bg);
     padding: .5rem;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
-    border-bottom: 1px solid var(--color-accent);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid var(--color-secondary-accent);
     text-align: center;
 }
 
@@ -41,31 +42,31 @@ main {
     padding: 40px;
     background-color: var(--color-card-bg);
     border-radius: var(--border-radius);
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
     transition: background-color 0.4s ease, transform 0.4s ease;
     border: 1px solid var(--color-secondary-accent);
 }
 
 main:hover {
-    background-color: #1a2a3a;
+    background-color: #343a40;
     border-color: var(--color-accent);
-    transform: scale(0.9);
+    transform: scale(0.98);
 }
 
 input, select {
     padding: 12px;
     border-radius: var(--border-radius);
-    border: 1px solid #3b4a5c;
+    border: 1px solid #4a5258;
     font-size: 1rem;
     color: var(--color-text);
-    background-color: #0f1f30;
+    background-color: #252a2f;
     transition: all 0.3s ease;
-    box-shadow: inset 0 0 8px rgba(28, 59, 87, 0.3);
+    box-shadow: inset 0 0 8px rgba(79, 195, 161, 0.2);
 }
 
 input:focus, select:focus {
     border-color: var(--color-accent);
-    box-shadow: 0 0 15px rgba(28, 59, 87, 0.3);
+    box-shadow: 0 0 15px rgba(79, 195, 161, 0.3);
 }
 
 button {
@@ -78,13 +79,13 @@ button {
     border: none;
     border-radius: var(--border-radius);
     transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
-    box-shadow: 0 8px 20px rgba(28, 59, 87, 0.3);
+    box-shadow: 0 8px 20px rgba(79, 195, 161, 0.2);
 }
 
 button:hover {
     background-color: var(--color-button-hover);
     transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(40, 82, 112, 0.3);
+    box-shadow: 0 10px 30px rgba(102, 209, 179, 0.3);
 }
 
 .mensaje {
@@ -95,7 +96,7 @@ button:hover {
     text-align: center;
     font-weight: 600;
     font-size: 1rem;
-    box-shadow: 0 0 15px rgba(28, 59, 87, 0.3);
+    box-shadow: 0 0 15px rgba(79, 195, 161, 0.2);
     color: #000;
 }
 
@@ -136,8 +137,8 @@ button:hover {
 #servicios-page select {
     padding: 10px;
     border-radius: var(--border-radius);
-    border: 1px solid #3b4a5c;
-    background-color: #0f1f30;
+    border: 1px solid #4a5258;
+    background-color: #252a2f;
     color: var(--color-text);
     font-size: 0.95rem;
 }
@@ -152,11 +153,11 @@ button:hover {
     background-color: var(--color-button);
     padding: 12px 20px;
     font-size: 1rem;
-    box-shadow: 0 8px 20px rgba(28, 59, 87, 0.3);
+    box-shadow: 0 8px 20px rgba(79, 195, 161, 0.2);
 }
 
 #servicios-page button:hover {
     background-color: var(--color-button-hover);
     transform: scale(1.03);
-    box-shadow: 0 10px 30px rgba(40, 82, 112, 0.3);
+    box-shadow: 0 10px 30px rgba(102, 209, 179, 0.3);
 }
