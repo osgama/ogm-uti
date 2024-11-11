@@ -1,0 +1,162 @@
+:root {
+    --color-background: #1b1c1e; /* Fondo oscuro sobrio */
+    --color-card-bg: #242629; /* Fondo de tarjetas ligeramente contrastante */
+    --color-text: #f5f5f5; /* Texto claro y legible */
+    --color-accent: #b2a57e; /* Dorado suave */
+    --color-secondary-accent: #2d2e33; /* Gris oscuro para acentos secundarios */
+    --color-button: #b2a57e; /* Botones que resaltan */
+    --color-button-hover: #d3b785; /* Un dorado más brillante para hover */
+    --border-radius: 8px; /* Consistente */
+    --font-main: 'Poppins', sans-serif; /* Elegante y moderna */
+    --color-success: #4caf50; /* Sin cambios */
+    --color-error: #e57373; /* Sin cambios */
+    --color-warning: #ffb74d; /* Sin cambios */
+}
+
+body {
+    background-color: var(--color-background);
+    color: var(--color-text);
+    font-family: var(--font-main);
+    font-size: 15px;
+    line-height: 1.8;
+}
+
+header {
+    background-color: var(--color-secondary-accent);
+    padding: .5rem;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    border-bottom: 1px solid var(--color-accent);
+    text-align: center;
+}
+
+header h1 {
+    font-size: 1rem;
+    color: var(--color-text);
+    font-weight: 700;
+}
+
+main {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 40px;
+    background-color: var(--color-card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5);
+    transition: background-color 0.4s ease, transform 0.4s ease;
+    border: 1px solid var(--color-secondary-accent);
+}
+
+main:hover {
+    background-color: #2d2e33;
+    border-color: var(--color-accent);
+    transform: scale(0.9);
+}
+
+input, select {
+    padding: 12px;
+    border-radius: var(--border-radius);
+    border: 1px solid #444;
+    font-size: 1rem;
+    color: var(--color-text);
+    background-color: #1e1f21;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 0 8px rgba(178, 165, 126, 0.3);
+}
+
+input:focus, select:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 15px rgba(178, 165, 126, 0.3);
+}
+
+button {
+    font-weight: bold;
+    cursor: pointer;
+    background-color: var(--color-button);
+    color: #ffffff;
+    padding: 12px 20px;
+    font-size: 1rem;
+    border: none;
+    border-radius: var(--border-radius);
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+    box-shadow: 0 8px 20px rgba(178, 165, 126, 0.3);
+}
+
+button:hover {
+    background-color: var(--color-button-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(211, 183, 133, 0.3);
+}
+
+.mensaje {
+    padding: 14px;
+    border-radius: var(--border-radius);
+    margin-top: 20px;
+    display: none;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1rem;
+    box-shadow: 0 0 15px rgba(178, 165, 126, 0.3);
+    color: #000;
+}
+
+.mensaje.exito {
+    background-color: var(--color-success);
+}
+
+.mensaje.error {
+    background-color: var(--color-error);
+}
+
+.mensaje.warning {
+    background-color: var(--color-warning);
+}
+
+/* Estilos específicos para servicios.html */
+#servicios-page .form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+#servicios-page .form-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-bottom: 20px;
+}
+
+#servicios-page label {
+    min-width: 120px;
+    padding-right: 15px;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+#servicios-page input,
+#servicios-page select {
+    padding: 10px;
+    border-radius: var(--border-radius);
+    border: 1px solid #444;
+    background-color: #1e1f21;
+    color: var(--color-text);
+    font-size: 0.95rem;
+}
+
+#servicios-page .button-group {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-start;
+}
+
+#servicios-page button {
+    background-color: var(--color-button);
+    padding: 12px 20px;
+    font-size: 1rem;
+    box-shadow: 0 8px 20px rgba(178, 165, 126, 0.3);
+}
+
+#servicios-page button:hover {
+    background-color: var(--color-button-hover);
+    transform: scale(1.03);
+    box-shadow: 0 10px 30px rgba(211, 183, 133, 0.3);
+}

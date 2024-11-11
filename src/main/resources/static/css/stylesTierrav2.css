@@ -1,0 +1,162 @@
+:root {
+    --color-background: #2e2a28; /* Fondo marrón grisáceo */
+    --color-card-bg: #413f3c; /* Fondo de tarjetas ligeramente más claro */
+    --color-text: #e8e6e3; /* Texto en un tono marfil claro */
+    --color-accent: #b08968; /* Marrón cálido */
+    --color-secondary-accent: #5a524d; /* Gris cálido oscuro */
+    --color-button: #b08968; /* Botón en marrón cálido */
+    --color-button-hover: #c49b7c; /* Hover más claro */
+    --border-radius: 10px; /* Bordes suaves */
+    --font-main: 'Source Sans Pro', sans-serif; /* Moderna y legible */
+    --color-success: #68b684; /* Verde medio */
+    --color-error: #d45d51; /* Rojo cálido */
+    --color-warning: #e1a157; /* Naranja suave */
+}
+
+body {
+    background-color: var(--color-background);
+    color: var(--color-text);
+    font-family: var(--font-main);
+    font-size: 15px;
+    line-height: 1.8;
+}
+
+header {
+    background-color: var(--color-secondary-accent);
+    padding: .5rem;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    border-bottom: 1px solid var(--color-accent);
+    text-align: center;
+}
+
+header h1 {
+    font-size: 1rem;
+    color: var(--color-text);
+    font-weight: 700;
+}
+
+main {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 40px;
+    background-color: var(--color-card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5);
+    transition: background-color 0.4s ease, transform 0.4s ease;
+    border: 1px solid var(--color-secondary-accent);
+}
+
+main:hover {
+    background-color: #5a524d;
+    border-color: var(--color-accent);
+    transform: scale(0.9);
+}
+
+input, select {
+    padding: 12px;
+    border-radius: var(--border-radius);
+    border: 1px solid #6e645f;
+    font-size: 1rem;
+    color: var(--color-text);
+    background-color: #3b3735;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 0 8px rgba(176, 137, 104, 0.3);
+}
+
+input:focus, select:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 15px rgba(176, 137, 104, 0.3);
+}
+
+button {
+    font-weight: bold;
+    cursor: pointer;
+    background-color: var(--color-button);
+    color: #ffffff;
+    padding: 12px 20px;
+    font-size: 1rem;
+    border: none;
+    border-radius: var(--border-radius);
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+    box-shadow: 0 8px 20px rgba(176, 137, 104, 0.3);
+}
+
+button:hover {
+    background-color: var(--color-button-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(196, 155, 124, 0.3);
+}
+
+.mensaje {
+    padding: 14px;
+    border-radius: var(--border-radius);
+    margin-top: 20px;
+    display: none;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1rem;
+    box-shadow: 0 0 15px rgba(176, 137, 104, 0.3);
+    color: #000;
+}
+
+.mensaje.exito {
+    background-color: var(--color-success);
+}
+
+.mensaje.error {
+    background-color: var(--color-error);
+}
+
+.mensaje.warning {
+    background-color: var(--color-warning);
+}
+
+/* Estilos específicos para servicios.html */
+#servicios-page .form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+#servicios-page .form-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-bottom: 20px;
+}
+
+#servicios-page label {
+    min-width: 120px;
+    padding-right: 15px;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+#servicios-page input,
+#servicios-page select {
+    padding: 10px;
+    border-radius: var(--border-radius);
+    border: 1px solid #6e645f;
+    background-color: #3b3735;
+    color: var(--color-text);
+    font-size: 0.95rem;
+}
+
+#servicios-page .button-group {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-start;
+}
+
+#servicios-page button {
+    background-color: var(--color-button);
+    padding: 12px 20px;
+    font-size: 1rem;
+    box-shadow: 0 8px 20px rgba(176, 137, 104, 0.3);
+}
+
+#servicios-page button:hover {
+    background-color: var(--color-button-hover);
+    transform: scale(1.03);
+    box-shadow: 0 10px 30px rgba(196, 155, 124, 0.3);
+}
