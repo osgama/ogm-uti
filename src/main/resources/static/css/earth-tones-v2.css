@@ -1,16 +1,16 @@
 :root {
-    --color-background: #2e2a28; /* Fondo marrón grisáceo */
-    --color-card-bg: #413f3c; /* Fondo de tarjetas ligeramente más claro */
-    --color-text: #e8e6e3; /* Texto en un tono marfil claro */
-    --color-accent: #b08968; /* Marrón cálido */
-    --color-secondary-accent: #5a524d; /* Gris cálido oscuro */
-    --color-button: #b08968; /* Botón en marrón cálido */
-    --color-button-hover: #c49b7c; /* Hover más claro */
-    --border-radius: 10px; /* Bordes suaves */
-    --font-main: 'Source Sans Pro', sans-serif; /* Moderna y legible */
-    --color-success: #68b684; /* Verde medio */
-    --color-error: #d45d51; /* Rojo cálido */
-    --color-warning: #e1a157; /* Naranja suave */
+    --color-background: #2e2a28;
+    --color-card-bg: #413f3c;
+    --color-text: #e8e6e3;
+    --color-accent: #b08968;
+    --color-secondary-accent: #5a524d;
+    --color-button: #b08968;
+    --color-button-hover: #c49b7c;
+    --border-radius: 10px;
+    --font-main: 'Source Sans Pro', sans-serif;
+    --color-success: #4caf50;
+    --color-error: #e57373;
+    --color-warning: #ffb74d;
 }
 
 body {

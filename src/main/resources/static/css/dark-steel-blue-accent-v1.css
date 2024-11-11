@@ -1,16 +1,16 @@
 :root {
-    --color-background: #2c3e50; /* Azul acero oscuro */
-    --color-card-bg: #3b4a5c; /* Fondo de tarjetas un poco más claro */
-    --color-text: #dfe6e9; /* Texto en un tono gris claro */
-    --color-accent: #7f8c8d; /* Gris neutral para acentos */
-    --color-secondary-accent: #4b5d6b; /* Azul grisáceo */
-    --color-button: #7f8c8d; /* Botón en gris neutral */
-    --color-button-hover: #99a8a9; /* Hover más claro */
-    --border-radius: 10px; /* Bordes suaves */
-    --font-main: 'Helvetica Neue', sans-serif; /* Moderno y limpio */
-    --color-success: #27ae60; /* Verde brillante */
-    --color-error: #c0392b; /* Rojo oscuro */
-    --color-warning: #e67e22; /* Naranja quemado */
+    --color-background: #2c3e50;
+    --color-card-bg: #3b4a5c;
+    --color-text: #dfe6e9;
+    --color-accent: #7f8c8d;
+    --color-secondary-accent: #4b5d6b;
+    --color-button: #7f8c8d;
+    --color-button-hover: #99a8a9;
+    --border-radius: 10px;
+    --font-main: 'Helvetica Neue', sans-serif;
+    --color-success: #4caf50;
+    --color-error: #e57373;
+    --color-warning: #ffb74d;
 }
 
 body {

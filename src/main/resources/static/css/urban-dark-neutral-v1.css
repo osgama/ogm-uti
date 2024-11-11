@@ -8,9 +8,9 @@
     --color-button-hover: #8a8e92;
     --border-radius: 8px;
     --font-main: 'Helvetica Neue', sans-serif;
-    --color-success: #5eba7d;
-    --color-error: #d77a7a;
-    --color-warning: #e3a963;
+    --color-success: #4caf50;
+    --color-error: #e57373;
+    --color-warning: #ffb74d;
 }
 
 body {

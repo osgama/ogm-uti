@@ -1,16 +1,16 @@
 :root {
-    --color-background: #0e161b; /* Fondo azul oscuro */
-    --color-card-bg: #1b2b34; /* Fondo de tarjetas con un tono más claro */
-    --color-text: #d1e8e2; /* Texto claro para alta legibilidad */
-    --color-accent: #4eb6b6; /* Verde azulado suave */
-    --color-secondary-accent: #243b4a; /* Azul oscuro para acentos */
-    --color-button: #4eb6b6; /* Botón en verde azulado */
-    --color-button-hover: #62c2c2; /* Hover más claro */
-    --border-radius: 8px; /* Consistente */
-    --font-main: 'Nunito', sans-serif; /* Moderna y elegante */
-    --color-success: #3ddc97; /* Verde brillante */
-    --color-error: #ff6b6b; /* Rojo suave */
-    --color-warning: #ffa726; /* Naranja para advertencias */
+    --color-background: #0e161b;
+    --color-card-bg: #1b2b34;
+    --color-text: #d1e8e2;
+    --color-accent: #4eb6b6;
+    --color-secondary-accent: #243b4a;
+    --color-button: #4eb6b6;
+    --color-button-hover: #62c2c2;
+    --border-radius: 8px;
+    --font-main: 'Nunito', sans-serif;
+    --color-success: #4caf50;
+    --color-error: #e57373;
+    --color-warning: #ffb74d;
 }
 
 body {

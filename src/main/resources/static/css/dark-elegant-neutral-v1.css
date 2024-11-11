@@ -9,8 +9,8 @@
     --border-radius: 8px;
     --font-main: 'Roboto', sans-serif;
     --color-success: #4caf50;
-    --color-error: #d75f5f;
-    --color-warning: #c1a76d;
+    --color-error: #e57373;
+    --color-warning: #ffb74d;
 }
 
 body {

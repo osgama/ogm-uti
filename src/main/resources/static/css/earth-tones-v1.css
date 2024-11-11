@@ -1,16 +1,16 @@
 :root {
-    --color-background: #1f1a17; /* Fondo marrón oscuro */
-    --color-card-bg: #2e2a26; /* Fondo de tarjetas con un toque más claro */
-    --color-text: #f8f1e7; /* Texto en un tono marfil */
-    --color-accent: #c08457; /* Tono dorado anaranjado */
-    --color-secondary-accent: #3d342e; /* Marrón oscuro para acentos */
-    --color-button: #c08457; /* Botón en dorado anaranjado */
-    --color-button-hover: #d1976a; /* Hover más claro */
-    --border-radius: 8px; /* Consistente */
-    --font-main: 'Lora', serif; /* Elegante y clásico */
-    --color-success: #6bbf59; /* Verde fresco */
-    --color-error: #e76f51; /* Rojo terroso */
-    --color-warning: #f4a261; /* Naranja cálido */
+    --color-background: #1f1a17;
+    --color-card-bg: #2e2a26;
+    --color-text: #f8f1e7;
+    --color-accent: #c08457;
+    --color-secondary-accent: #3d342e;
+    --color-button: #c08457;
+    --color-button-hover: #d1976a;
+    --border-radius: 8px;
+    --font-main: 'Lora', serif;
+    --color-success: #4caf50;
+    --color-error: #e57373;
+    --color-warning: #ffb74d;
 }
 
 body {

@@ -8,9 +8,9 @@
     --color-button-hover: #5ea682;
     --border-radius: 8px;
     --font-main: 'Roboto', sans-serif;
-    --color-success: #6fbf73;
-    --color-error: #d05f5f;
-    --color-warning: #c9a76d;
+    --color-success: #4caf50;
+    --color-error: #e57373;
+    --color-warning: #ffb74d;
 }
 
 body {
