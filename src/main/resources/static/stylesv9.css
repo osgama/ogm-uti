@@ -1,5 +1,5 @@
 :root {
-    /* Colores principales */
+    /* Colores originales restaurados */
     --color-background: #181818;
     --color-card-bg: #252525;
     --color-text: #f1f1f1;
@@ -7,7 +7,7 @@
     --color-secondary-accent: #303030;
     --color-button: #82c8a0;
     --color-button-hover: #9fd8b8;
-    --border-radius: 10px;
+    --border-radius: 10px; /* Conservado del original */
     --font-main: 'Poppins', sans-serif;
 
     /* Colores de mensajes */
@@ -20,51 +20,54 @@ body {
     background-color: var(--color-background);
     color: var(--color-text);
     font-family: var(--font-main);
-    font-size: 14px;
-    line-height: 1.6;
+    font-size: 15px; /* Tamaño estandarizado */
+    line-height: 1.8; /* Adaptado para coincidir con el archivo base */
 }
 
 header {
     background-color: var(--color-secondary-accent);
+    padding: .5rem; /* Ajustado para coincidir con el archivo base */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); /* Ajustado */
+    border-bottom: 1px solid var(--color-accent); /* Ajustado */
     text-align: center;
-    padding: 1.5rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    border-bottom: 2px solid var(--color-accent);
 }
 
 header h1 {
-    font-size: 1.4rem;
+    font-size: 1rem; /* Tamaño estandarizado */
     color: #ffffff;
+    font-weight: 700; /* Ajustado */
 }
 
 main {
-    max-width: 1100px;
-    margin: 25px auto;
-    padding: 25px;
+    max-width: 1100px; /* Tamaño estandarizado */
+    margin: 40px auto;
+    padding: 40px; /* Tamaño estandarizado */
     background-color: var(--color-card-bg);
     border-radius: var(--border-radius);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
-    transition: background-color 0.3s ease, transform 0.3s ease;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5); /* Ajustado */
+    transition: background-color 0.4s ease, transform 0.4s ease;
+    border: 1px solid var(--color-secondary-accent);
 }
 
 main:hover {
-    background-color: #2e2e2e;
-    transform: scale(1.02);
+    background-color: #303030; /* Conservado */
+    transform: scale(0.9); /* Ajustado */
 }
 
 input, select {
-    padding: 10px;
+    padding: 12px;
     border-radius: var(--border-radius);
-    border: 1px solid #444;
-    font-size: 0.9rem;
+    border: 1px solid #3b4a5c;
+    font-size: 1rem; /* Tamaño estandarizado */
     color: var(--color-text);
-    background-color: #2f2f2f;
+    background-color: #1c2436; /* Conservado */
     transition: all 0.3s ease;
+    box-shadow: inset 0 0 8px rgba(130, 200, 160, 0.3); /* Conservado */
 }
 
 input:focus, select:focus {
     border-color: var(--color-accent);
-    box-shadow: 0 0 7px rgba(130, 200, 160, 0.6);
+    box-shadow: 0 0 15px rgba(130, 200, 160, 0.3); /* Ajustado */
 }
 
 button {
@@ -72,28 +75,29 @@ button {
     cursor: pointer;
     background-color: var(--color-button);
     color: #ffffff;
-    padding: 10px 15px;
-    font-size: 0.9rem;
+    padding: 12px 20px; /* Tamaño estandarizado */
+    font-size: 1rem; /* Tamaño estandarizado */
     border: none;
     border-radius: var(--border-radius);
-    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+    box-shadow: 0 8px 20px rgba(130, 200, 160, 0.3); /* Conservado */
 }
 
 button:hover {
     background-color: var(--color-button-hover);
-    transform: translateY(-3px);
-    box-shadow: 0 4px 15px rgba(130, 200, 160, 0.4);
+    transform: translateY(-2px); /* Ajustado */
+    box-shadow: 0 10px 30px rgba(159, 216, 184, 0.3); /* Conservado */
 }
 
 .mensaje {
-    padding: 12px;
+    padding: 14px;
     border-radius: var(--border-radius);
-    margin-top: 12px;
+    margin-top: 20px;
     display: none;
     text-align: center;
-    font-weight: bold;
-    color: #ffffff;
-    font-size: 0.9rem;
+    font-weight: 600; /* Conservado */
+    font-size: 1rem; /* Tamaño estandarizado */
+    box-shadow: 0 0 15px rgba(130, 200, 160, 0.3); /* Conservado */
 }
 
 .mensaje.exito {
@@ -106,25 +110,25 @@ button:hover {
 
 .mensaje.warning {
     background-color: var(--color-warning);
-    color: #333;
+    color: #333; /* Conservado */
 }
 
 /* Estilos específicos para servicios.html */
 #servicios-page .form-container {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 20px; /* Conservado */
 }
 
 #servicios-page .form-row {
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    margin-bottom: 20px; /* Espacio vertical entre las filas */
+    margin-bottom: 20px; /* Conservado */
 }
 
 #servicios-page label {
-    min-width: 120px;
+    min-width: 120px; /* Conservado */
     padding-right: 15px;
     font-weight: 600;
     color: var(--color-text);
@@ -132,12 +136,12 @@ button:hover {
 
 #servicios-page input,
 #servicios-page select {
-    padding: 10px;
+    padding: 10px; /* Conservado */
     border-radius: var(--border-radius);
-    border: 1px solid #444;
-    background-color: #2f2f2f;
+    border: 1px solid #3b4a5c;
+    background-color: #1c2436; /* Conservado */
     color: var(--color-text);
-    font-size: 0.95rem;
+    font-size: 0.95rem; /* Conservado */
 }
 
 #servicios-page .button-group {
@@ -148,12 +152,13 @@ button:hover {
 
 #servicios-page button {
     background-color: var(--color-button);
-    padding: 12px 20px;
-    font-size: 1rem;
+    padding: 12px 20px; /* Tamaño estandarizado */
+    font-size: 1rem; /* Tamaño estandarizado */
+    box-shadow: 0 8px 20px rgba(130, 200, 160, 0.3); /* Conservado */
 }
 
 #servicios-page button:hover {
     background-color: var(--color-button-hover);
-    transform: scale(1.05);
-    box-shadow: 0 4px 15px rgba(130, 200, 160, 0.4);
+    transform: scale(1.03); /* Ajustado */
+    box-shadow: 0 10px 30px rgba(159, 216, 184, 0.3); /* Conservado */
 }
