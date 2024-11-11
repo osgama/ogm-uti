@@ -220,17 +220,21 @@
             })
               .then(response => {
                 if (response.ok) {
-                  return response.blob();
+                  const contentDisposition = response.headers.get("Content-Disposition");
+                  const fileName = contentDisposition
+                    ? contentDisposition.split("filename=")[1].replace(/"/g, '')
+                    : "archivos.zip"; // Nombre por defecto si no se encuentra en la respuesta
+                  return response.blob().then(blob => ({ blob, fileName }));
                 } else {
                   mostrarError("Error al generar el archivo ZIP.");
                   throw new Error("Error al generar el archivo ZIP.");
                 }
               })
-              .then(blob => {
+              .then(({ blob, fileName }) => {
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement("a");
                 a.href = url;
-                a.download = "archivos.zip";
+                a.download = fileName;
                 document.body.appendChild(a);
                 a.click();
                 a.remove();
@@ -238,6 +242,7 @@
               .catch(error => {
                 mostrarError("Ocurrió un error al descargar los archivos.");
               });
+
           }
         })
         .catch(error => {
