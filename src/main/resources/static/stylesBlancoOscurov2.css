@@ -95,7 +95,8 @@ button:hover {
     text-align: center;
     font-weight: 600; 
     font-size: 1rem;
-    box-shadow: 0 0 15px rgba(96, 125, 139, 0.3); 
+    box-shadow: 0 0 15px rgba(96, 125, 139, 0.3);
+    color: #333; 
 }
 
 .mensaje.exito {
@@ -108,7 +109,6 @@ button:hover {
 
 .mensaje.warning {
     background-color: var(--color-warning);
-    color: #333; 
 }
 
 /* Estilos específicos para servicios.html */
