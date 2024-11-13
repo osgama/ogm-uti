@@ -10,9 +10,14 @@
 
 <body>
 
-  <header>
+  <header style="position: relative;">
     <h1>Descarga Archivos <span id="ambiente"></span></h1>
   </header>
+  <div
+    style="position: fixed; bottom: 10px; right: 10px; font-size: 0.8em; color: gray; pointer-events: none; z-index: 1000;">
+    Versión 1.0.0
+  </div>
+
 
   <main>
     <label for="directorio">Directorio:</label>
@@ -60,56 +65,57 @@
     <input type="hidden" id="archivosDescarga" name="archivos" />
   </main>
 
-  <footer id="themeSelectorContainer" style="position: fixed; bottom: 10px; right: 10px; color: inherit; padding: 5px 10px; font-size: 0.9em; z-index: 1000; background-color: transparent;">
-    <select id="cssSwitcher" onchange="cambiarCSS()" 
-            style="background-color: transparent; color: inherit; border: 1px solid rgba(255, 255, 255, 0.3); padding: 3px; border-radius: 3px;"
-            onfocus="this.style.backgroundColor='rgba(255, 255, 255, 0.8)'; this.style.color='#333';"
-            onblur="this.style.backgroundColor='transparent'; this.style.color='inherit';"> 
-        <option value="../css/calm-dark-neutral-v1.css">Calm Dark Neutral V1</option>
-        <option value="../css/calm-dark-v2.css">Calm Dark V2</option>
-        <option value="../css/calm-neutral-v1.css">Calm Neutral V1</option>
-        <option value="../css/dark-blue-accent-v1.css">Dark Blue Accent V1</option>
-        <option value="../css/dark-blue-v1.css">Dark Blue V1</option>
-        <option value="../css/dark-cyan-accent-v1.css">Dark Cyan Accent V1</option>
-        <option value="../css/dark-deep-blue-v1.css">Dark Deep Blue V1</option>
-        <option value="../css/dark-elegant-mint-v1.css">Dark Elegant Mint V1</option>
-        <option value="../css/dark-elegant-neutral-v1.css">Dark Elegant Neutral V1</option>
-        <option value="../css/dark-forest-neutral-v1.css">Dark Forest Neutral V1</option>
-        <option value="../css/dark-golden-v1.css">Dark Golden V1</option>
-        <option value="../css/dark-gray-blue-accent-v1.css">Dark Gray Blue Accent V1</option>
-        <option value="../css/dark-green-accent-v1.css">Dark Green Accent V1</option>
-        <option value="../css/dark-lilac-v1.css">Dark Lilac V1</option>
-        <option value="../css/dark-modern-v1.css">Dark Modern V1</option>
-        <option value="../css/dark-modern-vibrant-v1.css">Dark Modern Vibrant V1</option>
-        <option value="../css/dark-navy-accent-v1.css">Dark Navy Accent V1</option>
-        <option value="../css/dark-neutral-v1.css">Dark Neutral V1</option>
-        <option value="../css/dark-neutral-v2.css">Dark Neutral V2</option>
-        <option value="../css/dark-professional-vibe-v1.css">Dark Professional Vibe V1</option>
-        <option value="../css/dark-red-accent-v1.css">Dark Red Accent V1</option>
-        <option value="../css/dark-steel-blue-accent-v1.css">Dark Steel Blue Accent V1</option>
-        <option value="../css/dark-teal-accent-v1.css">Dark Teal Accent V1</option>
-        <option value="../css/dark-teal-gray-accent-v1.css">Dark Teal Gray Accent V1</option>
-        <option value="../css/dark-teal-v1.css">Dark Teal V1</option>
-        <option value="../css/dark-vibrant-blue-accent-v1.css">Dark Vibrant Blue Accent V1</option>
-        <option value="../css/dark-vibrant-earth-v1.css">Dark Vibrant Earth V1</option>
-        <option value="../css/deep-black-blue-accent-v1.css">Deep Black Blue Accent V1</option>
-        <option value="../css/earth-tones-v1.css">Earth Tones V1</option>
-        <option value="../css/earth-tones-v2.css">Earth Tones V2</option>
-        <option value="../css/light-dark-muted-v1.css">Light Dark Muted V1</option>
-        <option value="../css/light-dark-muted-v2.css">Light Dark Muted V2</option>
-        <option value="../css/light-dark-muted-v3.css">Light Dark Muted V3</option>
-        <option value="../css/light-gray-v1.css">Light Gray V1</option>
-        <option value="../css/light-pastel-v1.css">Light Pastel V1</option>
-        <option value="../css/modern-dark-contrast-v1.css">Modern Dark Contrast V1</option>
-        <option value="../css/modern-dark-contrast-v2.css">Modern Dark Contrast V2</option>
-        <option value="../css/neutral-dark-sandstone-v1.css">Neutral Dark Sandstone V1</option>
-        <option value="../css/neutral-sandstone-v1.css">Neutral Sandstone V1</option>
-        <option value="../css/soft-light-v1.css">Soft Light V1</option>
-        <option value="../css/teal-accent-dark-v1.css">Teal Accent Dark V1</option>
-        <option value="../css/urban-dark-neutral-v1.css">Urban Dark Neutral V1</option>
-        <option value="../css/warm-dark-neutral-v1.css">Warm Dark Neutral V1</option>
-      </select>
-    </footer>
+  <footer id="themeSelectorContainer"
+    style="position: fixed; bottom: 10px; left: 10px; padding: 5px 10px; font-size: 0.9em; background-color: transparent;">
+    <select id="cssSwitcher" onchange="cambiarCSS()"
+      style="background-color: transparent; color: inherit; border: 1px solid rgba(255, 255, 255, 0.3); padding: 3px; border-radius: 3px;"
+      onfocus="this.style.backgroundColor='rgba(255, 255, 255, 0.8)'; this.style.color='#333';"
+      onblur="this.style.backgroundColor='transparent'; this.style.color='inherit';">
+      <option value="../css/calm-dark-neutral-v1.css">Calm Dark Neutral V1</option>
+      <option value="../css/calm-dark-v2.css">Calm Dark V2</option>
+      <option value="../css/calm-neutral-v1.css">Calm Neutral V1</option>
+      <option value="../css/dark-blue-accent-v1.css">Dark Blue Accent V1</option>
+      <option value="../css/dark-blue-v1.css">Dark Blue V1</option>
+      <option value="../css/dark-cyan-accent-v1.css">Dark Cyan Accent V1</option>
+      <option value="../css/dark-deep-blue-v1.css">Dark Deep Blue V1</option>
+      <option value="../css/dark-elegant-mint-v1.css">Dark Elegant Mint V1</option>
+      <option value="../css/dark-elegant-neutral-v1.css">Dark Elegant Neutral V1</option>
+      <option value="../css/dark-forest-neutral-v1.css">Dark Forest Neutral V1</option>
+      <option value="../css/dark-golden-v1.css">Dark Golden V1</option>
+      <option value="../css/dark-gray-blue-accent-v1.css">Dark Gray Blue Accent V1</option>
+      <option value="../css/dark-green-accent-v1.css">Dark Green Accent V1</option>
+      <option value="../css/dark-lilac-v1.css">Dark Lilac V1</option>
+      <option value="../css/dark-modern-v1.css">Dark Modern V1</option>
+      <option value="../css/dark-modern-vibrant-v1.css">Dark Modern Vibrant V1</option>
+      <option value="../css/dark-navy-accent-v1.css">Dark Navy Accent V1</option>
+      <option value="../css/dark-neutral-v1.css">Dark Neutral V1</option>
+      <option value="../css/dark-neutral-v2.css">Dark Neutral V2</option>
+      <option value="../css/dark-professional-vibe-v1.css">Dark Professional Vibe V1</option>
+      <option value="../css/dark-red-accent-v1.css">Dark Red Accent V1</option>
+      <option value="../css/dark-steel-blue-accent-v1.css">Dark Steel Blue Accent V1</option>
+      <option value="../css/dark-teal-accent-v1.css">Dark Teal Accent V1</option>
+      <option value="../css/dark-teal-gray-accent-v1.css">Dark Teal Gray Accent V1</option>
+      <option value="../css/dark-teal-v1.css">Dark Teal V1</option>
+      <option value="../css/dark-vibrant-blue-accent-v1.css">Dark Vibrant Blue Accent V1</option>
+      <option value="../css/dark-vibrant-earth-v1.css">Dark Vibrant Earth V1</option>
+      <option value="../css/deep-black-blue-accent-v1.css">Deep Black Blue Accent V1</option>
+      <option value="../css/earth-tones-v1.css">Earth Tones V1</option>
+      <option value="../css/earth-tones-v2.css">Earth Tones V2</option>
+      <option value="../css/light-dark-muted-v1.css">Light Dark Muted V1</option>
+      <option value="../css/light-dark-muted-v2.css">Light Dark Muted V2</option>
+      <option value="../css/light-dark-muted-v3.css">Light Dark Muted V3</option>
+      <option value="../css/light-gray-v1.css">Light Gray V1</option>
+      <option value="../css/light-pastel-v1.css">Light Pastel V1</option>
+      <option value="../css/modern-dark-contrast-v1.css">Modern Dark Contrast V1</option>
+      <option value="../css/modern-dark-contrast-v2.css">Modern Dark Contrast V2</option>
+      <option value="../css/neutral-dark-sandstone-v1.css">Neutral Dark Sandstone V1</option>
+      <option value="../css/neutral-sandstone-v1.css">Neutral Sandstone V1</option>
+      <option value="../css/soft-light-v1.css">Soft Light V1</option>
+      <option value="../css/teal-accent-dark-v1.css">Teal Accent Dark V1</option>
+      <option value="../css/urban-dark-neutral-v1.css">Urban Dark Neutral V1</option>
+      <option value="../css/warm-dark-neutral-v1.css">Warm Dark Neutral V1</option>
+    </select>
+  </footer>
 
     <script>
       let archivosSeleccionados = [];
@@ -193,18 +199,16 @@
           const detalles = archivo.split("||");
           html += "<tr>";
           html += `<td>${detalles[0]}</td>`;
-          html += `<td class="tamano">${detalles[1]}</td>`;
-          html += `<td class="fecha">${detalles[2]}</td>`;
-          html += `<td class="centrar-checkbox"><input type="checkbox" value="${detalles[0]}" onchange="handleCheckboxChange(event)"></td>`;
+          html += `<td>${detalles[1]}</td>`;
+          html += `<td>${detalles[2]}</td>`;
+          html += `<td><input type="checkbox" value="${detalles[0]}" onchange="handleCheckboxChange(event)"></td>`;
           html += "</tr>";
         });
-
         html += "</table>";
         archivosDiv.innerHTML = html;
-
         const totalArchivos = archivos.length;
-        document.getElementById("totalArchivosInfo").textContent = `Archivos Encontrados: ${totalArchivos}`;
-      }
+        document.getElementById("totalArchivosInfo").textContent = `Encontrados: ${totalArchivos}`;
+    }
 
       function handleCheckboxChange(event) {
         const checkbox = event.target;
@@ -334,34 +338,30 @@
 
       function mostrarError(mensaje) {
         const errorDiv = document.getElementById("errorMessage");
-        errorDiv.textContent = mensaje;
-        errorDiv.style.display = "block";
-        setTimeout(() => {
-          errorDiv.style.display = "none";
-        }, 5000);
+      errorDiv.textContent = mensaje;
+      errorDiv.style.display = "block";
+      setTimeout(() => {
+        errorDiv.style.display = "none";
+      }, 5000);
+    }
+
+    function aplicarTemaGuardado() {
+      const temaGuardado = localStorage.getItem('temaSeleccionado');
+      if (temaGuardado) {
+        document.getElementById('themeStylesheet').href = temaGuardado;
+        document.getElementById('cssSwitcher').value = temaGuardado;
       }
+    }
 
-      // Nueva función para aplicar el tema guardado en LocalStorage
-      function aplicarTemaGuardado() {
-        const temaGuardado = localStorage.getItem('temaSeleccionado');
-        if (temaGuardado) {
-          document.getElementById('themeStylesheet').href = temaGuardado;
-          document.getElementById('cssSwitcher').value = temaGuardado;
-        }
-      }
-
-      // Función para cambiar el CSS y guardar la selección en LocalStorage
-      function cambiarCSS() {
-        const cssLink = document.getElementById('themeStylesheet');
-        const nuevoCSS = document.getElementById('cssSwitcher').value;
-        cssLink.href = nuevoCSS;
-
-        // Guardamos el tema seleccionado en LocalStorage
-        localStorage.setItem('temaSeleccionado', nuevoCSS);
-      }
+    function cambiarCSS() {
+      const cssLink = document.getElementById('themeStylesheet');
+      const nuevoCSS = document.getElementById('cssSwitcher').value;
+      cssLink.href = nuevoCSS;
+      localStorage.setItem('temaSeleccionado', nuevoCSS);
+    }
 
 
-    </script>
+  </script>
 </body>
 
 </html>
