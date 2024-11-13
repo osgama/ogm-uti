@@ -117,227 +117,250 @@
     </select>
   </footer>
 
-    <script>
-      let archivosSeleccionados = [];
+  <script>
+    let archivosSeleccionados = [];
 
-      function obtenerAmbiente() {
-        fetch(`http://localhost:9093/api/ambiente`)
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error('Hubo un problema al obtener el ambiente.');
-            }
-            return response.text();
-          })
-          .then((ambiente) => {
-            document.getElementById('ambiente').textContent = ambiente;
-          })
-          .catch((error) => {
-            mostrarError('Error al obtener el ambiente.');
-          });
-      }
-
-      window.onload = function () {
-        obtenerAmbiente();          // Llama a la función que ya tienes
-        aplicarTemaGuardado();      // Llama a la nueva función para aplicar el tema guardado
-      };
-
-      function listarArchivos() {
-        document.getElementById("msjEspera").style.display = "block";
-        const directorio = document.getElementById("directorio").value;
-        const filtro = document.getElementById("filtro").value;
-        const tipo = '1';
-        limpiarSeleccion();
-        fetch(`http://localhost:9093/api/lista`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            directorio: directorio,
-            filtro: filtro,
-            tipo: tipo,
-          }),
+    function obtenerAmbiente() {
+      fetch(`http://localhost:9093/api/ambiente`)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('Hubo un problema al obtener el ambiente.');
+          }
+          return response.text();
         })
-          .then((response) => {
-            if (!response.ok) {
-              const errorMessage = response.headers.get("X-Error-Message") || "Hubo un problema al obtener la lista de archivos.";
-              mostrarError(errorMessage);
-              return null;
-            }
-            return response.json();
-          })
-          .then((data) => {
-            if (data === null) return;
-
-            if (data.length === 0) {
-              document.getElementById("msjNoArchivos").style.display = "block";
-            } else {
-              document.getElementById("msjNoArchivos").style.display = "none";
-            }
-            mostrarArchivos(data);
-          })
-          .catch((error) => {
-            mostrarError("Ocurrió un error inesperado al listar los archivos.");
-          })
-          .finally(() => {
-            document.getElementById("msjEspera").style.display = "none";
-          });
-      }
-
-      function mostrarArchivos(archivos) {
-        const archivosDiv = document.getElementById("archivos");
-        archivosDiv.innerHTML = "";
-
-        let html = "<table><tr>";
-        const headers = ["Nombre", "Tamaño", "Fecha (DD/MM/YYYY)", "Seleccionar"];
-        headers.forEach(header => {
-          html += `<th>${header}</th>`;
+        .then((ambiente) => {
+          document.getElementById('ambiente').textContent = ambiente;
+        })
+        .catch((error) => {
+          mostrarError('Error al obtener el ambiente.');
         });
-        html += "</tr>";
-
-        archivos.forEach(archivo => {
-          const detalles = archivo.split("||");
-          html += "<tr>";
-          html += `<td>${detalles[0]}</td>`;
-          html += `<td>${detalles[1]}</td>`;
-          html += `<td>${detalles[2]}</td>`;
-          html += `<td><input type="checkbox" value="${detalles[0]}" onchange="handleCheckboxChange(event)"></td>`;
-          html += "</tr>";
-        });
-        html += "</table>";
-        archivosDiv.innerHTML = html;
-        const totalArchivos = archivos.length;
-        document.getElementById("totalArchivosInfo").textContent = `Encontrados: ${totalArchivos}`;
     }
 
-      function handleCheckboxChange(event) {
-        const checkbox = event.target;
-        const nombreArchivo = checkbox.value;
-        if (checkbox.checked) {
-          archivosSeleccionados.push(nombreArchivo);
-        } else {
-          const index = archivosSeleccionados.indexOf(nombreArchivo);
-          if (index !== -1) {
-            archivosSeleccionados.splice(index, 1);
+    window.onload = function () {
+      obtenerAmbiente();          // Llama a la función que ya tienes
+      aplicarTemaGuardado();      // Llama a la nueva función para aplicar el tema guardado
+    };
+
+    function listarArchivos() {
+      document.getElementById("msjEspera").style.display = "block";
+      const directorio = document.getElementById("directorio").value;
+      const filtro = document.getElementById("filtro").value;
+      const tipo = '1';
+      limpiarSeleccion();
+      fetch(`http://localhost:9093/api/lista`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          directorio: directorio,
+          filtro: filtro,
+          tipo: tipo,
+        }),
+      })
+        .then((response) => {
+          if (!response.ok) {
+            const errorMessage = response.headers.get("X-Error-Message") || "Hubo un problema al obtener la lista de archivos.";
+            mostrarError(errorMessage);
+            return null;
           }
-        }
-        document.getElementById("directorioDescarga").value = document.getElementById("directorio").value;
-        document.getElementById("archivosDescarga").value = JSON.stringify(archivosSeleccionados);
-      }
+          return response.json();
+        })
+        .then((data) => {
+          if (data === null) return;
 
-      function seleccionarTodos() {
-        const checkboxes = document.querySelectorAll("input[type='checkbox']");
-        archivosSeleccionados = [];
-        checkboxes.forEach((checkbox) => {
-          checkbox.checked = true;
-          archivosSeleccionados.push(checkbox.value);
+          if (data.length === 0) {
+            document.getElementById("msjNoArchivos").style.display = "block";
+          } else {
+            document.getElementById("msjNoArchivos").style.display = "none";
+          }
+          mostrarArchivos(data);
+        })
+        .catch((error) => {
+          mostrarError("Ocurrió un error inesperado al listar los archivos.");
+        })
+        .finally(() => {
+          document.getElementById("msjEspera").style.display = "none";
         });
-        document.getElementById("directorioDescarga").value = document.getElementById("directorio").value;
-        document.getElementById("archivosDescarga").value = JSON.stringify(archivosSeleccionados);
+    }
+
+    function mostrarArchivos(archivos) {
+      const archivosDiv = document.getElementById("archivos");
+      archivosDiv.innerHTML = "";
+
+      let html = "<table><tr>";
+      const headers = ["Nombre", "Tamaño", "Fecha (DD/MM/YYYY)", "Seleccionar"];
+      headers.forEach(header => {
+        html += `<th>${header}</th>`;
+      });
+      html += "</tr>";
+
+      archivos.forEach(archivo => {
+        const detalles = archivo.split("||");
+        html += "<tr>";
+        html += `<td>${detalles[0]}</td>`;
+        html += `<td>${detalles[1]}</td>`;
+        html += `<td>${detalles[2]}</td>`;
+        html += `<td><input type="checkbox" value="${detalles[0]}" onchange="handleCheckboxChange(event)"></td>`;
+        html += "</tr>";
+      });
+      html += "</table>";
+      archivosDiv.innerHTML = html;
+      const totalArchivos = archivos.length;
+      document.getElementById("totalArchivosInfo").textContent = `Encontrados: ${totalArchivos}`;
+    }
+
+    function handleCheckboxChange(event) {
+      const checkbox = event.target;
+      const nombreArchivo = checkbox.value;
+      if (checkbox.checked) {
+        archivosSeleccionados.push(nombreArchivo);
+      } else {
+        const index = archivosSeleccionados.indexOf(nombreArchivo);
+        if (index !== -1) {
+          archivosSeleccionados.splice(index, 1);
+        }
       }
+      document.getElementById("directorioDescarga").value = document.getElementById("directorio").value;
+      document.getElementById("archivosDescarga").value = JSON.stringify(archivosSeleccionados);
+    }
 
-      function descargarSeleccionados() {
-        const directorio = document.getElementById("directorio").value;
+    function seleccionarTodos() {
+      const checkboxes = document.querySelectorAll("input[type='checkbox']");
+      archivosSeleccionados = [];
+      checkboxes.forEach((checkbox) => {
+        checkbox.checked = true;
+        archivosSeleccionados.push(checkbox.value);
+      });
+      document.getElementById("directorioDescarga").value = document.getElementById("directorio").value;
+      document.getElementById("archivosDescarga").value = JSON.stringify(archivosSeleccionados);
+    }
 
-        fetch(`http://localhost:9093/api/ambiente`)
-          .then(response => response.text())
-          .then(ambiente => {
+    function descargarSeleccionados() {
+    const directorio = document.getElementById("directorio").value;
+
+    console.log("Iniciando descarga..."); // Log inicial
+    fetch(`http://localhost:9093/api/ambiente`)
+        .then(response => response.text())
+        .then(ambiente => {
+            console.log("Ambiente recibido:", ambiente); // Log del ambiente
+
             let archivosSeleccionadosStr = JSON.stringify(archivosSeleccionados);
             let password = null;
             const tipo = '1';
 
             if (ambiente.trim().toUpperCase() === "PROD") {
-              password = prompt("Introduce la contraseña para el archivo ZIP:");
-              if (!password) {
-                mostrarError("Debes proporcionar una contraseña.");
-                return;
-              }
+                password = prompt("Introduce la contraseña para el archivo ZIP:");
+                if (!password) {
+                    mostrarError("Debes proporcionar una contraseña.");
+                    console.log("Descarga cancelada: No se proporcionó contraseña"); // Log de cancelación
+                    return;
+                }
+                console.log("Contraseña ingresada para ambiente PROD."); // Log de contraseña en PROD
             }
 
             if (archivosSeleccionados.length === 0) {
-              mostrarError("Selecciona al menos un archivo para descargar.");
-              return;
+                mostrarError("Selecciona al menos un archivo para descargar.");
+                console.log("Descarga cancelada: No se seleccionaron archivos"); // Log de archivos seleccionados
+                return;
             }
 
+            // Log de descarga directa si solo hay un archivo y no estamos en PROD
             if (archivosSeleccionados.length === 1 && ambiente.trim().toUpperCase() !== "PROD") {
-              const archivo = archivosSeleccionados[0];
-              window.location.href = `http://localhost:9093/api/descargar?directorio=${encodeURIComponent(directorio)}&archivo=${encodeURIComponent(archivo)}&tipo=1`;
-            } else {
-              let formData = new FormData();
-              formData.append("directorio", directorio);
-              formData.append("archivos", archivosSeleccionadosStr);
-              formData.append("tipo", tipo);
-              if (password) {
-                formData.append("password", password);
-              }
+                const archivo = archivosSeleccionados[0];
+                console.log("Descarga directa de un solo archivo:", archivo); // Log de descarga directa
+                window.location.href = `http://localhost:9093/api/descargar?directorio=${encodeURIComponent(directorio)}&archivo=${encodeURIComponent(archivo)}&tipo=1`;
+                return;
+            }
 
-              fetch(`http://localhost:9093/api/descargar-zip`, {
+            // Usar POST para el ZIP en caso de múltiples archivos o en PROD
+            let formData = new FormData();
+            formData.append("directorio", directorio);
+            formData.append("archivos", archivosSeleccionadosStr);
+            formData.append("tipo", tipo);
+            if (password) {
+                formData.append("password", password);
+            }
+
+            console.log("Enviando solicitud de descarga de ZIP con archivos:", archivosSeleccionados); // Log de archivos ZIP
+
+            fetch(`http://localhost:9093/api/descargar-zip`, {
                 method: "POST",
                 body: formData
-              })
-                .then(response => {
-                  if (response.ok) {
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Obtener el nombre del archivo desde Content-Disposition
                     const contentDisposition = response.headers.get("Content-Disposition");
-                    const fileName = contentDisposition
-                      ? contentDisposition.split("filename=")[1].replace(/"/g, '')
-                      : "archivos.zip"; // Nombre por defecto si no se encuentra en la respuesta
+                    console.log("Encabezado Content-Disposition recibido:", contentDisposition); // Log del encabezado
+
+                    let fileName = "archivos.zip";
+                    if (contentDisposition && contentDisposition.includes("filename=")) {
+                        fileName = contentDisposition.split("filename=")[1].trim().replace(/"/g, '');
+                    }
+                    console.log("Nombre del archivo a descargar:", fileName); // Log del nombre del archivo
                     return response.blob().then(blob => ({ blob, fileName }));
-                  } else {
+                } else {
                     mostrarError("Error al generar el archivo ZIP.");
+                    console.error("Error en respuesta del servidor al generar ZIP."); // Log de error en el servidor
                     throw new Error("Error al generar el archivo ZIP.");
-                  }
-                })
-                .then(({ blob, fileName }) => {
-                  const url = window.URL.createObjectURL(blob);
-                  const a = document.createElement("a");
-                  a.href = url;
-                  a.download = fileName;
-                  document.body.appendChild(a);
-                  a.click();
-                  a.remove();
-                })
-                .catch(error => {
-                  mostrarError("Ocurrió un error al descargar los archivos.");
-                });
-
-            }
-          })
-          .catch(error => {
+                }
+            })
+            .then(({ blob, fileName }) => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.setAttribute("download", fileName); // Asignar el nombre recuperado desde el backend
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                console.log("Archivo descargado exitosamente:", fileName); // Log de éxito en descarga
+            })
+            .catch(error => {
+                mostrarError("Ocurrió un error al descargar los archivos.");
+                console.error("Error en el proceso de descarga:", error); // Log de error en descarga
+            });
+        })
+        .catch(error => {
             mostrarError("Error al verificar el ambiente.");
-          });
-      }
-
-      function limpiarSeleccion() {
-        const checkboxes = document.querySelectorAll("input[type='checkbox']");
-        checkboxes.forEach((checkbox) => {
-          checkbox.checked = false;
+            console.error("Error al obtener el ambiente:", error); // Log de error en obtención de ambiente
         });
-        archivosSeleccionados = [];
-        document.getElementById("directorioDescarga").value = "";
-        document.getElementById("archivosDescarga").value = "";
-        document.getElementById("msjNoArchivos").style.display = "none";
-        const archivosDiv = document.getElementById("archivos");
-        archivosDiv.textContent = "";
-      }
+}
 
-      function limpiar() {
-        const checkboxes = document.querySelectorAll("input[type='checkbox']");
-        checkboxes.forEach((checkbox) => {
-          checkbox.checked = false;
-        });
-        archivosSeleccionados = [];
-        document.getElementById("filtro").value = "";
-      }
 
-      var filtroInput = document.getElementById("filtro");
-      filtroInput.addEventListener("keypress", function (event) {
-        if (event.key === "Enter") {
-          listarArchivos();
-        }
+    function limpiarSeleccion() {
+      const checkboxes = document.querySelectorAll("input[type='checkbox']");
+      checkboxes.forEach((checkbox) => {
+        checkbox.checked = false;
       });
+      archivosSeleccionados = [];
+      document.getElementById("directorioDescarga").value = "";
+      document.getElementById("archivosDescarga").value = "";
+      document.getElementById("msjNoArchivos").style.display = "none";
+      const archivosDiv = document.getElementById("archivos");
+      archivosDiv.textContent = "";
+    }
 
-      function mostrarError(mensaje) {
-        const errorDiv = document.getElementById("errorMessage");
+    function limpiar() {
+      const checkboxes = document.querySelectorAll("input[type='checkbox']");
+      checkboxes.forEach((checkbox) => {
+        checkbox.checked = false;
+      });
+      archivosSeleccionados = [];
+      document.getElementById("filtro").value = "";
+    }
+
+    var filtroInput = document.getElementById("filtro");
+    filtroInput.addEventListener("keypress", function (event) {
+      if (event.key === "Enter") {
+        listarArchivos();
+      }
+    });
+
+    function mostrarError(mensaje) {
+      const errorDiv = document.getElementById("errorMessage");
       errorDiv.textContent = mensaje;
       errorDiv.style.display = "block";
       setTimeout(() => {
