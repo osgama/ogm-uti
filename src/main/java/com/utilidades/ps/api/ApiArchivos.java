@@ -76,22 +76,37 @@ public class ApiArchivos {
             @RequestParam String archivo,
             @RequestParam String tipo) {
     
-        logger.info(": : : : INICIA DESCARGA DE ARCHIVO");
-    
         String directorioFinal = "";
         String directoriotmp = "";
     
+        String baseDirectorio = System.getenv("BASE_DIRECTORIO_LOGS");
+
         if (tipo.equals("1")) {
             directoriotmp = detalleArchivos.getDirectorio(Integer.parseInt(directorio));
-            directorioFinal = System.getenv("BASE_DIRECTORIO_LOGS" + directoriotmp);
-            logger.info(": : : : Directorio " + directorioFinal);
+            logger.info(": : : : directoriotmp " + directoriotmp);
+            logger.info("BASE DIRECTORIO: " + baseDirectorio);
+        
+            if (baseDirectorio != null && directoriotmp != null) {
+                directorioFinal = baseDirectorio + directoriotmp;
+                logger.info(": : : : Directorio Final construido: " + directorioFinal);
+            } else {
+                logger.error("Base del directorio o directoriotmp es null");
+                return ResponseEntity.badRequest().build();
+            }
         } else if (tipo.equals("2")) {
-            directorioFinal = System.getenv("BASE_DIRECTORIO_LOGS" + directorio);
-            logger.info(": : : : Directorio " + directorioFinal);
+            logger.info("Directorio recibido: " + directorio);
+            if (baseDirectorio != null && directorio != null) {
+                directorioFinal = baseDirectorio + directorio;
+                logger.info(": : : : Directorio Final construido: " + directorioFinal);
+            } else {
+                logger.error("Base del directorio o directorio es null");
+                return ResponseEntity.badRequest().build();
+            }
         } else {
             logger.error(": : : : Directorio no válido");
             return ResponseEntity.badRequest().build();
         }
+        
     
         File file = new File(directorioFinal, archivo);
         if (!file.exists()) {
