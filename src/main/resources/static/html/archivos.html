@@ -15,7 +15,7 @@
   </header>
   <div
     style="position: fixed; bottom: 10px; right: 10px; font-size: 0.8em; color: gray; pointer-events: none; z-index: 1000;">
-    Versión 1.0.0
+    Versión Beta
   </div>
 
 
@@ -207,7 +207,9 @@
       html += "</table>";
       archivosDiv.innerHTML = html;
       const totalArchivos = archivos.length;
-      document.getElementById("totalArchivosInfo").textContent = `Encontrados: ${totalArchivos}`;
+      document.getElementById("totalArchivosInfo").textContent = `Total: ${totalArchivos}`;
+      document.getElementById("totalArchivosInfo").style.display = 'inline-block'; // Mostrar el elemento
+
     }
 
     function handleCheckboxChange(event) {
@@ -237,94 +239,94 @@
     }
 
     function descargarSeleccionados() {
-    const directorio = document.getElementById("directorio").value;
+      const directorio = document.getElementById("directorio").value;
 
-    console.log("Iniciando descarga...");
-    fetch(`http://localhost:9093/api/ambiente`)
+      console.log("Iniciando descarga...");
+      fetch(`http://localhost:9093/api/ambiente`)
         .then(response => response.text())
         .then(ambiente => {
-            console.log("Ambiente recibido:", ambiente);
+          console.log("Ambiente recibido:", ambiente);
 
-            let archivosSeleccionadosStr = JSON.stringify(archivosSeleccionados);
-            let password = null;
-            const tipo = '1';
+          let archivosSeleccionadosStr = JSON.stringify(archivosSeleccionados);
+          let password = null;
+          const tipo = '1';
 
-            if (ambiente.trim().toUpperCase() === "PROD") {
-                password = prompt("Introduce la contraseña para el archivo ZIP:");
-                if (!password) {
-                    mostrarError("Debes proporcionar una contraseña.");
-                    console.log("Descarga cancelada: No se proporcionó contraseña");
-                    return;
-                }
-                console.log("Contraseña ingresada para ambiente PROD.");
+          if (ambiente.trim().toUpperCase() === "PROD") {
+            password = prompt("Introduce la contraseña para el archivo ZIP:");
+            if (!password) {
+              mostrarError("Debes proporcionar una contraseña.");
+              console.log("Descarga cancelada: No se proporcionó contraseña");
+              return;
             }
+            console.log("Contraseña ingresada para ambiente PROD.");
+          }
 
-            if (archivosSeleccionados.length === 0) {
-                mostrarError("Selecciona al menos un archivo para descargar.");
-                console.log("Descarga cancelada: No se seleccionaron archivos");
-                return;
-            }
+          if (archivosSeleccionados.length === 0) {
+            mostrarError("Selecciona al menos un archivo para descargar.");
+            console.log("Descarga cancelada: No se seleccionaron archivos");
+            return;
+          }
 
-            if (archivosSeleccionados.length === 1 && ambiente.trim().toUpperCase() !== "PROD") {
-                const archivo = archivosSeleccionados[0];
-                console.log("Descarga directa de un solo archivo:", archivo);
-                window.location.href = `http://localhost:9093/api/descargar?directorio=${encodeURIComponent(directorio)}&archivo=${encodeURIComponent(archivo)}&tipo=1`;
-                return;
-            }
+          if (archivosSeleccionados.length === 1 && ambiente.trim().toUpperCase() !== "PROD") {
+            const archivo = archivosSeleccionados[0];
+            console.log("Descarga directa de un solo archivo:", archivo);
+            window.location.href = `http://localhost:9093/api/descargar?directorio=${encodeURIComponent(directorio)}&archivo=${encodeURIComponent(archivo)}&tipo=1`;
+            return;
+          }
 
-            let formData = new FormData();
-            formData.append("directorio", directorio);
-            formData.append("archivos", archivosSeleccionadosStr);
-            formData.append("tipo", tipo);
-            if (password) {
-                formData.append("password", password);
-            }
+          let formData = new FormData();
+          formData.append("directorio", directorio);
+          formData.append("archivos", archivosSeleccionadosStr);
+          formData.append("tipo", tipo);
+          if (password) {
+            formData.append("password", password);
+          }
 
-            console.log("Enviando solicitud de descarga de ZIP con archivos:", archivosSeleccionados);
+          console.log("Enviando solicitud de descarga de ZIP con archivos:", archivosSeleccionados);
 
-            fetch(`http://localhost:9093/api/descargar-zip`, {
-                method: "POST",
-                body: formData
-            })
+          fetch(`http://localhost:9093/api/descargar-zip`, {
+            method: "POST",
+            body: formData
+          })
             .then(response => {
-                if (response.ok) {
-                    const contentDisposition = response.headers.get("Content-Disposition");
-                    console.log("Encabezado Content-Disposition recibido:", contentDisposition);
+              if (response.ok) {
+                const contentDisposition = response.headers.get("Content-Disposition");
+                console.log("Encabezado Content-Disposition recibido:", contentDisposition);
 
-                    let fileName = "archivos.zip";
-                    if (contentDisposition && contentDisposition.includes("filename=")) {
-                        fileName = contentDisposition.split("filename=")[1].trim().replace(/"/g, '');
-                    }
-                    console.log("Nombre del archivo a descargar:", fileName);
-                    return response.blob().then(blob => ({ blob, fileName }));
-                } else {
-                    mostrarError("Error al generar el archivo ZIP.");
-                    console.error("Error en respuesta del servidor al generar ZIP.");
-                    throw new Error("Error al generar el archivo ZIP.");
+                let fileName = "archivos.zip";
+                if (contentDisposition && contentDisposition.includes("filename=")) {
+                  fileName = contentDisposition.split("filename=")[1].trim().replace(/"/g, '');
                 }
+                console.log("Nombre del archivo a descargar:", fileName);
+                return response.blob().then(blob => ({ blob, fileName }));
+              } else {
+                mostrarError("Error al generar el archivo ZIP.");
+                console.error("Error en respuesta del servidor al generar ZIP.");
+                throw new Error("Error al generar el archivo ZIP.");
+              }
             })
             .then(({ blob, fileName }) => {
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.setAttribute("download", fileName)
-                a.style.display = 'none';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-                console.log("Archivo descargado exitosamente:", fileName);
+              const url = window.URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.setAttribute("download", fileName)
+              a.style.display = 'none';
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              window.URL.revokeObjectURL(url);
+              console.log("Archivo descargado exitosamente:", fileName);
             })
             .catch(error => {
-                mostrarError("Ocurrió un error al descargar los archivos.");
-                console.error("Error en el proceso de descarga:", error);
+              mostrarError("Ocurrió un error al descargar los archivos.");
+              console.error("Error en el proceso de descarga:", error);
             });
         })
         .catch(error => {
-            mostrarError("Error al verificar el ambiente.");
-            console.error("Error al obtener el ambiente:", error);
+          mostrarError("Error al verificar el ambiente.");
+          console.error("Error al obtener el ambiente:", error);
         });
-}
+    }
 
 
     function limpiarSeleccion() {

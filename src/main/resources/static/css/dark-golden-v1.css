@@ -49,7 +49,7 @@ main {
 main:hover {
     background-color: #2d2e33;
     border-color: var(--color-accent);
-    transform: scale(0.9);
+    
 }
 
 input, select {
