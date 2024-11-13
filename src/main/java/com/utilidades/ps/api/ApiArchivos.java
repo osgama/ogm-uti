@@ -219,6 +219,7 @@ public class ApiArchivos {
         headers.setContentDisposition(ContentDisposition.attachment().filename(nombreZip).build());
 
         return new ResponseEntity<>(stream, headers, HttpStatus.OK);
+
     }
 
     // Método para comprimir archivos con encriptación usando Zip4j
