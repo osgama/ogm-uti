@@ -52,7 +52,7 @@ main:hover {
 }
 
 input, select {
-    padding: 12px;
+    padding: 5px;
     border-radius: var(--border-radius);
     border: 1px solid #8fa5b6;
     font-size: 1rem;
@@ -72,7 +72,7 @@ button {
     cursor: pointer;
     background-color: var(--color-button);
     color: #ffffff;
-    padding: 12px 20px;
+    padding: 5px 5px;
     font-size: 1rem;
     border: none;
     border-radius: var(--border-radius);
@@ -123,7 +123,7 @@ button:hover {
 }
 
 #totalArchivosInfo {
-    font-size: 1.5rem;
+    font-size: 1.1rem;
     font-weight: bold;
     color: var(--color-accent);
     background-color: transparent;
