@@ -13,55 +13,6 @@
     --color-warning: #ffb74d;
 }
 
-
-#archivos table {
-    width: 100%;               
-    border-collapse: collapse;
-    margin-top: 15px;
-    border: 1px solid var(--color-accent);
-}
-
-#archivos table th {
-    background-color: var(--color-secondary-accent);
-    color: var(--color-text);
-    padding: 8px;
-    font-weight: bold;
-}
-  
-
-#archivos table tr:nth-child(odd) {
-    background-color: var(--color-background);
-}
-  
-#archivos table tr:nth-child(even) {
-    background-color: var(--color-card-bg);
-}
-  
-
-#archivos table th, #archivos table td {
-    padding: 1px 10px;
-    text-align: left;
-    border-bottom: 1px solid var(--color-accent); 
-    border: 1px solid var(--color-secondary-accent);
-}
-  
-
-#archivos table tr:hover {
-        outline: 2px solid var(--color-secondary-accent);
-
-}
-
-#totalArchivosInfo {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: var(--color-accent);
-    background-color: transparent;
-    padding: 5px 0;
-    display: inline-block;
-    transition: color 0.3s ease, transform 0.3s ease;
-    margin-left: 60px; 
-} 
-
 body {
     background-color: var(--color-background);
     color: var(--color-text);
@@ -133,6 +84,50 @@ button:hover {
     background-color: var(--color-button-hover);
     transform: translateY(-2px);
     box-shadow: 0 10px 30px rgba(120, 144, 156, 0.3); 
+}
+
+#archivos table {
+    width: 100%;               
+    border-collapse: collapse;
+    margin-top: 15px;
+    border: 1px solid var(--color-accent);
+}
+
+#archivos table th {
+    background-color: var(--color-secondary-accent);
+    color: var(--color-text);
+    padding: 8px;
+    font-weight: bold;
+}
+
+#archivos table tr:nth-child(odd) {
+    background-color: var(--color-background);
+}
+
+#archivos table tr:nth-child(even) {
+    background-color: var(--color-card-bg);
+}
+
+#archivos table th, #archivos table td {
+    padding: 1px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--color-accent); 
+    border: 1px solid var(--color-secondary-accent);
+}
+
+#archivos table tr:hover {
+    outline: 2px solid var(--color-secondary-accent);
+}
+
+#totalArchivosInfo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--color-accent);
+    background-color: transparent;
+    padding: 5px 0;
+    display: inline-block;
+    transition: color 0.3s ease, transform 0.3s ease;
+    margin-left: 60px; 
 }
 
 .mensaje {

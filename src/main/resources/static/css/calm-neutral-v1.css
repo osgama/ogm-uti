@@ -86,30 +86,6 @@ button:hover {
     box-shadow: 0 10px 30px rgba(90, 158, 207, 0.3);
 }
 
-.mensaje {
-    padding: 14px;
-    border-radius: var(--border-radius);
-    margin-top: 20px;
-    display: none;
-    text-align: center;
-    font-weight: 600;
-    font-size: 1rem;
-    box-shadow: 0 0 15px rgba(90, 158, 207, 0.2);
-    color: #000;
-}
-
-.mensaje.exito {
-    background-color: var(--color-success);
-}
-
-.mensaje.error {
-    background-color: var(--color-error);
-}
-
-.mensaje.warning {
-    background-color: var(--color-warning);
-}
-
 #archivos table {
     width: 100%;               
     border-collapse: collapse;
@@ -140,8 +116,7 @@ button:hover {
 }
 
 #archivos table tr:hover {
-        outline: 2px solid var(--color-secondary-accent);
-
+    outline: 2px solid var(--color-secondary-accent);
 }
 
 #totalArchivosInfo {
@@ -153,6 +128,30 @@ button:hover {
     display: inline-block;
     transition: color 0.3s ease, transform 0.3s ease;
     margin-left: 60px; 
+}
+
+.mensaje {
+    padding: 14px;
+    border-radius: var(--border-radius);
+    margin-top: 20px;
+    display: none;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1rem;
+    box-shadow: 0 0 15px rgba(90, 158, 207, 0.2);
+    color: #000;
+}
+
+.mensaje.exito {
+    background-color: var(--color-success);
+}
+
+.mensaje.error {
+    background-color: var(--color-error);
+}
+
+.mensaje.warning {
+    background-color: var(--color-warning);
 }
 
 /* Estilos específicos para servicios.html */
