@@ -3,19 +3,12 @@ find /ruta/al/directorio -type d -exec ls -ld {} \; > estructura_directorios.txt
 
 # Dockerfile
 
-# Crear los directorios necesarios en la ruta compartida
-RUN mkdir -p /opt/miapp/tmp /opt/miapp/properties /opt/miapp/logback /opt/miapp/certs
 
-# Copiar el archivo .tar y el script de configuración en la ruta compartida de la NAS
-COPY configuracion.tar /opt/miapp/tmp/
-COPY ajusta_configuracion.sh /opt/miapp/tmp/
-
-# Dar permisos de ejecución al script
-RUN chmod +x /opt/miapp/tmp/ajusta_configuracion.sh
-
-UPDATE tu_tabla
-SET VALOR = CASE
-    WHEN EMPRESA = 1 AND LLAVE = 'nickname1' THEN 'Nueva descripción para el primer registro'
-    WHEN EMPRESA = 2 AND LLAVE = 'nickname2' THEN 'Nueva descripción para el segundo registro'
-END
-WHERE (EMPRESA = 1 AND LLAVE = 'nickname1') OR (EMPRESA = 2 AND LLAVE = 'nickname2');
+# Instala librerías de compatibilidad necesarias
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        libstdc++6 \
+        libc6-i386 \
+        lib32z1 \
+        lib32stdc++6 && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
