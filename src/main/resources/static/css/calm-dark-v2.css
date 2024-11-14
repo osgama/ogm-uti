@@ -52,7 +52,7 @@ main:hover {
 }
 
 input, select {
-    padding: 12px;
+    padding: 5px;
     border-radius: var(--border-radius);
     border: 1px solid #6a7a85;
     font-size: 1rem;
