@@ -120,7 +120,7 @@ button:hover {
 }
 
 #totalArchivosInfo {
-    font-size: 1.5rem;
+    font-size: 1.1rem;
     font-weight: bold;
     color: var(--color-accent);
     background-color: transparent;
