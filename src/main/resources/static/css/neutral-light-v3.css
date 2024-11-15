@@ -1,16 +1,16 @@
 :root {
-    --color-background: #2a2f38;
-    --color-card-bg: #3a414d;
-    --color-text: #e3e6eb;
-    --color-accent: #9a6dff;
-    --color-secondary-accent: #4b5363;
-    --color-button: #9a6dff;
-    --color-button-hover: #b385ff;
-    --border-radius: 10px;
-    --font-main: 'Open Sans', sans-serif;
-    --color-success: #4caf50;
-    --color-error: #e57373;
-    --color-warning: #ffb74d;
+    --color-background: #0f172a; /* Azul noche profundo */
+    --color-card-bg: #1e293b; /* Gris azulado oscuro */
+    --color-text: #e2e8f0; /* Gris claro suave */
+    --color-accent: #64748b; /* Gris azulado tenue */
+    --color-secondary-accent: #334155; /* Gris intermedio */
+    --color-button: #64748b; /* Gris azulado tenue */
+    --color-button-hover: #4b5563; /* Gris un poco más oscuro */
+    --border-radius: 8px;
+    --font-main: 'Nunito', sans-serif;
+    --color-success: #22c55e; /* Verde pastel */
+    --color-error: #dc2626; /* Rojo oscuro */
+    --color-warning: #f59e0b; /* Naranja suave */
 }
 
 body {
@@ -23,7 +23,7 @@ body {
 
 header {
     background-color: var(--color-secondary-accent);
-    padding: .5rem;
+    padding: 0.5rem;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
     border-bottom: 1px solid var(--color-accent);
     text-align: center;
@@ -41,30 +41,30 @@ main {
     padding: 40px;
     background-color: var(--color-card-bg);
     border-radius: var(--border-radius);
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
     transition: background-color 0.4s ease, transform 0.4s ease;
     border: 1px solid var(--color-secondary-accent);
 }
 
 main:hover {
-    background-color: #4b5363;
+    background-color: #27364d;
     border-color: var(--color-accent);
 }
 
 input, select {
     padding: 5px;
     border-radius: var(--border-radius);
-    border: 1px solid #5b6375;
+    border: 1px solid var(--color-secondary-accent);
     font-size: 1rem;
     color: var(--color-text);
-    background-color: #323846;
+    background-color: #1e293b;
     transition: all 0.3s ease;
-    box-shadow: inset 0 0 8px rgba(154, 109, 255, 0.3);
+    box-shadow: inset 0 0 8px rgba(100, 116, 139, 0.1);
 }
 
 input:focus, select:focus {
     border-color: var(--color-accent);
-    box-shadow: 0 0 15px rgba(154, 109, 255, 0.3);
+    box-shadow: 0 0 15px rgba(100, 116, 139, 0.3);
 }
 
 button {
@@ -77,13 +77,13 @@ button {
     border: none;
     border-radius: var(--border-radius);
     transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
-    box-shadow: 0 8px 20px rgba(154, 109, 255, 0.3);
+    box-shadow: 0 8px 20px rgba(100, 116, 139, 0.2);
 }
 
 button:hover {
     background-color: var(--color-button-hover);
     transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(179, 133, 255, 0.3);
+    box-shadow: 0 10px 30px rgba(100, 116, 139, 0.3);
 }
 
 #archivos table {
@@ -91,6 +91,7 @@ button:hover {
     border-collapse: collapse;
     margin-top: 15px;
     border: 1px solid var(--color-accent);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
 }
 
 #archivos table th {
@@ -101,11 +102,11 @@ button:hover {
 }
 
 #archivos table tr:nth-child(odd) {
-    background-color: var(--color-background);
-}
-
-#archivos table tr:nth-child(even) {
     background-color: var(--color-card-bg);
+}
+  
+#archivos table tr:nth-child(even) {
+    background-color: #27364d;
 }
 
 #archivos table th, #archivos table td {
@@ -116,7 +117,7 @@ button:hover {
 }
 
 #archivos table tr:hover {
-    outline: 2px solid var(--color-secondary-accent);
+    outline: 2px solid var(--color-accent);
 }
 
 #totalArchivosInfo {
@@ -138,8 +139,8 @@ button:hover {
     text-align: center;
     font-weight: 600;
     font-size: 1rem;
-    box-shadow: 0 0 15px rgba(154, 109, 255, 0.3);
-    color: #000;
+    box-shadow: 0 0 15px rgba(100, 116, 139, 0.2);
+    color: var(--color-text);
 }
 
 .mensaje.exito {
@@ -179,8 +180,8 @@ button:hover {
 #servicios-page select {
     padding: 10px;
     border-radius: var(--border-radius);
-    border: 1px solid #5b6375;
-    background-color: #323846;
+    border: 1px solid var(--color-secondary-accent);
+    background-color: #1e293b;
     color: var(--color-text);
     font-size: 0.95rem;
 }
@@ -195,11 +196,11 @@ button:hover {
     background-color: var(--color-button);
     padding: 12px 20px;
     font-size: 1rem;
-    box-shadow: 0 8px 20px rgba(154, 109, 255, 0.3);
+    box-shadow: 0 8px 20px rgba(100, 116, 139, 0.2);
 }
 
 #servicios-page button:hover {
     background-color: var(--color-button-hover);
     transform: scale(1.03);
-    box-shadow: 0 10px 30px rgba(179, 133, 255, 0.3);
+    box-shadow: 0 10px 30px rgba(100, 116, 139, 0.3);
 }

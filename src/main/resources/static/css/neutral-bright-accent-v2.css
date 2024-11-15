@@ -1,16 +1,16 @@
 :root {
-    --color-background: #b0b9c2;
-    --color-card-bg: #8e99a3;
-    --color-text: #2d3339;
-    --color-accent: #3e6f8d;
-    --color-secondary-accent: #5b7f99;
-    --color-button: #3e6f8d;
-    --color-button-hover: #5489a2;
+    --color-background: #000000; /* Negro absoluto */
+    --color-card-bg: #111111; /* Negro carbón */
+    --color-text: #e0e0e0; /* Gris claro para contraste */
+    --color-accent: #1a1a1a; /* Negro humo */
+    --color-secondary-accent: #2b2b2b; /* Negro profundo */
+    --color-button: #1a1a1a; /* Negro sólido */
+    --color-button-hover: #2a2a2a; /* Negro ligeramente más claro */
     --border-radius: 8px;
-    --font-main: 'Lato', sans-serif;
-    --color-success: #4caf50;
-    --color-error: #e57373;
-    --color-warning: #ffb74d;
+    --font-main: 'Nunito', sans-serif;
+    --color-success: #4caf50; /* Verde para mensajes de éxito */
+    --color-error: #f44336; /* Rojo para errores */
+    --color-warning: #ff9800; /* Naranja para advertencias */
 }
 
 body {
@@ -23,8 +23,8 @@ body {
 
 header {
     background-color: var(--color-secondary-accent);
-    padding: .5rem;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    padding: 0.5rem;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.9);
     border-bottom: 1px solid var(--color-accent);
     text-align: center;
 }
@@ -41,49 +41,49 @@ main {
     padding: 40px;
     background-color: var(--color-card-bg);
     border-radius: var(--border-radius);
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.9);
     transition: background-color 0.4s ease, transform 0.4s ease;
     border: 1px solid var(--color-secondary-accent);
 }
 
 main:hover {
-    background-color: #7d8b96;
+    background-color: #0d0d0d; /* Negro ligeramente menos intenso */
     border-color: var(--color-accent);
 }
 
 input, select {
     padding: 5px;
     border-radius: var(--border-radius);
-    border: 1px solid #6a7a85;
+    border: 1px solid var(--color-secondary-accent);
     font-size: 1rem;
     color: var(--color-text);
-    background-color: #a3adb6;
+    background-color: #111111;
     transition: all 0.3s ease;
-    box-shadow: inset 0 0 8px rgba(62, 111, 141, 0.2);
+    box-shadow: inset 0 0 8px rgba(26, 26, 26, 0.6);
 }
 
 input:focus, select:focus {
     border-color: var(--color-accent);
-    box-shadow: 0 0 15px rgba(62, 111, 141, 0.3);
+    box-shadow: 0 0 15px rgba(26, 26, 26, 0.8);
 }
 
 button {
     font-weight: bold;
     cursor: pointer;
     background-color: var(--color-button);
-    color: #ffffff;
+    color: var(--color-text);
     padding: 5px 5px;
     font-size: 1rem;
     border: none;
     border-radius: var(--border-radius);
     transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
-    box-shadow: 0 8px 20px rgba(62, 111, 141, 0.2);
+    box-shadow: 0 8px 20px rgba(26, 26, 26, 0.8);
 }
 
 button:hover {
     background-color: var(--color-button-hover);
     transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(62, 111, 141, 0.3);
+    box-shadow: 0 10px 30px rgba(26, 26, 26, 0.9);
 }
 
 #archivos table {
@@ -91,6 +91,7 @@ button:hover {
     border-collapse: collapse;
     margin-top: 15px;
     border: 1px solid var(--color-accent);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
 }
 
 #archivos table th {
@@ -101,11 +102,11 @@ button:hover {
 }
 
 #archivos table tr:nth-child(odd) {
-    background-color: var(--color-background);
+    background-color: var(--color-card-bg);
 }
   
 #archivos table tr:nth-child(even) {
-    background-color: var(--color-card-bg);
+    background-color: #0d0d0d;
 }
 
 #archivos table th, #archivos table td {
@@ -116,7 +117,7 @@ button:hover {
 }
 
 #archivos table tr:hover {
-        outline: 2px solid var(--color-secondary-accent);
+    outline: 2px solid var(--color-accent);
 }
 
 #totalArchivosInfo {
@@ -138,8 +139,8 @@ button:hover {
     text-align: center;
     font-weight: 600;
     font-size: 1rem;
-    box-shadow: 0 0 15px rgba(62, 111, 141, 0.2);
-    color: #000;
+    box-shadow: 0 0 15px rgba(26, 26, 26, 0.8);
+    color: var(--color-text);
 }
 
 .mensaje.exito {
@@ -179,8 +180,8 @@ button:hover {
 #servicios-page select {
     padding: 10px;
     border-radius: var(--border-radius);
-    border: 1px solid #6a7a85;
-    background-color: #a3adb6;
+    border: 1px solid var(--color-secondary-accent);
+    background-color: #111111;
     color: var(--color-text);
     font-size: 0.95rem;
 }
@@ -195,11 +196,12 @@ button:hover {
     background-color: var(--color-button);
     padding: 12px 20px;
     font-size: 1rem;
-    box-shadow: 0 8px 20px rgba(62, 111, 141, 0.2);
+    box-shadow: 0 8px 20px rgba(26, 26, 26, 0.8);
 }
 
 #servicios-page button:hover {
     background-color: var(--color-button-hover);
     transform: scale(1.03);
-    box-shadow: 0 10px 30px rgba(62, 111, 141, 0.3);
+    box-shadow: 0 10px 30px rgba(26, 26, 26, 0.9);
 }
+

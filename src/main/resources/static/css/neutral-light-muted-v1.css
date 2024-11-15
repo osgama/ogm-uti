@@ -1,16 +1,16 @@
 :root {
-    --color-background: #2f3438;
-    --color-card-bg: #41484d;
-    --color-text: #e2e2e2;
-    --color-accent: #a27c59;
-    --color-secondary-accent: #8d6f55;
-    --color-button: #a27c59;
-    --color-button-hover: #b5906d;
+    --color-background: #1a2733; /* Azul grisáceo oscuro profundo */
+    --color-card-bg: #22313f; /* Azul intermedio oscuro */
+    --color-text: #b0c4d4; /* Gris azulado claro */
+    --color-accent: #3b82c4; /* Azul pastel más oscuro */
+    --color-secondary-accent: #2c4560; /* Azul grisáceo intermedio */
+    --color-button: #3b82c4; /* Azul pastel oscuro para botones */
+    --color-button-hover: #2c6aa2; /* Azul aún más oscuro para hover */
     --border-radius: 8px;
-    --font-main: 'Open Sans', sans-serif;
-    --color-success: #4caf50;
-    --color-error: #e57373;
-    --color-warning: #ffb74d;
+    --font-main: 'Nunito', sans-serif;
+    --color-success: #619d61; /* Verde pastel oscuro */
+    --color-error: #d76a6a; /* Rojo apagado */
+    --color-warning: #e8a978; /* Naranja pastel apagado */
 }
 
 body {
@@ -23,8 +23,8 @@ body {
 
 header {
     background-color: var(--color-secondary-accent);
-    padding: .5rem;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    padding: 0.5rem;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
     border-bottom: 1px solid var(--color-accent);
     text-align: center;
 }
@@ -41,30 +41,30 @@ main {
     padding: 40px;
     background-color: var(--color-card-bg);
     border-radius: var(--border-radius);
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6);
     transition: background-color 0.4s ease, transform 0.4s ease;
     border: 1px solid var(--color-secondary-accent);
 }
 
 main:hover {
-    background-color: #4e565b;
+    background-color: #1e2d3a; /* Fondo ligeramente más oscuro */
     border-color: var(--color-accent);
 }
 
 input, select {
     padding: 5px;
     border-radius: var(--border-radius);
-    border: 1px solid #656b70;
+    border: 1px solid var(--color-secondary-accent);
     font-size: 1rem;
     color: var(--color-text);
-    background-color: #3c4247;
+    background-color: #22313f;
     transition: all 0.3s ease;
-    box-shadow: inset 0 0 8px rgba(162, 124, 89, 0.2);
+    box-shadow: inset 0 0 8px rgba(59, 130, 196, 0.2);
 }
 
 input:focus, select:focus {
     border-color: var(--color-accent);
-    box-shadow: 0 0 15px rgba(162, 124, 89, 0.3);
+    box-shadow: 0 0 15px rgba(59, 130, 196, 0.4);
 }
 
 button {
@@ -77,13 +77,13 @@ button {
     border: none;
     border-radius: var(--border-radius);
     transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
-    box-shadow: 0 8px 20px rgba(162, 124, 89, 0.2);
+    box-shadow: 0 8px 20px rgba(59, 130, 196, 0.2);
 }
 
 button:hover {
     background-color: var(--color-button-hover);
     transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(181, 144, 109, 0.3);
+    box-shadow: 0 10px 30px rgba(59, 130, 196, 0.3);
 }
 
 #archivos table {
@@ -91,6 +91,7 @@ button:hover {
     border-collapse: collapse;
     margin-top: 15px;
     border: 1px solid var(--color-accent);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
 }
 
 #archivos table th {
@@ -101,22 +102,22 @@ button:hover {
 }
 
 #archivos table tr:nth-child(odd) {
-    background-color: var(--color-background);
+    background-color: var(--color-card-bg);
 }
   
 #archivos table tr:nth-child(even) {
-    background-color: var(--color-card-bg);
+    background-color: #1e2d3a;
 }
 
 #archivos table th, #archivos table td {
-    padding: 1px 10px; 
-    text-align: left; 
+    padding: 1px 10px;
+    text-align: left;
     border-bottom: 1px solid var(--color-accent); 
     border: 1px solid var(--color-secondary-accent);
 }
 
 #archivos table tr:hover {
-    outline: 2px solid var(--color-secondary-accent);
+    outline: 2px solid var(--color-accent);
 }
 
 #totalArchivosInfo {
@@ -138,8 +139,8 @@ button:hover {
     text-align: center;
     font-weight: 600;
     font-size: 1rem;
-    box-shadow: 0 0 15px rgba(162, 124, 89, 0.2);
-    color: #000;
+    box-shadow: 0 0 15px rgba(59, 130, 196, 0.2);
+    color: var(--color-text);
 }
 
 .mensaje.exito {
@@ -179,8 +180,8 @@ button:hover {
 #servicios-page select {
     padding: 10px;
     border-radius: var(--border-radius);
-    border: 1px solid #656b70;
-    background-color: #3c4247;
+    border: 1px solid var(--color-secondary-accent);
+    background-color: #22313f;
     color: var(--color-text);
     font-size: 0.95rem;
 }
@@ -195,11 +196,11 @@ button:hover {
     background-color: var(--color-button);
     padding: 12px 20px;
     font-size: 1rem;
-    box-shadow: 0 8px 20px rgba(162, 124, 89, 0.2);
+    box-shadow: 0 8px 20px rgba(59, 130, 196, 0.2);
 }
 
 #servicios-page button:hover {
     background-color: var(--color-button-hover);
     transform: scale(1.03);
-    box-shadow: 0 10px 30px rgba(181, 144, 109, 0.3);
+    box-shadow: 0 10px 30px rgba(59, 130, 196, 0.3);
 }

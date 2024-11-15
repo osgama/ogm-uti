@@ -1,17 +1,16 @@
 :root {
-    --color-background: #1c1f24;
-    --color-card-bg: #2a2f35;
-    --color-text: #d9d9d9;
-    --color-accent: #4fc3a1;
-    --color-secondary-accent: #3a5a58;
-    --color-button: #4fc3a1;
-    --color-button-hover: #66d1b3;
+    --color-background: #101010; /* Negro profundo */
+    --color-card-bg: #1a1a1a; /* Negro carbón */
+    --color-text: #e5e5e5; /* Gris claro para texto */
+    --color-accent: #333333; /* Negro humo para acentos */
+    --color-secondary-accent: #2c2c2c; /* Negro intermedio */
+    --color-button: #202020; /* Negro sólido */
+    --color-button-hover: #292929; /* Negro más claro para hover */
     --border-radius: 8px;
-    --font-main: 'Roboto', sans-serif;
-    --color-header-bg: #2d3238;
-    --color-success: #4caf50;
-    --color-error: #e57373;
-    --color-warning: #ffb74d;
+    --font-main: 'Nunito', sans-serif;
+    --color-success: #4caf50; /* Verde para mensajes de éxito */
+    --color-error: #f44336; /* Rojo para errores */
+    --color-warning: #ff9800; /* Naranja para advertencias */
 }
 
 body {
@@ -23,10 +22,10 @@ body {
 }
 
 header {
-    background-color: var(--color-header-bg);
-    padding: .5rem;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-    border-bottom: 1px solid var(--color-secondary-accent);
+    background-color: var(--color-secondary-accent);
+    padding: 0.5rem;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.8);
+    border-bottom: 1px solid var(--color-accent);
     text-align: center;
 }
 
@@ -42,49 +41,49 @@ main {
     padding: 40px;
     background-color: var(--color-card-bg);
     border-radius: var(--border-radius);
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6);
     transition: background-color 0.4s ease, transform 0.4s ease;
     border: 1px solid var(--color-secondary-accent);
 }
 
 main:hover {
-    background-color: #343a40;
+    background-color: #151515; /* Negro carbón ligeramente más claro */
     border-color: var(--color-accent);
 }
 
 input, select {
     padding: 5px;
     border-radius: var(--border-radius);
-    border: 1px solid #4a5258;
+    border: 1px solid var(--color-secondary-accent);
     font-size: 1rem;
     color: var(--color-text);
-    background-color: #252a2f;
+    background-color: #1a1a1a;
     transition: all 0.3s ease;
-    box-shadow: inset 0 0 8px rgba(79, 195, 161, 0.2);
+    box-shadow: inset 0 0 8px rgba(51, 51, 51, 0.2);
 }
 
 input:focus, select:focus {
     border-color: var(--color-accent);
-    box-shadow: 0 0 15px rgba(79, 195, 161, 0.3);
+    box-shadow: 0 0 15px rgba(51, 51, 51, 0.4);
 }
 
 button {
     font-weight: bold;
     cursor: pointer;
     background-color: var(--color-button);
-    color: #ffffff;
+    color: var(--color-text);
     padding: 5px 5px;
     font-size: 1rem;
     border: none;
     border-radius: var(--border-radius);
     transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
-    box-shadow: 0 8px 20px rgba(79, 195, 161, 0.2);
+    box-shadow: 0 8px 20px rgba(32, 32, 32, 0.2);
 }
 
 button:hover {
     background-color: var(--color-button-hover);
     transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(102, 209, 179, 0.3);
+    box-shadow: 0 10px 30px rgba(32, 32, 32, 0.3);
 }
 
 #archivos table {
@@ -92,6 +91,7 @@ button:hover {
     border-collapse: collapse;
     margin-top: 15px;
     border: 1px solid var(--color-accent);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
 }
 
 #archivos table th {
@@ -102,23 +102,22 @@ button:hover {
 }
 
 #archivos table tr:nth-child(odd) {
-    background-color: var(--color-background);
+    background-color: var(--color-card-bg);
 }
   
 #archivos table tr:nth-child(even) {
-    background-color: var(--color-card-bg);
-} 
+    background-color: #151515;
+}
 
 #archivos table th, #archivos table td {
     padding: 1px 10px;
     text-align: left;
     border-bottom: 1px solid var(--color-accent); 
     border: 1px solid var(--color-secondary-accent);
-} 
+}
 
 #archivos table tr:hover {
-    outline: 2px solid var(--color-secondary-accent);
-
+    outline: 2px solid var(--color-accent);
 }
 
 #totalArchivosInfo {
@@ -140,8 +139,8 @@ button:hover {
     text-align: center;
     font-weight: 600;
     font-size: 1rem;
-    box-shadow: 0 0 15px rgba(79, 195, 161, 0.2);
-    color: #000;
+    box-shadow: 0 0 15px rgba(51, 51, 51, 0.2);
+    color: var(--color-text);
 }
 
 .mensaje.exito {
@@ -181,8 +180,8 @@ button:hover {
 #servicios-page select {
     padding: 10px;
     border-radius: var(--border-radius);
-    border: 1px solid #4a5258;
-    background-color: #252a2f;
+    border: 1px solid var(--color-secondary-accent);
+    background-color: #1a1a1a;
     color: var(--color-text);
     font-size: 0.95rem;
 }
@@ -197,11 +196,11 @@ button:hover {
     background-color: var(--color-button);
     padding: 12px 20px;
     font-size: 1rem;
-    box-shadow: 0 8px 20px rgba(79, 195, 161, 0.2);
+    box-shadow: 0 8px 20px rgba(32, 32, 32, 0.2);
 }
 
 #servicios-page button:hover {
     background-color: var(--color-button-hover);
     transform: scale(1.03);
-    box-shadow: 0 10px 30px rgba(102, 209, 179, 0.3);
+    box-shadow: 0 10px 30px rgba(32, 32, 32, 0.3);
 }
