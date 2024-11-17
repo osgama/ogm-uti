@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Descarga Archivos</title>
-  <link id="themeStylesheet" rel="stylesheet" href="../css/clasica.css">
+  <link id="themeStylesheet" rel="stylesheet" href="../css/neutral-light-v1.css">
 </head>
 
 <body>
@@ -20,7 +20,9 @@
 
 
   <main>
-    <label for="directorio">Directorio:</label>
+    <label for="directorio">
+      <img src="../icons/options.png" alt="Directorio" class="icon">
+    </label>
     <select id="directorio" name="directorio">
       <option value="1">logs 1</option>
       <option value="2">logs 2</option>
@@ -45,20 +47,34 @@
       <option value="21">logs 21</option>
     </select>
 
-    <label for="filtro">Filtro:</label>
+    <label for="filtro" title="Escribe el filtro para los archivos">
+      <img src="../icons/filter.png" alt="Filtro" class="icon">
+    </label>
     <input type="text" id="filtro" name="filtro" placeholder="Filtro de archivos">
-    <button onclick="listarArchivos()">Buscar</button>
-    <button onclick="descargarSeleccionados()">Descargar</button>
-    <button onclick="seleccionarTodos()">Seleccionar Todos</button>
-    <button onclick="limpiar()">Limpiar</button>
+
+    <button onclick="listarArchivos()" title="Buscar">
+      <img src="../icons/search.png" alt="Buscar" class="icon">
+    </button>
+
+    <button onclick="descargarSeleccionados()" title="Descargar">
+      <img src="../icons/download.png" alt="Descargar" class="icon">
+    </button>
+
+    <button onclick="seleccionarTodos()" title="Seleccionar todo">
+      <img src="../icons/select-all.png" alt="Seleccionar Todos" class="icon">
+    </button>
+
+    <button onclick="limpiar()" title="Limpiar selección">
+      <img src="../icons/clean.png" alt="Limpiar" class="icon">
+    </button>
 
     <span id="totalArchivosInfo"></span>
     <div id="div3"></div>
 
-    <p id="msjNoArchivos" class="mensaje warning">¡NO SE ENCONTRARON ARCHIVOS!</p>
-    <p id="msjEspera" class="mensaje warning">Por favor espera... buscando archivos...</p>
-
+    <p id="msjNoArchivos" class="mensaje warning"></p>
+    <p id="msjEspera" class="mensaje warning"></p>
     <div id="errorMessage" class="mensaje error"></div>
+
     <div id="archivos"></div>
     <input type="hidden" id="directorioDescarga" name="directorio" />
     <input type="hidden" id="archivosDescarga" name="archivos" />
@@ -94,7 +110,7 @@
       <option value="../css/dark-blue-v1.css">Dark Blue V1</option>
       <option value="../css/dark-steel-blue-accent-v1.css">Dark Steel Blue Accent V1</option>
       <option value="../css/neutral-dark-sandstone-v1.css">Neutral Dark Sandstone V1</option>
-      
+
     </select>
   </footer>
 
@@ -123,7 +139,9 @@
     };
 
     function listarArchivos() {
+      document.getElementById("msjEspera").innerHTML = `<img src="../icons/info.png" alt="Cargando" class="mensaje-icon">POR FAVOR ESPERA, BUSCANDO ARCHIVOS...`;
       document.getElementById("msjEspera").style.display = "block";
+
       const directorio = document.getElementById("directorio").value;
       const filtro = document.getElementById("filtro").value;
       const tipo = '1';
@@ -151,9 +169,13 @@
           if (data === null) return;
 
           if (data.length === 0) {
+            document.getElementById("msjNoArchivos").innerHTML = `<img src="../icons/warning.png" alt="Warning" class="mensaje-icon">¡NO SE ENCONTRARON ARCHIVOS!`;
             document.getElementById("msjNoArchivos").style.display = "block";
+
           } else {
             document.getElementById("msjNoArchivos").style.display = "none";
+            document.getElementById("msjNoArchivos").innerHTML = ""; // Limpia el contenido
+
           }
           mostrarArchivos(data);
         })
@@ -162,6 +184,7 @@
         })
         .finally(() => {
           document.getElementById("msjEspera").style.display = "none";
+          document.getElementById("msjEspera").innerHTML = ""; // Limpia el contenido
         });
     }
 
@@ -188,8 +211,8 @@
       html += "</table>";
       archivosDiv.innerHTML = html;
       const totalArchivos = archivos.length;
-      document.getElementById("totalArchivosInfo").textContent = `Archivos Encontrados: ${totalArchivos}`;
-      document.getElementById("totalArchivosInfo").style.display = 'inline-block'; // Mostrar el elemento
+      document.getElementById("totalArchivosInfo").innerHTML = `${totalArchivos}    <img src="../icons/files.png" alt="#" class="icon-2">`;
+      document.getElementById("totalArchivosInfo").style.display = 'inline-block'; // Asegúrate de mostrar el elemento
 
     }
 
@@ -341,12 +364,14 @@
 
     function mostrarError(mensaje) {
       const errorDiv = document.getElementById("errorMessage");
-      errorDiv.textContent = mensaje;
+      errorDiv.innerHTML = `<img src="../icons/error.png" alt="Error" class="mensaje-icon">${mensaje}`;
       errorDiv.style.display = "block";
       setTimeout(() => {
         errorDiv.style.display = "none";
+        errorDiv.innerHTML = ""; // Limpia el contenido
       }, 5000);
     }
+
 
     function aplicarTemaGuardado() {
       const temaGuardado = localStorage.getItem('temaSeleccionado');
