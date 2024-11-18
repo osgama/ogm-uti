@@ -8,9 +8,9 @@
     --color-button-hover: #8a8e92;
     --border-radius: 8px;
     --font-main: 'Helvetica Neue', sans-serif;
-    --color-success: #4caf50;
-    --color-error: #e57373;
-    --color-warning: #ffb74d;
+    --color-success: #2e7d32;
+    --color-error: #c62828;
+    --color-warning: #ed6c02;
 } 
 
 body {
@@ -127,57 +127,57 @@ button:hover {
     background-color: transparent;
     padding: 5px 0;
     transition: color 0.3s ease, transform 0.3s ease;
-    float: right; /* Mueve el elemento al extremo derecho */
+    float: right;
 }
 
 .mensaje {
-    padding: 1px; /* Reduce el espacio interno */
+    padding: 1px;
     border-radius: var(--border-radius);
-    margin-top: 10px; /* Reduce el espacio entre mensajes */
-    text-align: left; /* Alinea el texto a la izquierda */
-    font-weight: 500; /* Un peso un poco más ligero */
-    font-size: 0.9rem; /* Tamaño de fuente más pequeño */
+    margin-top: 10px;
+    text-align: left;
+    font-weight: 500;
+    font-size: 0.9rem;
     color: var(--color-text);
-    display: none; /* Por defecto oculto */
+    display: none;
     transition: all 0.3s ease;
-    max-width: 100%; /* Limita el ancho máximo del mensaje */
+    max-width: 100%;
 }
 
 .mensaje.exito {
-    background-color: var(--color-success); /* Verde para éxito */
-    color: #ffffff; /* Texto blanco para buen contraste */
+    background-color: var(--color-success);
+    color: #ffffff;
 }
 
 .mensaje.warning {
-    background-color: var(--color-warning); /* Amarillo para advertencia */
-    color: #000000; /* Texto negro para buen contraste */
+    background-color: var(--color-warning);
+    color: #ffffff;
 }
 
 .mensaje.error {
-    background-color: var(--color-error); /* Rojo para error */
-    color: #ffffff; /* Texto blanco para buen contraste */
+    background-color: var(--color-error);
+    color: #ffffff;
 }
 
 .mensaje-icon {
-    width: 20px; /* Ajusta el tamaño del icono */
+    width: 20px;
     height: 20px;
-    display: inline-block; /* Asegura alineación inline */
-    vertical-align: middle; /* Centra el icono con el texto */
-    margin-right: 8px; /* Espacio entre icono y texto */
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
 }
 
 .icon {
-    width: 25px;  /* Ancho del icono */
-    height: 25px; /* Alto del icono */
+    width: 25px;
+    height: 25px;
     display: inline-block;
-    vertical-align: middle; /* Alinea el icono con texto si es necesario */
+    vertical-align: middle;
 }
 
 .icon-2{
-    width: 30px; /* Ajusta según el tamaño necesario */
+    width: 30px;
     height: 30px;
     display: inline-block;
-    vertical-align: middle; /* Alinea el icono con texto si es necesario */
+    vertical-align: middle;
 }
 
 /* Específicos para servicios.html */
