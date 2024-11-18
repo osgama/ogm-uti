@@ -10,7 +10,7 @@
     --font-main: 'Lato', sans-serif;
     --color-success: #2e7d32;
     --color-error: #c62828;
-    --color-warning: #f1c40f;
+    --color-warning: #dc7633;
 }
 
 body {
@@ -145,17 +145,17 @@ button:hover {
 
 .mensaje.exito {
     background-color: var(--color-success);
-    color: #17202a;
+    color: #000000;
 }
 
 .mensaje.warning {
     background-color: var(--color-warning);
-    color: #17202a;
+    color: #000000;
 }
 
 .mensaje.error {
     background-color: var(--color-error);
-    color: #17202a;
+    color: #000000;
 }
 
 .mensaje-icon {
