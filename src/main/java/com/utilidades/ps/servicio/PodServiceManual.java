@@ -35,7 +35,7 @@ public class PodServiceManual {
         List<String> listaDePodsDown = seleccionarListaPods(opcion, emitter);
         try (OpenShiftClient openShiftClient = createOpenShiftClient(usuario, password, servidor, emitter)) {
             escalarPods(openShiftClient, listaDePodsDown, 0, emitter);
-            waitForPodsToTerminate(openShiftClient, listaDePodsDown, emitter);
+            //waitForPodsToTerminate(openShiftClient, listaDePodsDown, emitter);
             openShiftClient.close();
         } catch (Exception e) {
             emitter.send(SseEmitter.event().name("error")
@@ -318,7 +318,7 @@ public class PodServiceManual {
         }
     }
 
-    private void waitForPodsToTerminate(OpenShiftClient openShiftClient, List<String> podNames, SseEmitter emitter)
+   /*private void waitForPodsToTerminate(OpenShiftClient openShiftClient, List<String> podNames, SseEmitter emitter)
             throws IOException {
         boolean allTerminated = false;
         int retryCount = 0;
@@ -355,5 +355,5 @@ public class PodServiceManual {
                     .data("Algunos pods no se han detenido correctamente después de los intentos máximos"));
             logger.error("Algunos pods no se han detenido correctamente después de los intentos máximos");
         }
-    }
+    }*/
 }

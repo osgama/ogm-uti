@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.*;
 import org.slf4j.*;
 import java.io.*;
 
-import com.utilidades.ps.model.PodRequest;
 import com.utilidades.ps.servicio.PodServiceManual;
 
 @RestController
@@ -18,86 +17,71 @@ public class ApiPodManual {
         this.podServiceManual = podServiceManual;
     }
 
-    @PostMapping("/StopPods")
-    public SseEmitter scaleDownPods(@RequestBody PodRequest request) {
-        final SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
-        Thread thread = new Thread(() -> {
+    @GetMapping("/StopPods")
+    public SseEmitter scaleDownPods(
+            @RequestParam String usuario,
+            @RequestParam String password,
+            @RequestParam String servidor,
+            @RequestParam String opcion) {
+        SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
+        new Thread(() -> {
             try {
-                podServiceManual.scaleDownPods(
-                        request.getUsuario(),
-                        request.getPassword(),
-                        request.getServidor(),
-                        request.getOpcion(),
-                        emitter);
+                podServiceManual.scaleDownPods(usuario, password, servidor, opcion, emitter);
                 emitter.complete();
-                logger.info("Detención completada para la opción: {}", request.getOpcion());
             } catch (Exception e) {
-                String errorMsg = "Error deteniendo pods: " + e.getMessage();
                 try {
-                    emitter.send(SseEmitter.event().name("error").data(errorMsg));
-                    logger.error(errorMsg, e);
-                } catch (IOException ioException) {
-                    logger.error("Error enviando mensaje de error: {}", ioException.getMessage(), ioException);
+                    emitter.send(SseEmitter.event().name("error").data("Error deteniendo pods: " + e.getMessage()));
+                } catch (IOException ex) {
+                    ex.printStackTrace();
                 }
                 emitter.completeWithError(e);
             }
-        });
-        thread.start();
+        }).start();
         return emitter;
     }
 
-    @PostMapping("/StartPods")
-    public SseEmitter scaleUpPodsInBlocks(@RequestBody PodRequest request) {
-        final SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
-        Thread thread = new Thread(() -> {
+    @GetMapping("/StartPods")
+    public SseEmitter scaleUpPods(
+            @RequestParam String usuario,
+            @RequestParam String password,
+            @RequestParam String servidor,
+            @RequestParam String opcion) {
+        SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
+        new Thread(() -> {
             try {
-                podServiceManual.scaleUpPodsInBlocks(
-                        request.getUsuario(),
-                        request.getPassword(),
-                        request.getServidor(),
-                        request.getOpcion(),
-                        emitter);
+                podServiceManual.scaleUpPodsInBlocks(usuario, password, servidor, opcion, emitter);
                 emitter.complete();
-                logger.info("Inicio completado para la opción: {}", request.getOpcion());
             } catch (Exception e) {
-                String errorMsg = "Error iniciando pods: " + e.getMessage();
                 try {
-                    emitter.send(SseEmitter.event().name("error").data(errorMsg));
-                    logger.error(errorMsg, e);
-                } catch (IOException ioException) {
-                    logger.error("Error enviando mensaje de error: {}", ioException.getMessage(), ioException);
+                    emitter.send(SseEmitter.event().name("error").data("Error iniciando pods: " + e.getMessage()));
+                } catch (IOException ex) {
+                    ex.printStackTrace();
                 }
                 emitter.completeWithError(e);
             }
-        });
-        thread.start();
+        }).start();
         return emitter;
     }
 
-    @PostMapping("/DeleteCompletedPods")
-    public SseEmitter deleteCompletedPods(@RequestBody PodRequest request) {
-        final SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
-        Thread thread = new Thread(() -> {
+    @GetMapping("/DeleteCompletedPods")
+    public SseEmitter deleteCompletedPods(
+            @RequestParam String usuario,
+            @RequestParam String password,
+            @RequestParam String servidor) {
+        SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
+        new Thread(() -> {
             try {
-                podServiceManual.deleteCompletedPods(
-                        request.getUsuario(),
-                        request.getPassword(),
-                        request.getServidor(),
-                        emitter);
+                podServiceManual.deleteCompletedPods(usuario, password, servidor, emitter);
                 emitter.complete();
-                logger.info("Eliminación de pods completados exitosa.");
             } catch (Exception e) {
-                String errorMsg = "Error eliminando pods completados: " + e.getMessage();
                 try {
-                    emitter.send(SseEmitter.event().name("error").data(errorMsg));
-                    logger.error(errorMsg, e);
-                } catch (IOException ioException) {
-                    logger.error("Error enviando mensaje de error: {}", ioException.getMessage(), ioException);
+                    emitter.send(SseEmitter.event().name("error").data("Error eliminando pods completados: " + e.getMessage()));
+                } catch (IOException ex) {
+                    ex.printStackTrace();
                 }
                 emitter.completeWithError(e);
             }
-        });
-        thread.start();
+        }).start();
         return emitter;
     }
 }
