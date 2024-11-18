@@ -15,42 +15,42 @@
 
   <main id="servicios-page" class="form-container">
     <!-- Campo Usuario -->
-      <label for="usuario">
-        <img src="../icons/user.png" alt="Usuario" class="icon">
-      </label>
-      <input type="text" id="usuario" name="usuario" class="form-control" placeholder="Usuario" required />
+    <label for="usuario">
+      <img src="../icons/user.png" alt="Usuario" class="icon">
+    </label>
+    <input type="text" id="usuario" name="usuario" class="form-control" placeholder="Usuario" required />
 
     <!-- Campo Contraseña -->
-      <label for="password">
-        <img src="../icons/password.png" alt="Contraseña" class="icon">
-      </label>
-      <input type="password" id="password" name="password" class="form-control" placeholder="Contraseña" required />
+    <label for="password">
+      <img src="../icons/password.png" alt="Contraseña" class="icon">
+    </label>
+    <input type="password" id="password" name="password" class="form-control" placeholder="Contraseña" required />
 
     <!-- Campo Servidor -->
-      <label for="servidor">
-        <img src="../icons/server.png" alt="Servidor" class="icon">
-      </label>
-      <select id="servidor" name="servidor" class="form-control" required></select>
+    <label for="servidor">
+      <img src="../icons/server.png" alt="Servidor" class="icon">
+    </label>
+    <select id="servidor" name="servidor" class="form-control" required></select>
 
     <!-- Campo Opción -->
-      <label for="opcion">
-        <img src="../icons/options.png" alt="Opción" class="icon">
-      </label>
-      <select id="opcion" name="opcion" class="form-control" required>
-        <option value="1">App Completo</option>
-        <option value="2">App Parcial</option>
-      </select>
- 
+    <label for="opcion">
+      <img src="../icons/options.png" alt="Opción" class="icon">
+    </label>
+    <select id="opcion" name="opcion" class="form-control" required>
+      <option value="1">App Completo</option>
+      <option value="2">App Parcial</option>
+    </select>
+
     <!-- Botones -->
-      <button id="btnStopPods" class="form-button" title="Detener Pods">
-        <img src="../icons/stop.png" alt="Detener Pods" class="icon">
-      </button>
-      <button id="btnStartPods" class="form-button" title="Iniciar Pods">
-        <img src="../icons/start.png" alt="Iniciar Pods" class="icon">
-      </button>
-      <button id="btnDeleteCompleted" class="form-button" title="Limpiar Instalación">
-        <img src="../icons/clean.png" alt="Limpiar Instalación" class="icon">
-      </button>
+    <button id="btnStopPods" class="form-button" title="Detener Pods">
+      <img src="../icons/stop.png" alt="Detener Pods" class="icon">
+    </button>
+    <button id="btnStartPods" class="form-button" title="Iniciar Pods">
+      <img src="../icons/start.png" alt="Iniciar Pods" class="icon">
+    </button>
+    <button id="btnDeleteCompleted" class="form-button" title="Limpiar Instalación">
+      <img src="../icons/clean.png" alt="Limpiar Instalación" class="icon">
+    </button>
 
 
     <!-- Mensajes Dinámicos -->
@@ -61,6 +61,46 @@
       <div id="eventsContent"></div>
     </div>
   </main>
+
+  <div
+    style="position: fixed; bottom: 10px; right: 10px; font-size: 0.8em; color: gray; pointer-events: none; z-index: 1000;">
+    Versión Beta
+  </div>
+
+
+  <footer id="themeSelectorContainer"
+    style="position: fixed; bottom: 10px; left: 10px; padding: 5px 10px; font-size: 0.9em; background-color: transparent;">
+    <select id="cssSwitcher" onchange="cambiarCSS()"
+      style="background-color: transparent; color: inherit; border: 1px solid rgba(255, 255, 255, 0.3); padding: 3px; border-radius: 3px;"
+      onfocus="this.style.backgroundColor='rgba(255, 255, 255, 0.8)'; this.style.color='#333';"
+      onblur="this.style.backgroundColor='transparent'; this.style.color='inherit';">
+      <option value="../css/neutral-bright-accent-v2.css">Neutral Bright Accent V2</option>
+      <option value="../css/neutral-bright-accent-v1.css">Neutral Bright Accent V1</option>
+      <option value="../css/dark-neutral-v1.css">Dark Neutral V1</option>
+      <option value="../css/neutral-light-muted-v3.css">Neutral Light Muted V3</option>
+      <option value="../css/neutral-light-v1.css">Neutral Light V1</option>
+      <option value="../css/dark-modern-v1.css">Dark Modern V1</option>
+      <option value="../css/dark-deep-blue-v1.css">Dark Deep Blue V1</option>
+      <option value="../css/dark-gray-blue-accent-v1.css">Dark Gray Blue Accent V1</option>
+      <option value="../css/neutral-light-v2.css">Neutral Light V2</option>
+      <option value="../css/neutral-light-v3.css">Neutral Light V3</option>
+      <option value="../css/light-dark-muted-v3.css">Light Dark Muted V3</option>
+      <option value="../css/neutral-light-muted-v1.css">Neutral Light Muted V1</option>
+      <option value="../css/dark-neutral-v2.css">Dark Neutral V2</option>
+      <option value="../css/modern-dark-contrast-v2.css">Modern Dark Contrast V2</option>
+      <option value="../css/neutral-light-muted-v2.css">Neutral Light Muted V2</option>
+      <option value="../css/dark-navy-accent-v1.css">Dark Navy Accent V1</option>
+      <option value="../css/dark-elegant-neutral-v1.css">Dark Elegant Neutral V1</option>
+      <option value="../css/neutral-light-v4.css">Neutral Light V4</option>
+      <option value="../css/light-dark-muted-v2.css">Light Dark Muted V2</option>
+      <option value="../css/urban-dark-neutral-v1.css">Urban Dark Neutral V1</option>
+      <option value="../css/dark-blue-accent-v1.css">Dark Blue Accent V1</option>
+      <option value="../css/dark-blue-v1.css">Dark Blue V1</option>
+      <option value="../css/dark-steel-blue-accent-v1.css">Dark Steel Blue Accent V1</option>
+      <option value="../css/neutral-dark-sandstone-v1.css">Neutral Dark Sandstone V1</option>
+
+    </select>
+  </footer>
 
   <script>
     // Define la base de la URL
@@ -261,6 +301,19 @@
       const mensajeDiv = document.getElementById("mensajeDinamico");
       mensajeDiv.style.display = "none";
       mensajeDiv.innerHTML = "";
+    }
+
+    function aplicarTemaGuardado() {
+      const tema = localStorage.getItem("temaSeleccionado");
+      if (tema) {
+        document.getElementById("themeStylesheet").href = tema;
+      }
+    }
+
+    function cambiarCSS() {
+      const tema = document.getElementById("cssSwitcher").value;
+      document.getElementById("themeStylesheet").href = tema;
+      localStorage.setItem("temaSeleccionado", tema);
     }
   </script>
 </body>

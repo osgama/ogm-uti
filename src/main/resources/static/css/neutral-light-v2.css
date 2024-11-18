@@ -8,9 +8,9 @@
     --color-button-hover: #5a7184; /* Azul un poco más oscuro */
     --border-radius: 8px;
     --font-main: 'Inter', sans-serif;
-    --color-success: #2e7d32;
-    --color-error: #c62828;
-    --color-warning: #dc7633;
+    --color-success: #06630b;
+    --color-error: #d32f2f;
+    --color-warning: #ffb700;
 }
 
 body {
@@ -145,17 +145,17 @@ button:hover {
 
 .mensaje.exito {
     background-color: var(--color-success);
-    color: #000000;
+    color: #ffffff;
 }
 
 .mensaje.warning {
     background-color: var(--color-warning);
-    color: #000000;
+    color: #ffffff;
 }
 
 .mensaje.error {
     background-color: var(--color-error);
-    color: #000000;
+    color: #ffffff;
 }
 
 .mensaje-icon {
