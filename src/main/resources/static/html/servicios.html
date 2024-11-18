@@ -2,234 +2,267 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administración APP</title>
-    <link id="themeStylesheet" rel="stylesheet" href="../css/neutral-light-v1.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administración APP</title>
+  <link id="themeStylesheet" rel="stylesheet" href="../css/neutral-light-v1.css">
 </head>
 
 <body>
-    <header>
-        <h1>Administración APP <span id="ambienteA"></span></h1>
-    </header>
+  <header>
+    <h1>Administración APP <span id="ambienteA"></span></h1>
+  </header>
 
-    <main class="form-container">
-        <!-- Campo Usuario -->
-        <div class="form-row">
-            <label for="usuario">
-                <img src="../icons/user.png" alt="Usuario" class="icon">
-            </label>
-            <input type="text" id="usuario" name="usuario" class="form-control" placeholder="Usuario" required />
-        </div>
+  <main id="servicios-page" class="form-container">
+    <!-- Campo Usuario -->
+      <label for="usuario">
+        <img src="../icons/user.png" alt="Usuario" class="icon">
+      </label>
+      <input type="text" id="usuario" name="usuario" class="form-control" placeholder="Usuario" required />
 
-        <!-- Campo Contraseña -->
-        <div class="form-row">
-            <label for="password">
-                <img src="../icons/password.png" alt="Contraseña" class="icon">
-            </label>
-            <input type="password" id="password" name="password" class="form-control" placeholder="Contraseña"
-                required />
-        </div>
+    <!-- Campo Contraseña -->
+      <label for="password">
+        <img src="../icons/password.png" alt="Contraseña" class="icon">
+      </label>
+      <input type="password" id="password" name="password" class="form-control" placeholder="Contraseña" required />
 
-        <!-- Campo Servidor -->
-        <div class="form-row">
-            <label for="servidor">
-                <img src="../icons/server.png" alt="Servidor" class="icon">
-            </label>
-            <select id="servidor" name="servidor" class="form-control" required></select>
-        </div>
+    <!-- Campo Servidor -->
+      <label for="servidor">
+        <img src="../icons/server.png" alt="Servidor" class="icon">
+      </label>
+      <select id="servidor" name="servidor" class="form-control" required></select>
 
-        <!-- Campo Opción -->
-        <div class="form-row">
-            <label for="opcion">
-                <img src="../icons/web.png" alt="Opción" class="icon">
-            </label>
-            <select id="opcion" name="opcion" class="form-control" required>
-                <option value="1">App Completo</option>
-                <option value="2">App Parcial</option>
-            </select>
-        </div>
-
-        <!-- Botones -->
-        <div class="button-group">
-            <button id="btnStopPods" class="form-button" title="Detener Pods">
-                <img src="../icons/stop.png" alt="Detener Pods" class="icon">
-            </button>
-            <button id="btnStartPods" class="form-button" title="Iniciar Pods">
-                <img src="../icons/start.png" alt="Iniciar Pods" class="icon">
-            </button>
-            <button id="btnDeleteCompleted" class="form-button" title="Limpiar Instalación">
-                <img src="../icons/limpiar.png" alt="Limpiar Instalación" class="icon">
-            </button>
-        </div>
+    <!-- Campo Opción -->
+      <label for="opcion">
+        <img src="../icons/options.png" alt="Opción" class="icon">
+      </label>
+      <select id="opcion" name="opcion" class="form-control" required>
+        <option value="1">App Completo</option>
+        <option value="2">App Parcial</option>
+      </select>
+ 
+    <!-- Botones -->
+      <button id="btnStopPods" class="form-button" title="Detener Pods">
+        <img src="../icons/stop.png" alt="Detener Pods" class="icon">
+      </button>
+      <button id="btnStartPods" class="form-button" title="Iniciar Pods">
+        <img src="../icons/start.png" alt="Iniciar Pods" class="icon">
+      </button>
+      <button id="btnDeleteCompleted" class="form-button" title="Limpiar Instalación">
+        <img src="../icons/clean.png" alt="Limpiar Instalación" class="icon">
+      </button>
 
 
-        <!-- Mensajes Dinámicos -->
-        <p id="msjWarning" class="mensaje warning" style="display: none;"></p>
-        <p id="msjLoading" class="mensaje warning" style="display: none;"></p>
-        <div id="errorMessage" class="mensaje error" style="display: none;"></div>
+    <!-- Mensajes Dinámicos -->
+    <div id="mensajeDinamico" class="mensaje" style="display: none;"></div>
 
-        <!-- Contenedor de Eventos -->
-        <div id="events"></div>
-    </main>
+    <!-- Contenedor Permanente de Mensajes del Backend -->
+    <div id="events" class="mensaje-contenedor">
+      <div id="eventsContent"></div>
+    </div>
+  </main>
 
-    <script>
-        const backendURL = "http://localhost:9093"; // Base URL para las solicitudes al backend
+  <script>
+    // Define la base de la URL
+    const BASE_URL = "http://localhost:9093";
 
-        document.addEventListener("DOMContentLoaded", function () {
-            document.getElementById("btnStopPods").addEventListener("click", connectStopPods);
-            document.getElementById("btnStartPods").addEventListener("click", connectStartPods);
-            document.getElementById("btnDeleteCompleted").addEventListener("click", connectDeleteCompleted);
-            fetchServerOptions();
-            obtenerAmbiente();
+    document.addEventListener("DOMContentLoaded", function () {
+      document.getElementById("btnStopPods").addEventListener("click", connectStopPods);
+      document.getElementById("btnStartPods").addEventListener("click", connectStartPods);
+      document.getElementById("btnDeleteCompleted").addEventListener("click", connectDeleteCompleted);
+      fetchServerOptions();
+      obtenerAmbiente();
+    });
+
+    // Obtener Ambiente
+    function obtenerAmbiente() {
+      fetch(`${BASE_URL}/api/ambiente`)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('Hubo un problema al obtener el ambiente.');
+          }
+          return response.text();
+        })
+        .then((ambiente) => {
+          document.getElementById('ambienteA').textContent = ambiente;
+        })
+        .catch((error) => {
+          mostrarMensaje('error', "Error al obtener el ambiente: " + error.message);
         });
+    }
 
-        // Obtener Ambiente
-        function obtenerAmbiente() {
-            fetch(`${backendURL}/api/ambiente`)
-                .then((response) => {
-                    if (!response.ok) {
-                        throw new Error('Hubo un problema al obtener el ambiente.');
-                    }
-                    return response.text();
-                })
-                .then((ambiente) => {
-                    document.getElementById('ambienteA').textContent = ambiente;
-                })
-                .catch((error) => {
-                    console.error("Error al obtener el ambiente:", error);
-                });
+    // Funciones de Conexión
+    function connectStopPods() {
+      limpiarMensajes(); // Limpiar mensajes anteriores
+      document.getElementById("eventsContent").innerHTML = ""; // Limpia mensajes del backend
+
+      if (!validateForm()) return;
+      mostrarMensaje('info', "Deteniendo Pods...");
+      const { usuario, password, servidor, opcion } = getRequestData();
+
+      const url = `${BASE_URL}/StopPods?usuario=${encodeURIComponent(usuario)}&password=${encodeURIComponent(password)}&servidor=${encodeURIComponent(servidor)}&opcion=${encodeURIComponent(opcion)}`;
+      connectSSE(url);
+    }
+
+    function connectStartPods() {
+      limpiarMensajes(); // Limpiar mensajes anteriores
+      document.getElementById("eventsContent").innerHTML = ""; // Limpia mensajes del backend
+
+      if (!validateForm()) return;
+      mostrarMensaje('info', "Iniciando Pods...");
+      const { usuario, password, servidor, opcion } = getRequestData();
+
+      const url = `${BASE_URL}/StartPods?usuario=${encodeURIComponent(usuario)}&password=${encodeURIComponent(password)}&servidor=${encodeURIComponent(servidor)}&opcion=${encodeURIComponent(opcion)}`;
+      connectSSE(url);
+    }
+
+    function connectDeleteCompleted() {
+      limpiarMensajes(); // Limpiar mensajes anteriores
+      document.getElementById("eventsContent").innerHTML = ""; // Limpia mensajes del backend
+
+      if (!validateForm()) return;
+      mostrarMensaje('info', "Limpiando Instalación...");
+      const { usuario, password, servidor } = getRequestData();
+
+      const url = `${BASE_URL}/DeleteCompletedPods?usuario=${encodeURIComponent(usuario)}&password=${encodeURIComponent(password)}&servidor=${encodeURIComponent(servidor)}`;
+      connectSSE(url);
+    }
+
+    function connectSSE(url) {
+      const eventsContent = document.getElementById("eventsContent");
+      const evtSource = new EventSource(url);
+
+      let connectionClosed = false; // Flag para conexión cerrada intencionalmente
+      let errorOccurred = false;    // Flag para errores reales
+
+      // Limpia mensajes anteriores del backend
+      eventsContent.innerHTML = "";
+
+      evtSource.onmessage = function (event) {
+        const messageContent = event.data;
+
+        const newElement = document.createElement("div");
+        newElement.classList.add("mensaje"); // Clase base
+
+        // Detecta el tipo de mensaje y asigna clase correspondiente
+        if (messageContent.includes("Error")) {
+          newElement.classList.add("error"); // Mensaje de error
+          newElement.innerHTML = `
+        <img src="../icons/error.png" alt="Error" class="mensaje-icon">
+        ${messageContent}
+      `;
+          errorOccurred = true; // Marca que ocurrió un error
+        } else if (messageContent.includes("Proceso completado")) {
+          newElement.classList.add("exito"); // Mensaje de éxito
+          newElement.innerHTML = `
+        <img src="../icons/success.png" alt="Éxito" class="mensaje-icon">
+        ${messageContent}
+      `;
+          connectionClosed = true; // Marca que la conexión fue cerrada intencionalmente
+          evtSource.close();
+        } else {
+          newElement.classList.add("warning"); // Mensaje de advertencia/información
+          newElement.innerHTML = `
+        <img src="../icons/info.png" alt="Info" class="mensaje-icon">
+        ${messageContent}
+      `;
         }
 
-        // Funciones de Conexión
-        function connectStopPods() {
-            if (!validateForm()) return;
-            mostrarLoading("Deteniendo Pods...");
-            sendPostRequest(`${backendURL}/StopPods`);
+        // Asegúrate de que el mensaje se agregue y sea visible
+        eventsContent.appendChild(newElement);
+        newElement.style.display = "block"; // Asegura que sea visible
+        eventsContent.scrollTop = eventsContent.scrollHeight; // Desplazar hacia abajo automáticamente
+      };
+
+      evtSource.addEventListener("error", function (event) {
+        const errorMessage = event.data || "Error desconocido en la conexión SSE.";
+        const newElement = document.createElement("div");
+        newElement.classList.add("mensaje", "error");
+        newElement.innerHTML = `
+      <img src="../icons/error.png" alt="Error" class="mensaje-icon">
+      ${errorMessage}
+    `;
+        eventsContent.appendChild(newElement);
+        newElement.style.display = "block"; // Asegura que sea visible
+        evtSource.close(); // Asegurarse de cerrar la conexión en caso de error
+      });
+
+      evtSource.onerror = function () {
+        if (!connectionClosed && !errorOccurred) {
+          mostrarMensaje("error", "Error en la conexión SSE.");
         }
+        evtSource.close();
+      };
+    }
 
-        function connectStartPods() {
-            if (!validateForm()) return;
-            mostrarLoading("Iniciando Pods...");
-            sendPostRequest(`${backendURL}/StartPods`);
-        }
+    // Validación del Formulario
+    function validateForm() {
+      const usuario = document.getElementById("usuario").value;
+      const password = document.getElementById("password").value;
+      const servidor = document.getElementById("servidor").value;
+      const opcion = document.getElementById("opcion").value;
 
-        function connectDeleteCompleted() {
-            if (!validateForm()) return;
-            mostrarLoading("Limpiando Instalación...");
-            sendPostRequest(`${backendURL}/DeleteCompletedPods`);
-        }
+      if (!usuario || !password || !servidor || !opcion) {
+        mostrarMensaje("warning", "Por favor, completa todos los campos.");
+        return false;
+      }
+      return true;
+    }
 
-        // Enviar Solicitud POST con SSE
-        function sendPostRequest(url) {
-            const requestData = getRequestData();
+    function getRequestData() {
+      return {
+        usuario: document.getElementById("usuario").value,
+        password: document.getElementById("password").value,
+        servidor: document.getElementById("servidor").value,
+        opcion: document.getElementById("opcion").value,
+      };
+    }
 
-            const events = document.getElementById("events");
-            events.innerHTML = "";
+    // Opciones Dinámicas del Servidor
+    function fetchServerOptions() {
+      fetch(`${BASE_URL}/api/ambiente`)
+        .then((response) => response.text())
+        .then((ambiente) => {
+          const servidorSelect = document.getElementById("servidor");
+          servidorSelect.innerHTML = "";
 
-            const evtSource = new EventSourcePolyfill(url, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(requestData)
-            });
+          if (ambiente === "DEV") {
+            servidorSelect.add(new Option("Servidor DEV", "dev-server"));
+          } else if (ambiente === "UAT") {
+            servidorSelect.add(new Option("Servidor UAT", "uat-server"));
+          } else {
+            servidorSelect.add(new Option("Servidor PROD", "prod-server"));
+            servidorSelect.add(new Option("Servidor COB", "cob-server"));
+          }
+        })
+        .catch((error) => {
+          mostrarMensaje("error", "Error al cargar servidores: " + error.message);
+        });
+    }
 
-            evtSource.onmessage = function (event) {
-                const messageContent = event.data;
-                const newElement = document.createElement("div");
+    // Mostrar Mensajes Dinámicos
+    function mostrarMensaje(tipo, mensaje) {
+      const mensajeDiv = document.getElementById("mensajeDinamico");
+      mensajeDiv.style.display = "block";
+      mensajeDiv.className = `mensaje ${tipo}`; // Clase dinámica: info, error, success, warning
+      mensajeDiv.innerHTML = `
+        <img src="../icons/${tipo}.png" alt="${tipo}" class="mensaje-icon">
+        ${mensaje}
+      `;
+      if (tipo !== "info") {
+        setTimeout(() => {
+          mensajeDiv.style.display = "none";
+          mensajeDiv.innerHTML = "";
+        }, 5000); // Oculta después de 5 segundos para errores y warnings
+      }
+    }
 
-                if (messageContent.includes("Error")) {
-                    mostrarError("Error: " + messageContent);
-                } else {
-                    newElement.classList.add("message");
-                    newElement.textContent = "Éxito: " + messageContent;
-                    if (messageContent.includes("Proceso completado")) {
-                        newElement.textContent += " (Conexión Cerrada)";
-                        evtSource.close();
-                    }
-                }
-                events.appendChild(newElement);
-            };
-
-            evtSource.onerror = function () {
-                mostrarError("ERROR: CONEXIÓN CERRADA, FAVOR DE REVISAR LAS LOGS...");
-                evtSource.close();
-            };
-        }
-
-        // Obtener Datos del Formulario
-        function getRequestData() {
-            const usuario = document.getElementById("usuario").value;
-            const password = document.getElementById("password").value;
-            const servidor = document.getElementById("servidor").value;
-            const opcion = document.getElementById("opcion").value;
-
-            return {
-                usuario: usuario,
-                password: password,
-                servidor: servidor,
-                opcion: opcion
-            };
-        }
-
-        // Validar Formulario
-        function validateForm() {
-            const { usuario, password, servidor, opcion } = getRequestData();
-            if (!usuario || !password || !servidor || !opcion) {
-                alert("Por favor, completa todos los campos.");
-                return false;
-            }
-            return true;
-        }
-
-        // Opciones Dinámicas del Servidor
-        function fetchServerOptions() {
-            fetch(`${backendURL}/api/ambiente`)
-                .then((response) => response.text())
-                .then((ambiente) => {
-                    const servidorSelect = document.getElementById("servidor");
-                    servidorSelect.innerHTML = "";
-
-                    if (ambiente === "DEV") {
-                        servidorSelect.add(new Option("Servidor DEV", "dev-server"));
-                    } else if (ambiente === "UAT") {
-                        servidorSelect.add(new Option("Servidor UAT", "uat-server"));
-                    } else {
-                        servidorSelect.add(new Option("Servidor PROD", "prod-server"));
-                        servidorSelect.add(new Option("Servidor COB", "cob-server"));
-                    }
-                })
-                .catch((error) => {
-                    console.error("Error al cargar el ambiente:", error);
-                    const servidorSelect = document.getElementById("servidor");
-                    servidorSelect.add(new Option("Error al cargar servidores", "", true, true));
-                });
-        }
-
-        // Mostrar Mensajes Dinámicos
-        function mostrarError(mensaje) {
-            const errorDiv = document.getElementById("errorMessage");
-            errorDiv.innerHTML = `<img src="../icons/error.png" alt="Error" class="mensaje-icon">${mensaje}`;
-            errorDiv.style.display = "block";
-            setTimeout(() => {
-                errorDiv.style.display = "none";
-                errorDiv.innerHTML = "";
-            }, 5000);
-        }
-
-        function mostrarLoading(mensaje) {
-            const loadingDiv = document.getElementById("msjLoading");
-            loadingDiv.innerHTML = `<img src="../icons/loading.png" alt="Cargando" class="mensaje-icon">${mensaje}`;
-            loadingDiv.style.display = "block";
-        }
-
-        function ocultarLoading() {
-            const loadingDiv = document.getElementById("msjLoading");
-            loadingDiv.style.display = "none";
-            loadingDiv.innerHTML = "";
-        }
-    </script>
+    function limpiarMensajes() {
+      const mensajeDiv = document.getElementById("mensajeDinamico");
+      mensajeDiv.style.display = "none";
+      mensajeDiv.innerHTML = "";
+    }
+  </script>
 </body>
 
 </html>

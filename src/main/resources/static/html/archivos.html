@@ -9,7 +9,6 @@
 </head>
 
 <body>
-
   <header style="position: relative;">
     <h1>Descarga Archivos <span id="ambiente"></span></h1>
   </header>
@@ -17,7 +16,6 @@
     style="position: fixed; bottom: 10px; right: 10px; font-size: 0.8em; color: gray; pointer-events: none; z-index: 1000;">
     Versión Beta
   </div>
-
 
   <main>
     <label for="directorio">
@@ -115,23 +113,30 @@
   </footer>
 
   <script>
+    const BASE_URL = "http://localhost:9093";
     let archivosSeleccionados = [];
 
     function obtenerAmbiente() {
-      fetch(`http://localhost:9093/api/ambiente`)
-        .then((response) => {
+      fetch(`${BASE_URL}/api/ambiente`)
+        .then(response => {
           if (!response.ok) {
-            throw new Error('Hubo un problema al obtener el ambiente.');
+            throw new Error("Error al obtener el ambiente.");
           }
           return response.text();
         })
-        .then((ambiente) => {
-          document.getElementById('ambiente').textContent = ambiente;
+        .then(ambiente => {
+          document.getElementById("ambiente").textContent = ambiente;
         })
-        .catch((error) => {
-          mostrarError('Error al obtener el ambiente.');
+        .catch(error => {
+          if (error.message === "Failed to fetch") {
+            mostrarMensaje("error", "Sin conexión. Verifica tu red o el backend.");
+          } else {
+            mostrarMensaje("error", "Error al obtener el ambiente: " + error.message);
+          }
+          console.error("Error al obtener el ambiente:", error);
         });
     }
+
 
     window.onload = function () {
       obtenerAmbiente();
@@ -139,146 +144,120 @@
     };
 
     function listarArchivos() {
-      document.getElementById("msjEspera").innerHTML = `<img src="../icons/info.png" alt="Cargando" class="mensaje-icon">POR FAVOR ESPERA, BUSCANDO ARCHIVOS...`;
-      document.getElementById("msjEspera").style.display = "block";
-
+      mostrarMensaje("info", "Por favor espera, buscando archivos...");
       const directorio = document.getElementById("directorio").value;
       const filtro = document.getElementById("filtro").value;
-      const tipo = '1';
-      limpiarSeleccion();
-      fetch(`http://localhost:9093/api/lista`, {
+
+      fetch(`${BASE_URL}/api/lista`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          directorio: directorio,
-          filtro: filtro,
-          tipo: tipo,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ directorio, filtro, tipo: "1" })
       })
-        .then((response) => {
+        .then(response => {
           if (!response.ok) {
-            const errorMessage = response.headers.get("X-Error-Message") || "Hubo un problema al obtener la lista de archivos.";
-            mostrarError(errorMessage);
-            return null;
+            throw new Error(response.headers.get("X-Error-Message") || "Error al obtener la lista de archivos.");
           }
           return response.json();
         })
-        .then((data) => {
-          if (data === null) return;
-
+        .then(data => {
           if (data.length === 0) {
-            document.getElementById("msjNoArchivos").innerHTML = `<img src="../icons/warning.png" alt="Warning" class="mensaje-icon">¡NO SE ENCONTRARON ARCHIVOS!`;
-            document.getElementById("msjNoArchivos").style.display = "block";
-
+            mostrarMensaje("warning", "¡No se encontraron archivos!");
           } else {
-            document.getElementById("msjNoArchivos").style.display = "none";
-            document.getElementById("msjNoArchivos").innerHTML = ""; // Limpia el contenido
-
+            mostrarArchivos(data);
           }
-          mostrarArchivos(data);
         })
-        .catch((error) => {
-          mostrarError("Ocurrió un error inesperado al listar los archivos.");
-        })
-        .finally(() => {
-          document.getElementById("msjEspera").style.display = "none";
-          document.getElementById("msjEspera").innerHTML = ""; // Limpia el contenido
+        .catch(error => {
+          if (error.message === "Failed to fetch") {
+            mostrarMensaje("error", "Sin conexión. Verifica tu red o el backend.");
+          } else {
+            mostrarMensaje("error", error.message);
+          }
+          console.error("Error al listar archivos:", error);
         });
     }
+
 
     function mostrarArchivos(archivos) {
       const archivosDiv = document.getElementById("archivos");
       archivosDiv.innerHTML = "";
-
-      let html = "<table><tr>";
-      const headers = ["Nombre", "Tamaño", "Fecha (DD/MM/YYYY)", "Seleccionar"];
-      headers.forEach(header => {
-        html += `<th>${header}</th>`;
-      });
-      html += "</tr>";
-
+      let html = "<table><tr><th>Nombre</th><th>Tamaño</th><th>Fecha</th><th>Seleccionar</th></tr>";
       archivos.forEach(archivo => {
-        const detalles = archivo.split("||");
-        html += "<tr>";
-        html += `<td>${detalles[0]}</td>`;
-        html += `<td>${detalles[1]}</td>`;
-        html += `<td>${detalles[2]}</td>`;
-        html += `<td><input type="checkbox" value="${detalles[0]}" onchange="handleCheckboxChange(event)"></td>`;
-        html += "</tr>";
+        const [nombre, tamano, fecha] = archivo.split("||");
+        html += `<tr>
+          <td>${nombre}</td>
+          <td>${tamano}</td>
+          <td>${fecha}</td>
+          <td><input type="checkbox" value="${nombre}" onchange="handleCheckboxChange(event)"></td>
+        </tr>`;
       });
       html += "</table>";
       archivosDiv.innerHTML = html;
-      const totalArchivos = archivos.length;
-      document.getElementById("totalArchivosInfo").innerHTML = `${totalArchivos}    <img src="../icons/files.png" alt="#" class="icon-2">`;
-      document.getElementById("totalArchivosInfo").style.display = 'inline-block'; // Asegúrate de mostrar el elemento
-
+      document.getElementById("totalArchivosInfo").innerHTML = `
+        <img src="../icons/files.png" alt="Archivos encontrados" class="icon-2"> ${archivos.length}
+      `;
     }
 
     function handleCheckboxChange(event) {
       const checkbox = event.target;
-      const nombreArchivo = checkbox.value;
       if (checkbox.checked) {
-        archivosSeleccionados.push(nombreArchivo);
+        archivosSeleccionados.push(checkbox.value);
       } else {
-        const index = archivosSeleccionados.indexOf(nombreArchivo);
-        if (index !== -1) {
-          archivosSeleccionados.splice(index, 1);
-        }
+        archivosSeleccionados = archivosSeleccionados.filter(nombre => nombre !== checkbox.value);
       }
-      document.getElementById("directorioDescarga").value = document.getElementById("directorio").value;
-      document.getElementById("archivosDescarga").value = JSON.stringify(archivosSeleccionados);
     }
 
     function seleccionarTodos() {
       const checkboxes = document.querySelectorAll("input[type='checkbox']");
       archivosSeleccionados = [];
-      checkboxes.forEach((checkbox) => {
+      checkboxes.forEach(checkbox => {
         checkbox.checked = true;
         archivosSeleccionados.push(checkbox.value);
       });
-      document.getElementById("directorioDescarga").value = document.getElementById("directorio").value;
-      document.getElementById("archivosDescarga").value = JSON.stringify(archivosSeleccionados);
     }
 
     function descargarSeleccionados() {
       const directorio = document.getElementById("directorio").value;
 
       console.log("Iniciando descarga...");
-      fetch(`http://localhost:9093/api/ambiente`)
-        .then(response => response.text())
+      fetch(`${BASE_URL}/api/ambiente`)
+        .then(response => {
+          if (!response.ok) {
+            const errorMessage = response.headers.get("X-Error-Message") || "Error al verificar el ambiente.";
+            throw new Error(errorMessage);
+          }
+          return response.text();
+        })
         .then(ambiente => {
           console.log("Ambiente recibido:", ambiente);
 
-          let archivosSeleccionadosStr = JSON.stringify(archivosSeleccionados);
+          const archivosSeleccionadosStr = JSON.stringify(archivosSeleccionados);
           let password = null;
-          const tipo = '1';
+          const tipo = "1";
+
+          if (archivosSeleccionados.length === 0) {
+            mostrarMensaje("warning", "Selecciona al menos un archivo para descargar.");
+            console.log("Descarga cancelada: No se seleccionaron archivos.");
+            return;
+          }
 
           if (ambiente.trim().toUpperCase() === "PROD") {
             password = prompt("Introduce la contraseña para el archivo ZIP:");
             if (!password) {
-              mostrarError("Debes proporcionar una contraseña.");
-              console.log("Descarga cancelada: No se proporcionó contraseña");
+              mostrarMensaje("error", "Debes proporcionar una contraseña.");
+              console.log("Descarga cancelada: No se proporcionó contraseña.");
               return;
             }
             console.log("Contraseña ingresada para ambiente PROD.");
           }
 
-          if (archivosSeleccionados.length === 0) {
-            mostrarError("Selecciona al menos un archivo para descargar.");
-            console.log("Descarga cancelada: No se seleccionaron archivos");
-            return;
-          }
-
           if (archivosSeleccionados.length === 1 && ambiente.trim().toUpperCase() !== "PROD") {
             const archivo = archivosSeleccionados[0];
             console.log("Descarga directa de un solo archivo:", archivo);
-            window.location.href = `http://localhost:9093/api/descargar?directorio=${encodeURIComponent(directorio)}&archivo=${encodeURIComponent(archivo)}&tipo=1`;
+            window.location.href = `${BASE_URL}/api/descargar?directorio=${encodeURIComponent(directorio)}&archivo=${encodeURIComponent(archivo)}&tipo=${tipo}`;
             return;
           }
 
-          let formData = new FormData();
+          const formData = new FormData();
           formData.append("directorio", directorio);
           formData.append("archivos", archivosSeleccionadosStr);
           formData.append("tipo", tipo);
@@ -288,33 +267,30 @@
 
           console.log("Enviando solicitud de descarga de ZIP con archivos:", archivosSeleccionados);
 
-          fetch(`http://localhost:9093/api/descargar-zip`, {
+          fetch(`${BASE_URL}/api/descargar-zip`, {
             method: "POST",
-            body: formData
+            body: formData,
           })
             .then(response => {
-              if (response.ok) {
-                const contentDisposition = response.headers.get("Content-Disposition");
-                console.log("Encabezado Content-Disposition recibido:", contentDisposition);
-
-                let fileName = "archivos.zip";
-                if (contentDisposition && contentDisposition.includes("filename=")) {
-                  fileName = contentDisposition.split("filename=")[1].trim().replace(/"/g, '');
-                }
-                console.log("Nombre del archivo a descargar:", fileName);
-                return response.blob().then(blob => ({ blob, fileName }));
-              } else {
-                mostrarError("Error al generar el archivo ZIP.");
-                console.error("Error en respuesta del servidor al generar ZIP.");
+              if (!response.ok) {
                 throw new Error("Error al generar el archivo ZIP.");
               }
+              const contentDisposition = response.headers.get("Content-Disposition");
+              console.log("Encabezado Content-Disposition recibido:", contentDisposition);
+
+              let fileName = "archivos.zip";
+              if (contentDisposition && contentDisposition.includes("filename=")) {
+                fileName = contentDisposition.split("filename=")[1].trim().replace(/"/g, "");
+              }
+              console.log("Nombre del archivo a descargar:", fileName);
+              return response.blob().then(blob => ({ blob, fileName }));
             })
             .then(({ blob, fileName }) => {
               const url = window.URL.createObjectURL(blob);
               const a = document.createElement("a");
               a.href = url;
-              a.setAttribute("download", fileName)
-              a.style.display = 'none';
+              a.setAttribute("download", fileName);
+              a.style.display = "none";
               document.body.appendChild(a);
               a.click();
               document.body.removeChild(a);
@@ -322,73 +298,52 @@
               console.log("Archivo descargado exitosamente:", fileName);
             })
             .catch(error => {
-              mostrarError("Ocurrió un error al descargar los archivos.");
+              if (error.message === "Failed to fetch") {
+                mostrarMensaje("error", "Sin conexión. Verifica tu red o el backend.");
+              } else {
+                mostrarMensaje("error", "Ocurrió un error al descargar los archivos.");
+              }
               console.error("Error en el proceso de descarga:", error);
             });
         })
         .catch(error => {
-          mostrarError("Error al verificar el ambiente.");
-          console.error("Error al obtener el ambiente:", error);
+          if (error.message === "Failed to fetch") {
+            mostrarMensaje("error", "Sin conexión. Verifica tu red o el backend.");
+          } else {
+            mostrarMensaje("error", error.message);
+          }
+          console.error("Error al verificar el ambiente:", error);
         });
-    }
-
-
-    function limpiarSeleccion() {
-      const checkboxes = document.querySelectorAll("input[type='checkbox']");
-      checkboxes.forEach((checkbox) => {
-        checkbox.checked = false;
-      });
-      archivosSeleccionados = [];
-      document.getElementById("directorioDescarga").value = "";
-      document.getElementById("archivosDescarga").value = "";
-      document.getElementById("msjNoArchivos").style.display = "none";
-      const archivosDiv = document.getElementById("archivos");
-      archivosDiv.textContent = "";
     }
 
     function limpiar() {
       const checkboxes = document.querySelectorAll("input[type='checkbox']");
-      checkboxes.forEach((checkbox) => {
-        checkbox.checked = false;
-      });
+      checkboxes.forEach(checkbox => (checkbox.checked = false));
       archivosSeleccionados = [];
-      document.getElementById("filtro").value = "";
     }
 
-    var filtroInput = document.getElementById("filtro");
-    filtroInput.addEventListener("keypress", function (event) {
-      if (event.key === "Enter") {
-        listarArchivos();
-      }
-    });
-
-    function mostrarError(mensaje) {
-      const errorDiv = document.getElementById("errorMessage");
-      errorDiv.innerHTML = `<img src="../icons/error.png" alt="Error" class="mensaje-icon">${mensaje}`;
-      errorDiv.style.display = "block";
+    function mostrarMensaje(tipo, mensaje) {
+      const mensajeDiv = document.getElementById("errorMessage");
+      mensajeDiv.className = `mensaje ${tipo}`;
+      mensajeDiv.innerHTML = `<img src="../icons/${tipo}.png" alt="${tipo}" class="mensaje-icon"> ${mensaje}`;
+      mensajeDiv.style.display = "block";
       setTimeout(() => {
-        errorDiv.style.display = "none";
-        errorDiv.innerHTML = ""; // Limpia el contenido
+        mensajeDiv.style.display = "none";
       }, 5000);
     }
 
-
     function aplicarTemaGuardado() {
-      const temaGuardado = localStorage.getItem('temaSeleccionado');
-      if (temaGuardado) {
-        document.getElementById('themeStylesheet').href = temaGuardado;
-        document.getElementById('cssSwitcher').value = temaGuardado;
+      const tema = localStorage.getItem("temaSeleccionado");
+      if (tema) {
+        document.getElementById("themeStylesheet").href = tema;
       }
     }
 
     function cambiarCSS() {
-      const cssLink = document.getElementById('themeStylesheet');
-      const nuevoCSS = document.getElementById('cssSwitcher').value;
-      cssLink.href = nuevoCSS;
-      localStorage.setItem('temaSeleccionado', nuevoCSS);
+      const tema = document.getElementById("cssSwitcher").value;
+      document.getElementById("themeStylesheet").href = tema;
+      localStorage.setItem("temaSeleccionado", tema);
     }
-
-
   </script>
 </body>
 
