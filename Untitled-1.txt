@@ -12,3 +12,31 @@ RUN apt-get update && \
         lib32z1 \
         lib32stdc++6 && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
+
+
+
+
+# Usa la imagen base
+FROM soe-rhel/rhel7
+
+# Instala Java 8 (para compatibilidad con WA1_AGENT)
+RUN yum install -y java-1.8.0-openjdk
+
+# Instala Java 17 (para tu aplicación)
+RUN yum install -y java-17-openjdk
+
+# Establece JAVA_HOME apuntando a Java 8 para que WA1_AGENT funcione correctamente
+ENV JAVA_HOME=/usr/lib/jvm/java-1.8.0
+
+# Instala CA:WAAEAGENT (esto usará JAVA_HOME, es decir, Java 8)
+RUN ./installer_CA_WAAEAGENT.sh  # Cambia esto por el comando real de instalación del agente
+
+# Instala otros paquetes requeridos
+RUN yum install -y mtr nc traceroute
+
+# Copia y configura tu aplicación aquí
+# ...
+
+# Ejecuta tu aplicación usando Java 17
+# Especifica la ruta completa al ejecutable de Java 17 para tu aplicación
+CMD ["/usr/lib/jvm/java-17/bin/java", "-jar", "/ruta/de/tu/app.jar"]
