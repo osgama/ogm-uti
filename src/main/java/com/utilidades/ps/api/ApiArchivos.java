@@ -321,8 +321,14 @@ public class ApiArchivos {
     private ContentDisposition generarNombreZip(String directorio, String tipo, String envir) {
         if ("1".equals(tipo)) {
             Set<String> valoresPermitidos = new HashSet<>();
-            for (int i = 7; i <= 21; i++) {
-                valoresPermitidos.add(String.valueOf(i));
+            if (!"prod".equalsIgnoreCase(envir)) {
+                for (int i = 1; i <= 23; i++) {
+                    valoresPermitidos.add(String.valueOf(i));
+                }
+            } else {
+                for (int i = 7; i <= 23; i++) {
+                    valoresPermitidos.add(String.valueOf(i));
+                }
             }
             if (valoresPermitidos.contains(directorio)) {
                 String nombretmp = detalleArchivos.getNombreArchivo(Integer.parseInt(directorio));
