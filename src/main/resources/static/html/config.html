@@ -15,15 +15,24 @@
 
     <main>
         <form class="form-container">
-            <label for="DIAINICIAL">Fecha Inicial:</label>
+            <!-- Fecha Inicial -->
+            <label for="DIAINICIAL" title="Fecha Inicial">
+                <img src="../icons/calendar.png" alt="Fecha Inicial" class="icon">
+            </label>
             <input type="date" id="DIAINICIAL" class="form-control">
             &nbsp;&nbsp;
 
-            <label for="DIAFINAL">Fecha Final:</label>
+            <!-- Fecha Final -->
+            <label for="DIAFINAL" title="Fecha Final">
+                <img src="../icons/calendar.png" alt="Fecha Final" class="icon">
+            </label>
             <input type="date" id="DIAFINAL" class="form-control">
             &nbsp;&nbsp;
 
-            <label for="REPROCESO">Tipo de Reproceso:</label>
+            <!-- Tipo de Reproceso -->
+            <label for="REPROCESO" title="Tipo de Reproceso">
+                <img src="../icons/select-all.png" alt="Tipo de Reproceso" class="icon">
+            </label>
             <select id="REPROCESO" name="REPROCESO" class="espaciado-vertical-dos form-control">
                 <optgroup label="Reprocesos con">
                     <option value="A">A *********************************</option>
@@ -38,39 +47,108 @@
                 </optgroup>
             </select>
 
-            <button type="button" onclick="actualizarConfiguracion()">Actualizar</button>
+            <!-- Botón de Actualizar -->
+            <button type="button" onclick="actualizarConfiguracion()" title="Guardar">
+                <img src="../icons/save.png" alt="Guardar" class="icon">
+            </button>
         </form>
 
         <h2>Configuración Actual ReproSys.ini</h2>
         <div id="configuracion" class="mensaje"></div>
+
+        <div id="mensajeDinamico" class="mensaje"></div>
     </main>
 
+    <div
+        style="position: fixed; bottom: 10px; right: 10px; font-size: 0.8em; color: gray; pointer-events: none; z-index: 1000;">
+        Versión Beta
+    </div>
+
+    <footer id="themeSelectorContainer"
+        style="position: fixed; bottom: 10px; left: 10px; padding: 5px 10px; font-size: 0.9em; background-color: transparent;">
+        <select id="cssSwitcher" onchange="cambiarCSS()"
+            style="background-color: transparent; color: inherit; border: 1px solid rgba(255, 255, 255, 0.3); padding: 3px; border-radius: 3px;"
+            onfocus="this.style.backgroundColor='rgba(255, 255, 255, 0.8)'; this.style.color='#333';"
+            onblur="this.style.backgroundColor='transparent'; this.style.color='inherit';">
+            <option value="../css/neutral-bright-accent-v2.css">Neutral Bright Accent V2</option>
+            <option value="../css/neutral-bright-accent-v1.css">Neutral Bright Accent V1</option>
+            <option value="../css/dark-neutral-v1.css">Dark Neutral V1</option>
+            <option value="../css/neutral-light-muted-v3.css">Neutral Light Muted V3</option>
+            <option value="../css/neutral-light-v1.css">Neutral Light V1</option>
+            <option value="../css/dark-modern-v1.css">Dark Modern V1</option>
+            <option value="../css/dark-deep-blue-v1.css">Dark Deep Blue V1</option>
+            <option value="../css/dark-gray-blue-accent-v1.css">Dark Gray Blue Accent V1</option>
+            <option value="../css/neutral-light-v2.css">Neutral Light V2</option>
+            <option value="../css/neutral-light-v3.css">Neutral Light V3</option>
+            <option value="../css/light-dark-muted-v3.css">Light Dark Muted V3</option>
+            <option value="../css/neutral-light-muted-v1.css">Neutral Light Muted V1</option>
+            <option value="../css/dark-neutral-v2.css">Dark Neutral V2</option>
+            <option value="../css/modern-dark-contrast-v2.css">Modern Dark Contrast V2</option>
+            <option value="../css/neutral-light-muted-v2.css">Neutral Light Muted V2</option>
+            <option value="../css/dark-navy-accent-v1.css">Dark Navy Accent V1</option>
+            <option value="../css/dark-elegant-neutral-v1.css">Dark Elegant Neutral V1</option>
+            <option value="../css/neutral-light-v4.css">Neutral Light V4</option>
+            <option value="../css/light-dark-muted-v2.css">Light Dark Muted V2</option>
+            <option value="../css/urban-dark-neutral-v1.css">Urban Dark Neutral V1</option>
+            <option value="../css/dark-blue-accent-v1.css">Dark Blue Accent V1</option>
+            <option value="../css/dark-blue-v1.css">Dark Blue V1</option>
+            <option value="../css/dark-steel-blue-accent-v1.css">Dark Steel Blue Accent V1</option>
+            <option value="../css/neutral-dark-sandstone-v1.css">Neutral Dark Sandstone V1</option>
+        </select>
+    </footer>
+
     <script>
+        const BASE_URL = "/service/api"; // Definimos una URL base para mayor flexibilidad
+
         function obtenerAmbiente() {
-            fetch(`/service/api/ambiente`)
-                .then((response) => {
+            fetch(`${BASE_URL}/ambiente`)
+                .then(response => {
                     if (!response.ok) {
-                        throw new Error('Hubo un problema al obtener el ambiente.');
+                        throw new Error("Error al verificar el ambiente.");
                     }
                     return response.text();
                 })
-                .then((ambiente) => {
-                    document.getElementById('ambiente').textContent = ambiente;
+                .then(ambiente => {
+                    document.getElementById("ambiente").textContent = ambiente;
                 })
-                .catch((error) => {
-                    console.error(error);
-                });
+                .catch(error => handleFetchError(error, "Error al obtener el ambiente."));
         }
 
-        window.onload = function () {
-            obtenerAmbiente();
-        };
+        function handleFetchError(error, customMessage) {
+            if (error.message === "Failed to fetch") {
+                mostrarMensaje("error", "Sin conexión. Verifica tu red o el backend.");
+            } else {
+                mostrarMensaje("error", customMessage || error.message);
+            }
+            console.error("Fetch error:", error);
+        }
 
-        document.addEventListener('DOMContentLoaded', function () {
-            fetch(`/service/api/configuracion`)
-                .then(response => response.json())
+        function mostrarMensaje(tipo, mensaje) {
+            const mensajeDiv = document.getElementById("mensajeDinamico");
+            mensajeDiv.style.display = "block";
+            mensajeDiv.className = `mensaje ${tipo}`;
+            mensajeDiv.innerHTML = `
+                <img src="../icons/${tipo}.png" alt="${tipo}" class="mensaje-icon">
+                ${mensaje}
+            `;
+            if (tipo !== "info") {
+                setTimeout(() => {
+                    mensajeDiv.style.display = "none";
+                    mensajeDiv.innerHTML = "";
+                }, 5000);
+            }
+        }
+
+        function obtenerConfiguracionActual() {
+            fetch(`${BASE_URL}/configuracion`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Error al obtener la configuración.");
+                    }
+                    return response.json();
+                })
                 .then(data => {
-                    const configDiv = document.getElementById('configuracion');
+                    const configDiv = document.getElementById("configuracion");
                     configDiv.innerHTML = '';
                     const configData = data["ReproSys"];
                     if (configData) {
@@ -79,7 +157,6 @@
                             { key: 'DIAFINAL', label: 'Fecha Final' },
                             { key: 'REPROCESO', label: 'Reproceso' }
                         ];
-
                         props.forEach(prop => {
                             const value = configData[prop.key.trim()];
                             if (value !== undefined) {
@@ -87,36 +164,59 @@
                             }
                         });
                     } else {
-                        configDiv.innerHTML = 'No hay datos para mostrar';
+                        configDiv.innerHTML = 'No hay datos para mostrar.';
                     }
                 })
-                .catch(error => {
-                    console.error('Error al fetch:', error);
-                });
-        });
+                .catch(error => handleFetchError(error, "Error al obtener la configuración."));
+        }
 
         function actualizarConfiguracion() {
             let DIAINICIAL = document.getElementById('DIAINICIAL').value;
             let DIAFINAL = document.getElementById('DIAFINAL').value;
             const REPROCESO = document.getElementById('REPROCESO').value;
 
-            DIAINICIAL = DIAINICIAL.replace(/-/g, '')
-            DIAFINAL = DIAFINAL.replace(/-/g, '')
+            if (!DIAINICIAL || !DIAFINAL || !REPROCESO) {
+                mostrarMensaje("warning", "Por favor, completa todos los campos.");
+                return;
+            }
 
-            fetch(`/service/api/configuracion`, {
+            DIAINICIAL = DIAINICIAL.replace(/-/g, '');
+            DIAFINAL = DIAFINAL.replace(/-/g, '');
+
+            fetch(`${BASE_URL}/configuracion`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 body: `DIAINICIAL=${encodeURIComponent(DIAINICIAL)}&DIAFINAL=${encodeURIComponent(DIAFINAL)}&REPROCESO=${encodeURIComponent(REPROCESO)}`
-            }).then(response => {
-                if (!response.ok) {
-                    throw new Error('Respuesta de red no fue ok al actualizar');
-                }
-                window.location.reload();
-            }).catch(error => {
-                console.error('Error al actualizar:', error);
-            });
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(err => { throw new Error(err); });
+                    }
+                    return response.text();
+                })
+                .then(message => mostrarMensaje("exito", message))
+                .catch(error => mostrarMensaje("error", error.message));
+        }
+
+        window.onload = function () {
+            obtenerAmbiente();
+            obtenerConfiguracionActual();
+            aplicarTemaGuardado();
+        };
+
+        function aplicarTemaGuardado() {
+            const tema = localStorage.getItem("temaSeleccionado");
+            if (tema) {
+                document.getElementById("themeStylesheet").href = tema;
+            }
+        }
+
+        function cambiarCSS() {
+            const tema = document.getElementById("cssSwitcher").value;
+            document.getElementById("themeStylesheet").href = tema;
+            localStorage.setItem("temaSeleccionado", tema);
         }
     </script>
 </body>

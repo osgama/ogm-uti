@@ -14,156 +14,188 @@
 
   <main>
     <form id="encryptForm" class="form-container">
-      <label for="passwordEncrypt">Password:</label>
+      <button type="submit" title="Encriptar">
+        <img src="../icons/lock.png" alt="Encriptar" class="icon">
+      </button>
       <input type="password" id="passwordEncrypt" required>
-      <button type="submit">Encriptar</button>
     </form>
     <p>Resultado Encriptación: <span id="resultEncrypt"></span></p>
 
     <form id="decryptForm" class="form-container">
-      <label for="passwordDecrypt">Datos encriptados:</label>
+      <button type="submit" title="Desencriptar">
+        <img src="../icons/unlock.png" alt="Desencriptar" class="icon">
+      </button>
       <input type="password" id="passwordDecrypt" required>
-      <button type="submit">Desencriptar</button>
     </form>
     <p>Resultado Desencriptación: <span id="resultDecrypt"></span></p>
 
     <form id="urlEncodeForm" class="form-container">
-      <label for="encodedData">Token:</label>
+      <button type="submit" title="Codificar para URL">
+        <img src="../icons/link.png" alt="Codificar para URL" class="icon">
+      </button>
       <input type="text" id="encodedData" required>
-      <button type="submit">Codificar para URL</button>
     </form>
     <p>Token codificado para URL: <span id="resultUrlEncode"></span></p>
-
-    <div id="mensajeResultado" class="mensaje"></div>
   </main>
 
+  <div
+    style="position: fixed; bottom: 10px; right: 10px; font-size: 0.8em; color: gray; pointer-events: none; z-index: 1000;">
+    Versión Beta
+  </div>
+
+  <footer id="themeSelectorContainer"
+    style="position: fixed; bottom: 10px; left: 10px; padding: 5px 10px; font-size: 0.9em; background-color: transparent;">
+    <select id="cssSwitcher" onchange="cambiarCSS()"
+      style="background-color: transparent; color: inherit; border: 1px solid rgba(255, 255, 255, 0.3); padding: 3px; border-radius: 3px;"
+      onfocus="this.style.backgroundColor='rgba(255, 255, 255, 0.8)'; this.style.color='#333';"
+      onblur="this.style.backgroundColor='transparent'; this.style.color='inherit';">
+      <option value="../css/neutral-bright-accent-v2.css">Neutral Bright Accent V2</option>
+      <option value="../css/neutral-bright-accent-v1.css">Neutral Bright Accent V1</option>
+      <option value="../css/dark-neutral-v1.css">Dark Neutral V1</option>
+      <option value="../css/neutral-light-muted-v3.css">Neutral Light Muted V3</option>
+      <option value="../css/neutral-light-v1.css">Neutral Light V1</option>
+      <option value="../css/dark-modern-v1.css">Dark Modern V1</option>
+      <option value="../css/dark-deep-blue-v1.css">Dark Deep Blue V1</option>
+      <option value="../css/dark-gray-blue-accent-v1.css">Dark Gray Blue Accent V1</option>
+      <option value="../css/neutral-light-v2.css">Neutral Light V2</option>
+      <option value="../css/neutral-light-v3.css">Neutral Light V3</option>
+      <option value="../css/light-dark-muted-v3.css">Light Dark Muted V3</option>
+      <option value="../css/neutral-light-muted-v1.css">Neutral Light Muted V1</option>
+      <option value="../css/dark-neutral-v2.css">Dark Neutral V2</option>
+      <option value="../css/modern-dark-contrast-v2.css">Modern Dark Contrast V2</option>
+      <option value="../css/neutral-light-muted-v2.css">Neutral Light Muted V2</option>
+      <option value="../css/dark-navy-accent-v1.css">Dark Navy Accent V1</option>
+      <option value="../css/dark-elegant-neutral-v1.css">Dark Elegant Neutral V1</option>
+      <option value="../css/neutral-light-v4.css">Neutral Light V4</option>
+      <option value="../css/light-dark-muted-v2.css">Light Dark Muted V2</option>
+      <option value="../css/urban-dark-neutral-v1.css">Urban Dark Neutral V1</option>
+      <option value="../css/dark-blue-accent-v1.css">Dark Blue Accent V1</option>
+      <option value="../css/dark-blue-v1.css">Dark Blue V1</option>
+      <option value="../css/dark-steel-blue-accent-v1.css">Dark Steel Blue Accent V1</option>
+      <option value="../css/neutral-dark-sandstone-v1.css">Neutral Dark Sandstone V1</option>
+    </select>
+  </footer>
+
+
   <script>
+    const BASE_URL = "/service/api"; // URL base
+
+    // Obtener el ambiente
     function obtenerAmbiente() {
-      fetch(`/service/api/ambiente`)
-        .then((response) => {
+      fetch(`${BASE_URL}/ambiente`)
+        .then(response => {
           if (!response.ok) {
-            throw new Error('Hubo un problema al obtener el ambiente.');
+            throw new Error("Error al verificar el ambiente.");
           }
           return response.text();
         })
-        .then((ambiente) => {
-          document.getElementById('ambiente').textContent = ambiente;
+        .then(ambiente => {
+          document.getElementById("ambiente").textContent = ambiente;
         })
-        .catch((error) => {
-          console.error(error);
-        });
+        .catch(error => handleFetchError(error, "Error al obtener el ambiente."));
     }
 
-    window.onload = function () {
-      obtenerAmbiente();
-    };
-
-    document.addEventListener("DOMContentLoaded", function () {
-      document.getElementById("encryptForm").addEventListener("submit", function (event) {
-        event.preventDefault();
-        const data = document.getElementById("passwordEncrypt").value;
-        fetch("/service/api/crypto/encrypt", {
-          method: "POST",
-          headers: {
-            "Content-Type": "text/plain",
-          },
-          body: data,
-        })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error("Error en la encriptación");
-            }
-            return response.text();
-          })
-          .then((text) => {
-            document.getElementById("resultEncrypt").textContent = text;
-            displayMessage("Encriptación exitosa.", "exito");
-          })
-          .catch((error) => {
-            displayMessage(error.message, "error");
-          });
-      });
-
-      document.getElementById("decryptForm").addEventListener("submit", function (event) {
-        event.preventDefault();
-        const data = document.getElementById("passwordDecrypt").value;
-        fetch("/service/api/crypto/decrypt", {
-          method: "POST",
-          headers: {
-            "Content-Type": "text/plain",
-          },
-          body: data,
-        })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error("Error en la desencriptación");
-            }
-            return response.text();
-          })
-          .then((text) => {
-            document.getElementById("resultDecrypt").textContent = text;
-            displayMessage("Desencriptación exitosa.", "exito");
-          })
-          .catch((error) => {
-            displayMessage(error.message, "error");
-          });
-      });
-
-      function displayMessage(message, type) {
-        const mensajeResultado = document.getElementById("mensajeResultado");
-        mensajeResultado.textContent = message;
-        mensajeResultado.className = "mensaje " + type;
-        mensajeResultado.style.display = "block";
+    // Manejo centralizado de errores
+    function handleFetchError(error, customMessage) {
+      if (error.message === "Failed to fetch") {
+        mostrarMensaje("error", "Sin conexión. Verifica tu red o el backend.");
+      } else {
+        mostrarMensaje("error", customMessage || error.message);
       }
+      console.error("Fetch error:", error);
+    }
 
-      document.getElementById("urlEncodeForm").addEventListener("submit", function (event) {
-        event.preventDefault();
-        const data = document.getElementById("encodedData").value;
-        fetch("/service/api/crypto/urlEncode", {
-          method: "POST",
-          headers: {
-            "Content-Type": "text/plain",
-          },
-          body: data,
+    // Mostrar mensajes dinámicos
+    function mostrarMensaje(tipo, mensaje) {
+      const mensajeDiv = document.getElementById("mensajeDinamico");
+      mensajeDiv.style.display = "block";
+      mensajeDiv.className = `mensaje ${tipo}`; // Clase dinámica
+      mensajeDiv.innerHTML = `
+        <img src="../icons/${tipo}.png" alt="${tipo}" class="mensaje-icon">
+        ${mensaje}
+      `;
+      if (tipo !== "info") {
+        setTimeout(() => {
+          mensajeDiv.style.display = "none";
+          mensajeDiv.innerHTML = "";
+        }, 5000);
+      }
+    }
+
+    // Encriptar datos
+    document.getElementById("encryptForm").addEventListener("submit", function (event) {
+      event.preventDefault();
+      const data = document.getElementById("passwordEncrypt").value;
+      fetch(`${BASE_URL}/crypto/encrypt`, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: data,
+      })
+        .then(response => {
+          if (!response.ok) throw new Error("Error en la encriptación.");
+          return response.text();
         })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error("Error en la codificación URL");
-            }
-            return response.text();
-          })
-          .then((text) => {
-            document.getElementById("resultUrlEncode").textContent = text;
-            displayMessage("Codificación URL exitosa.", "exito");
-          })
-          .catch((error) => {
-            displayMessage(error.message, "error");
-          });
-      });
+        .then(text => {
+          document.getElementById("resultEncrypt").textContent = text;
+          mostrarMensaje("exito", "Encriptación exitosa.");
+        })
+        .catch(error => handleFetchError(error, "Error en la encriptación."));
     });
 
-    function fetchServerOptions() {
-      fetch("/service/api/ambiente")
-        .then((response) => response.text())
-        .then((ambiente) => {
-          const servidorSelect = document.getElementById("servidor");
-          servidorSelect.innerHTML = "";
-
-          if (ambiente === "DEV") {
-            servidorSelect.add(new Option("Servidor DEV", "dev-server"));
-          } else if (ambiente === "UAT") {
-            servidorSelect.add(new Option("Servidor UAT", "uat-server"));
-          } else {
-            servidorSelect.add(new Option("Servidor PROD", "prod-server"));
-            servidorSelect.add(new Option("Servidor COB", "cob-server"));
-          }
+    // Desencriptar datos
+    document.getElementById("decryptForm").addEventListener("submit", function (event) {
+      event.preventDefault();
+      const data = document.getElementById("passwordDecrypt").value;
+      fetch(`${BASE_URL}/crypto/decrypt`, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: data,
+      })
+        .then(response => {
+          if (!response.ok) throw new Error("Error en la desencriptación.");
+          return response.text();
         })
-        .catch((error) => {
-          console.error("Error al cargar el ambiente:", error);
-          servidorSelect.add(
-            new Option("Error al cargar servidores", "", true, true)
-          );
-        });
+        .then(text => {
+          document.getElementById("resultDecrypt").textContent = text;
+          mostrarMensaje("exito", "Desencriptación exitosa.");
+        })
+        .catch(error => handleFetchError(error, "Error en la desencriptación."));
+    });
+
+    // Codificar Token para URL
+    document.getElementById("urlEncodeForm").addEventListener("submit", function (event) {
+      event.preventDefault();
+      const data = document.getElementById("encodedData").value;
+      fetch(`${BASE_URL}/crypto/urlEncode`, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: data,
+      })
+        .then(response => {
+          if (!response.ok) throw new Error("Error en la codificación URL.");
+          return response.text();
+        })
+        .then(text => {
+          document.getElementById("resultUrlEncode").textContent = text;
+          mostrarMensaje("exito", "Codificación URL exitosa.");
+        })
+        .catch(error => handleFetchError(error, "Error en la codificación URL."));
+    });
+
+    // Inicializar al cargar
+    window.onload = obtenerAmbiente;
+
+    function aplicarTemaGuardado() {
+      const tema = localStorage.getItem("temaSeleccionado");
+      if (tema) {
+        document.getElementById("themeStylesheet").href = tema;
+      }
+    }
+
+    function cambiarCSS() {
+      const tema = document.getElementById("cssSwitcher").value;
+      document.getElementById("themeStylesheet").href = tema;
+      localStorage.setItem("temaSeleccionado", tema);
     }
   </script>
 </body>
