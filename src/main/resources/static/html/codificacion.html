@@ -36,6 +36,7 @@
       <input type="text" id="encodedData" required>
     </form>
     <p>Token codificado para URL: <span id="resultUrlEncode"></span></p>
+    <div id="mensajeDinamico" class="mensaje"></div>
   </main>
 
   <div
@@ -78,11 +79,11 @@
 
 
   <script>
-    const BASE_URL = "/service/api"; // URL base
+    const BASE_URL = "http://localhost:9093"; // URL base
 
     // Obtener el ambiente
     function obtenerAmbiente() {
-      fetch(`${BASE_URL}/ambiente`)
+      fetch(`${BASE_URL}/api/ambiente`)
         .then(response => {
           if (!response.ok) {
             throw new Error("Error al verificar el ambiente.");
@@ -126,7 +127,7 @@
     document.getElementById("encryptForm").addEventListener("submit", function (event) {
       event.preventDefault();
       const data = document.getElementById("passwordEncrypt").value;
-      fetch(`${BASE_URL}/crypto/encrypt`, {
+      fetch(`${BASE_URL}/api/crypto/encrypt`, {
         method: "POST",
         headers: { "Content-Type": "text/plain" },
         body: data,
@@ -146,7 +147,7 @@
     document.getElementById("decryptForm").addEventListener("submit", function (event) {
       event.preventDefault();
       const data = document.getElementById("passwordDecrypt").value;
-      fetch(`${BASE_URL}/crypto/decrypt`, {
+      fetch(`${BASE_URL}/api/crypto/decrypt`, {
         method: "POST",
         headers: { "Content-Type": "text/plain" },
         body: data,
@@ -166,7 +167,7 @@
     document.getElementById("urlEncodeForm").addEventListener("submit", function (event) {
       event.preventDefault();
       const data = document.getElementById("encodedData").value;
-      fetch(`${BASE_URL}/crypto/urlEncode`, {
+      fetch(`${BASE_URL}/api/crypto/urlEncode`, {
         method: "POST",
         headers: { "Content-Type": "text/plain" },
         body: data,
