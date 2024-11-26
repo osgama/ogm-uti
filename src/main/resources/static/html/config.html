@@ -196,7 +196,10 @@
                     }
                     return response.text();
                 })
-                .then(message => mostrarMensaje("exito", message))
+                .then(message => {
+                    mostrarMensaje("exito", message);
+                    obtenerConfiguracionActual(); // Recargar la configuración después de éxito
+                })
                 .catch(error => mostrarMensaje("error", error.message));
         }
 

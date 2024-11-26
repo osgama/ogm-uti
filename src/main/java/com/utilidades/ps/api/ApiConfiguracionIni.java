@@ -1,5 +1,5 @@
 package com.utilidades.ps.api;
-
+/*
 import org.ini4j.Wini;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,3 +47,4 @@ public class ApiConfiguracionIni {
         }
     }
 }
+*/

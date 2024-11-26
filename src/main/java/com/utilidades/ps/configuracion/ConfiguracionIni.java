@@ -1,5 +1,5 @@
 package com.utilidades.ps.configuracion;
-
+/* 
 import org.ini4j.Wini;
 
 import java.io.File;
@@ -45,3 +45,4 @@ public class ConfiguracionIni {
         }
     }
 }
+*/

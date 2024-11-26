@@ -4,65 +4,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recuperar Contraseña</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Recuperar Contraseñas</title>
+    <link id="themeStylesheet" rel="stylesheet" href="../css/neutral-light-v1.css">
 </head>
 
 <body>
     <header>
-        <h1>Recuperar Contraseña <span id="ambiente"></span></h1>
+        <h1>Recuperar Contraseñas <span id="ambiente"></span></h1>
     </header>
 
     <main>
         <form class="form-container">
-            <label for="nickname">Nickname:</label>
-            <select id="nickname" class="form-control">
-                <option value="user1">user1</option>
-                <option value="user2">user2</option>
-            </select>
-            <button type="button" onclick="fetchPassword()">Obtener Contraseña</button>
+            <button type="button" onclick="fetchPasswords()" title="Obtener Contraseñas">
+                <img src="../icons/unlock.png" alt="Obtener Contraseñas" class="icon">
+            </button>
         </form>
         <div id="mensajeResultado" class="mensaje"></div>
     </main>
 
+    <div
+        style="position: fixed; bottom: 10px; right: 10px; font-size: 0.8em; color: gray; pointer-events: none; z-index: 1000;">
+        Versión Beta
+    </div>
+
+    <footer id="themeSelectorContainer"
+        style="position: fixed; bottom: 10px; left: 10px; padding: 5px 10px; font-size: 0.9em; background-color: transparent;">
+        <select id="cssSwitcher" onchange="cambiarCSS()"
+            style="background-color: transparent; color: inherit; border: 1px solid rgba(255, 255, 255, 0.3); padding: 3px; border-radius: 3px;"
+            onfocus="this.style.backgroundColor='rgba(255, 255, 255, 0.8)'; this.style.color='#333';"
+            onblur="this.style.backgroundColor='transparent'; this.style.color='inherit';">
+            <option value="../css/neutral-bright-accent-v2.css">Neutral Bright Accent V2</option>
+            <option value="../css/neutral-bright-accent-v1.css">Neutral Bright Accent V1</option>
+            <option value="../css/dark-neutral-v1.css">Dark Neutral V1</option>
+            <option value="../css/neutral-light-muted-v3.css">Neutral Light Muted V3</option>
+            <option value="../css/neutral-light-v1.css">Neutral Light V1</option>
+            <option value="../css/dark-modern-v1.css">Dark Modern V1</option>
+            <option value="../css/dark-deep-blue-v1.css">Dark Deep Blue V1</option>
+            <option value="../css/dark-gray-blue-accent-v1.css">Dark Gray Blue Accent V1</option>
+            <option value="../css/neutral-light-v2.css">Neutral Light V2</option>
+            <option value="../css/neutral-light-v3.css">Neutral Light V3</option>
+            <option value="../css/light-dark-muted-v3.css">Light Dark Muted V3</option>
+            <option value="../css/neutral-light-muted-v1.css">Neutral Light Muted V1</option>
+            <option value="../css/dark-neutral-v2.css">Dark Neutral V2</option>
+            <option value="../css/modern-dark-contrast-v2.css">Modern Dark Contrast V2</option>
+            <option value="../css/neutral-light-muted-v2.css">Neutral Light Muted V2</option>
+            <option value="../css/dark-navy-accent-v1.css">Dark Navy Accent V1</option>
+            <option value="../css/dark-elegant-neutral-v1.css">Dark Elegant Neutral V1</option>
+            <option value="../css/neutral-light-v4.css">Neutral Light V4</option>
+            <option value="../css/light-dark-muted-v2.css">Light Dark Muted V2</option>
+            <option value="../css/urban-dark-neutral-v1.css">Urban Dark Neutral V1</option>
+            <option value="../css/dark-blue-accent-v1.css">Dark Blue Accent V1</option>
+            <option value="../css/dark-blue-v1.css">Dark Blue V1</option>
+            <option value="../css/dark-steel-blue-accent-v1.css">Dark Steel Blue Accent V1</option>
+            <option value="../css/neutral-dark-sandstone-v1.css">Neutral Dark Sandstone V1</option>
+        </select>
+    </footer>
+
+
     <script>
-        function obtenerAmbiente() {
-            fetch(`/service/api/ambiente`)
-                .then((response) => {
+        const BASE_URL = "/service/api";
+
+        // Manejo de errores centralizado
+        function handleFetchError(error, customMessage) {
+            const mensajeDiv = document.getElementById("mensajeResultado");
+            mensajeDiv.style.display = "block";
+            mensajeDiv.className = "mensaje error";
+            mensajeDiv.innerHTML = `
+                <img src="../icons/error.png" alt="Error" class="mensaje-icon">
+                ${customMessage || error.message}
+            `;
+            console.error("Fetch error:", error);
+
+            // Ocultar el mensaje después de un tiempo
+            setTimeout(() => {
+                mensajeDiv.style.display = "none";
+                mensajeDiv.innerHTML = "";
+            }, 5000);
+        }
+
+        // Mostrar mensajes de éxito dinámicamente
+        function mostrarExito(mensaje) {
+            const mensajeDiv = document.getElementById("mensajeResultado");
+            mensajeDiv.style.display = "block";
+            mensajeDiv.className = "mensaje exito";
+            mensajeDiv.innerHTML = `
+                <img src="../icons/success.png" alt="Éxito" class="mensaje-icon">
+                ${mensaje}
+            `;
+            // Ocultar mensaje después de 5 segundos
+            setTimeout(() => {
+                mensajeDiv.style.display = "none";
+                mensajeDiv.innerHTML = "";
+            }, 5000);
+        }
+
+        // Recuperar todas las contraseñas
+        function fetchPasswords() {
+            fetch(`${BASE_URL}/getPasswords`)
+                .then(response => {
                     if (!response.ok) {
-                        throw new Error('Hubo un problema al obtener el ambiente.');
+                        throw new Error("Error al recuperar las contraseñas.");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const mensajeDiv = document.getElementById("mensajeResultado");
+                    mensajeDiv.className = "mensaje exito";
+                    mensajeDiv.innerHTML = '<h3>Contraseñas Recuperadas:</h3>';
+                    data.forEach(({ usuario, password }) => {
+                        mensajeDiv.innerHTML += `<p><strong>${usuario}:</strong> ${password}</p>`;
+                    });
+                    mensajeDiv.style.display = "block";
+                })
+                .catch(error => handleFetchError(error, "Error al recuperar las contraseñas."));
+        }
+
+        // Obtener el ambiente
+        function obtenerAmbiente() {
+            fetch(`${BASE_URL}/ambiente`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Error al verificar el ambiente.");
                     }
                     return response.text();
                 })
-                .then((ambiente) => {
-                    document.getElementById('ambiente').textContent = ambiente;
+                .then(ambiente => {
+                    document.getElementById("ambiente").textContent = ambiente;
                 })
-                .catch((error) => {
-                    console.error(error);
-                });
+                .catch(error => handleFetchError(error, "Error al obtener el ambiente."));
         }
 
+        // Cambiar tema dinámicamente
+        function aplicarTemaGuardado() {
+            const tema = localStorage.getItem("temaSeleccionado");
+            if (tema) {
+                document.getElementById("themeStylesheet").href = tema;
+            }
+        }
+
+        function cambiarCSS() {
+            const tema = document.getElementById("cssSwitcher").value;
+            document.getElementById("themeStylesheet").href = tema;
+            localStorage.setItem("temaSeleccionado", tema);
+        }
+
+        // Inicializar
         window.onload = function () {
             obtenerAmbiente();
         };
-
-        function fetchPassword() {
-            var nickname = document.getElementById('nickname').value;
-            fetch(`/service/api/getPassword?nickname=` + nickname)
-                .then(response => response.json())
-                .then(data => {
-                    var mensajeDiv = document.getElementById('mensajeResultado');
-                    mensajeDiv.className = 'mensaje exito';
-                    mensajeDiv.innerText = 'Contraseña: ' + data.password;
-                    mensajeDiv.style.display = 'block';
-                })
-                .catch(error => {
-                    var mensajeDiv = document.getElementById('mensajeResultado');
-                    mensajeDiv.className = 'mensaje error';
-                    mensajeDiv.innerText = 'Error al recuperar la contraseña';
-                    mensajeDiv.style.display = 'block';
-                });
-        }
     </script>
 </body>
 
