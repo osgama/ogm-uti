@@ -72,3 +72,12 @@ find /ruta/al/directorio -type d -exec ls -ld {} \; > estructura_directorios.txt
     <version>LATEST</version>
 </dependency>
 
+
+
+
+
+<dependency>
+    <groupId>com.example</groupId>
+    <artifactId>module1</artifactId>
+    <version>[4.1.0,4.1.0+]</version>
+</dependency>
