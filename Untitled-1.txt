@@ -1,90 +1,85 @@
 find /ruta/al/directorio -type d -exec ls -ld {} \; > estructura_directorios.txt
 
+Paso 1: Configura la dependencia con el rango
+En la sección de <dependencies>, utiliza el rango para que Maven resuelva automáticamente la versión más reciente dentro del rango permitido:
 
-<project>
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>com.example</groupId>
-    <artifactId>parent-library</artifactId>
-    <version>4.1.0-${maven.build.timestamp}</version> <!-- Versión base con timestamp -->
-    <packaging>pom</packaging>
-
-    <modules>
-        <module>module1</module>
-        <module>module2</module>
-        <module>module3</module>
-        <module>module4</module>
-        <module>module5</module>
-    </modules>
-
-    <properties>
-        <!-- Timestamp para agregar a la versión -->
-        <maven.build.timestamp>${maven.build.timestamp}</maven.build.timestamp>
-    </properties>
-
-    <build>
-        <plugins>
-            <!-- Plugin para generar el timestamp -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>3.2.0</version>
-                <executions>
-                    <execution>
-                        <id>create-timestamp</id>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>timestamp-property</goal>
-                        </goals>
-                        <configuration>
-                            <timestampPattern>yyyyMMdd-HHmmss</timestampPattern>
-                            <propertyName>maven.build.timestamp</propertyName>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-</project>
-
-
-
-
-
-
-<project>
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
+<dependencies>
+    <dependency>
         <groupId>com.example</groupId>
-        <artifactId>parent-library</artifactId>
-        <version>4.1.0-${maven.build.timestamp}</version> <!-- Se usa la versión del POM Padre -->
-    </parent>
-    <artifactId>module1</artifactId>
-    <packaging>jar</packaging>
-
-    <version>4.1.0-${maven.build.timestamp}</version> <!-- Versión única para el módulo -->
-</project>
+        <artifactId>ogm.app</artifactId>
+        <version>[4.1.1,]</version> <!-- Siempre busca la versión más reciente >= 4.1.1 -->
+    </dependency>
+</dependencies>
 
 
+Paso 2: Usa maven-help-plugin para resolver la versión exacta
+Para capturar la versión exacta resuelta dentro del rango, usamos el maven-help-plugin. Este plugin te permite obtener la versión que Maven resolvió para la dependencia.
 
-<dependency>
-    <groupId>com.example</groupId>
-    <artifactId>module1</artifactId>
-    <version>LATEST</version>
-</dependency>
+Añade lo siguiente a tu pom.xml:
+
+<build>
+    <plugins>
+        <!-- Plugin para resolver la versión exacta -->
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-help-plugin</artifactId>
+            <version>3.2.0</version>
+            <executions>
+                <execution>
+                    <id>resolve-version</id>
+                    <phase>initialize</phase> <!-- Resuelve antes del build -->
+                    <goals>
+                        <goal>evaluate</goal>
+                    </goals>
+                    <configuration>
+                        <expression>
+                            ${project.dependencies[?(@.artifactId=='ogm.app')].version}
+                        </expression>
+                        <outputFile>${project.build.directory}/resolved-version.txt</outputFile>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+</build>
+
+Paso 3: Carga la versión resuelta como una propiedad
+Ahora necesitas cargar la versión resuelta por el maven-help-plugin en una propiedad para usarla en el plugin. Esto se hace automáticamente si defines la propiedad en <properties>:
+
+<properties>
+    <!-- La versión resuelta desde el rango -->
+    <ogm.app.version>@{resolved.version}</ogm.app.version>
+</properties>
 
 
+Paso 4: Usa la propiedad en el plugin
+Ahora que tienes la versión exacta resuelta en ${ogm.app.version}, pásala al plugin. Ejemplo:
 
-
-
-<dependency>
-    <groupId>com.example</groupId>
-    <artifactId>module1</artifactId>
-    <version>[4.1.0,4.1.0+]</version>
-</dependency>
-
-
-<dependency>
-    <groupId>com.example</groupId>
-    <artifactId>module1</artifactId>
-    <version>[4.1.0,4.1.0+]</version>
-</dependency>
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>3.2.0</version>
+            <executions>
+                <execution>
+                    <id>copy-dependency</id>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>copy</goal>
+                    </goals>
+                    <configuration>
+                        <artifactItems>
+                            <artifactItem>
+                                <groupId>com.example</groupId>
+                                <artifactId>ogm.app</artifactId>
+                                <version>${ogm.app.version}</version> <!-- Usa la versión resuelta -->
+                                <outputDirectory>${project.build.directory}/libs</outputDirectory>
+                            </artifactItem>
+                        </artifactItems>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+</build>
