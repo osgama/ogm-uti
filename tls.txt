@@ -1,0 +1,16 @@
+jdk.tls.disabledAlgorithms=SSLv3, DES, MD5withRSA, RSA keySize < 2048, SHA1
+
+
+
+
+
+CUSTOM_JAVA_OPTS="-Djava.security.properties=/tmp/java.security -Dfile.encoding=UTF8 -Djavax.net.debug=all -Djdk.tls.client.protocols=TLSv1.2,TLSv1.3 -Djdk.tls.namedGroups=secp256r1 -Djdk.tls.client.cipherSuites=TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256"
+
+
+
+
+-Djavax.net.debug=ssl:handshake
+
+
+
+curl -vk --tlsv1.2 --cipher TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 https://<url-del-sistema-remoto>
