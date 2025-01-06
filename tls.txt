@@ -39,3 +39,4 @@ openssl s_client -connect <host>:443 -tls1_2 -cipher TLS_ECDHE_RSA_WITH_AES_256_
 
 
 
+-Djdk.tls.disabledAlgorithms=SSLv3, MD5, RSA keySize < 2048
