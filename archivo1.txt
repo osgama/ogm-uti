@@ -1,0 +1,220 @@
+Paquetes obligatorios: Asegúrate de que los siguientes programas estén instalados:
+
+***************************************************************************************************************************************************
+sshpass: Para enviar automáticamente la contraseña al servidor SFTP.
+
+sudo yum install -y sshpass
+
+***************************************************************************************************************************************************
+
+openssl: Para manejar el cifrado y desencriptado de contraseñas.
+
+
+***************************************************************************************************************************************************
+
+zip: Para comprimir archivos que se enviarán.
+
+sudo yum install -y zip
+
+***************************************************************************************************************************************************
+
+rsync: Para descargar archivos del servidor SFTP y mostrar el progreso.
+
+sudo yum install -y rsync
+
+
+***************************************************************************************************************************************************
+Crea un archivo cifrado para la contraseña del SFTP:
+Usa el siguiente comando para crear el archivo de contraseña cifrada (password.enc):
+
+echo "tu_password" | openssl enc -aes-256-cbc -pbkdf2 -salt -out /opt/app/password.enc -pass pass:"clave_secreta"
+
+Asegúrate de reemplazar tu_password por tu contraseña real y clave_secreta por la clave de cifrado que se usará dentro del script.
+
+***************************************************************************************************************************************************
+Prueba la desencriptación manualmente:
+Verifica que puedas desencriptar correctamente el archivo:
+
+openssl enc -aes-256-cbc -pbkdf2 -d -salt -in /ruta/a/password.enc -pass pass:"clave_secreta"
+
+
+Prueba la desencriptación manualmente:
+Verifica que puedas desencriptar correctamente el archivo:
+
+openssl enc -aes-256-cbc -pbkdf2 -d -salt -in /ruta/a/password.enc -pass pass:"clave_secreta"
+
+
+***************************************************************************************************************************************************
+
+
+Prueba manual de descarga:
+Intenta descargar manualmente un archivo pequeño del servidor para verificar la conectividad:
+
+sshpass -p 'tu_password' sftp usuario@servidor.ejemplo.com <<< "get /ruta/remota/archivo_prueba /tmp"
+
+***************************************************************************************************************************************************
+Prueba manual de envío:
+Intenta enviar un archivo manualmente al servidor:
+
+sshpass -p 'tu_password' sftp usuario@servidor.ejemplo.com <<< "put /ruta/local/archivo_prueba /ruta/remota/"
+
+***************************************************************************************************************************************************
+
+
+SCRIPT FINAL:
+
+
+#!/bin/bash
+
+# Configuración del servidor SFTP
+SFTP_USER="usuario"                  # Usuario del servidor SFTP
+SFTP_HOST="servidor.ejemplo.com"     # Dirección del servidor SFTP
+REMOTE_DIR="/ruta/remota"            # Directorio remoto para descargar archivos
+LOCAL_DIR="/opt/app/sftp"            # Directorio donde se descargarán los archivos
+EVIDENCIAS_DIR="/opt/app/evidencias" # Directorio donde se guardarán archivos relacionados con "evidencias"
+CODIGO_DIR="/opt/app/codigo"         # Directorio donde se guardarán los demás archivos
+SEND_DIR="/opt/app/send"             # Directorio desde donde se enviarán archivos
+PROCESADOS_DIR="/opt/app/send/procesados" # Directorio donde se moverán los archivos enviados
+PASSWORD_FILE="/ruta/a/password.enc" # Ruta al archivo cifrado con la contraseña
+ENCRYPTION_KEY="clave_secreta"       # Clave para desencriptar
+LOG_FILE="/opt/app/sftp_script.log"  # Archivo para registrar operaciones
+PREFIX="OP181199_"                   # Prefijo requerido para los archivos
+MIN_SPACE_MB=500                     # Espacio mínimo en MB requerido para descargar
+MAX_RETRIES=3                        # Número máximo de reintentos para enviar archivos
+
+# Crear directorios necesarios si no existen
+mkdir -p "$LOCAL_DIR" "$EVIDENCIAS_DIR" "$CODIGO_DIR" "$SEND_DIR" "$PROCESADOS_DIR"
+
+# Desencriptar la contraseña
+if [ -f "$PASSWORD_FILE" ]; then
+  SSH_PASS=$(openssl enc -aes-256-cbc -pbkdf2 -d -salt -in "$PASSWORD_FILE" -pass pass:"$ENCRYPTION_KEY")
+else
+  echo "$(date '+%Y-%m-%d %H:%M:%S') - Error: El archivo de contraseña cifrada ($PASSWORD_FILE) no existe." >> "$LOG_FILE"
+  exit 1
+fi
+
+# Verificar espacio disponible en disco
+check_disk_space() {
+  AVAILABLE_SPACE_MB=$(df "$LOCAL_DIR" | awk 'NR==2 {print $4}')
+  AVAILABLE_SPACE_MB=$((AVAILABLE_SPACE_MB / 1024))
+
+  if [ "$AVAILABLE_SPACE_MB" -lt "$MIN_SPACE_MB" ]; then
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - Error: Espacio insuficiente en $LOCAL_DIR. Se requieren al menos $MIN_SPACE_MB MB." >> "$LOG_FILE"
+    exit 1
+  fi
+}
+
+# Descargar archivos del servidor SFTP
+download_files() {
+  echo "$(date '+%Y-%m-%d %H:%M:%S') - Iniciando descarga de archivos" >> "$LOG_FILE"
+  check_disk_space
+
+  # Descargar archivos desde el servidor usando rsync
+  rsync --progress -e "sshpass -p '$SSH_PASS' ssh -o StrictHostKeyChecking=no" \
+    "$SFTP_USER@$SFTP_HOST:$REMOTE_DIR/" "$LOCAL_DIR/" >> "$LOG_FILE" 2>&1
+
+  if [ $? -eq 0 ]; then
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - Descarga completada correctamente." >> "$LOG_FILE"
+  else
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - Error durante la descarga." >> "$LOG_FILE"
+    exit 1
+  fi
+
+  # Procesar archivos descargados
+  for file in "$LOCAL_DIR"/*; do
+    if [[ ! -f "$file" ]]; then
+      continue
+    fi
+
+    filename=$(basename "$file")
+    new_filename="${filename#OP181199_}" # Quitar el prefijo si está presente
+
+    mv "$file" "$LOCAL_DIR/$new_filename"
+
+    # Clasificar en evidencias o código
+    if [[ "$new_filename" =~ [eE][vV][iI][dD][eE][nN][cC][iI][aA](s|S)? ]]; then
+      mv "$LOCAL_DIR/$new_filename" "$EVIDENCIAS_DIR/"
+      echo "$(date '+%Y-%m-%d %H:%M:%S') - Movido a $EVIDENCIAS_DIR: $new_filename" >> "$LOG_FILE"
+    else
+      mv "$LOCAL_DIR/$new_filename" "$CODIGO_DIR/"
+      echo "$(date '+%Y-%m-%d %H:%M:%S') - Movido a $CODIGO_DIR: $new_filename" >> "$LOG_FILE"
+    fi
+  done
+}
+
+# Enviar archivos al servidor SFTP
+send_files() {
+  echo "$(date '+%Y-%m-%d %H:%M:%S') - Iniciando envío de archivos" >> "$LOG_FILE"
+
+  success_count=0
+  error_count=0
+
+  for file in "$SEND_DIR"/*; do
+    if [[ ! -f "$file" ]]; then
+      continue
+    fi
+
+    if [[ ! -s "$file" ]]; then
+      echo "$(date '+%Y-%m-%d %H:%M:%S') - Archivo vacío: $(basename "$file"). No se enviará." >> "$LOG_FILE"
+      error_count=$((error_count + 1))
+      continue
+    fi
+
+    filename=$(basename "$file")
+
+    # Agregar prefijo si falta
+    if [[ "$filename" != "$PREFIX"* ]]; then
+      new_filename="$PREFIX$filename"
+      mv "$file" "$SEND_DIR/$new_filename"
+      filename="$new_filename"
+    fi
+
+    # Comprimir si no es .zip
+    if [[ "${filename##*.}" != "zip" ]]; then
+      zip "$SEND_DIR/${filename%.*}.zip" "$SEND_DIR/$filename" >> "$LOG_FILE" 2>&1
+      rm -f "$SEND_DIR/$filename"
+      filename="${filename%.*}.zip"
+    fi
+
+    # Intentar enviar el archivo
+    retry_count=0
+    while [ $retry_count -lt $MAX_RETRIES ]; do
+      sshpass -p "$SSH_PASS" sftp -oBatchMode=no -b - "$SFTP_USER@$SFTP_HOST" << EOF >> "$LOG_FILE" 2>&1
+put $SEND_DIR/$filename
+bye
+EOF
+      if [ $? -eq 0 ]; then
+        echo "$(date '+%Y-%m-%d %H:%M:%S') - Archivo enviado correctamente: $filename" >> "$LOG_FILE"
+        success_count=$((success_count + 1))
+        mv "$SEND_DIR/$filename" "$PROCESADOS_DIR/"
+        break
+      else
+        retry_count=$((retry_count + 1))
+        echo "$(date '+%Y-%m-%d %H:%M:%S') - Reintento $retry_count para enviar $filename" >> "$LOG_FILE"
+      fi
+    done
+
+    if [ $retry_count -eq $MAX_RETRIES ]; then
+      echo "$(date '+%Y-%m-%d %H:%M:%S') - Error permanente al enviar: $filename" >> "$LOG_FILE"
+      error_count=$((error_count + 1))
+    fi
+  done
+
+  echo "$(date '+%Y-%m-%d %H:%M:%S') - Resumen: $success_count enviados, $error_count errores." >> "$LOG_FILE"
+}
+
+# Manejar parámetros
+case "$1" in
+  1)
+    download_files
+    ;;
+  2)
+    send_files
+    ;;
+  *)
+    echo "Uso: $0 1 (descargar) | 2 (enviar)"
+    exit 1
+    ;;
+esac
+
+echo "$(date '+%Y-%m-%d %H:%M:%S') - Fin del script" >> "$LOG_FILE"
