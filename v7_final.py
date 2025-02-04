@@ -11,6 +11,7 @@ from ttkbootstrap import Progressbar
 CONFIG_FILE = os.path.join(os.path.expanduser("~/Documents/sftp/"), "config.json")
 KEY_FILE = "key.key"
 BASE_DIR = os.path.expanduser("~/Documents/sftp/")
+BASE_DIR_DRIVE = os.path.join(os.environ["USERPROFILE"], "OneDrive")  # 🔹 Apunta a OneDrive
 
 
 # Generar clave de cifrado si no existe
@@ -62,9 +63,24 @@ class SFTPClientApp:
         self.create_ui()
 
     def create_folders(self):
-        folders = ["Evidencias", "Permisos", "Generales", "ParaEnviar", "Enviados"]
-        for folder in folders:
+        base_folders = ["Generales"]
+        drive_folders = {
+            "upload-sftp": ["send"],
+            "download-sftp": [],
+            "loans": ["permisos"]
+        }
+
+        # Crear carpetas en BASE_DIR (Documentos/sftp/)
+        for folder in base_folders:
             os.makedirs(os.path.join(BASE_DIR, folder), exist_ok=True)
+
+        # Crear carpetas en BASE_DIR_DRIVE (OneDrive)
+        for parent, subfolders in drive_folders.items():
+            parent_path = os.path.join(BASE_DIR_DRIVE, parent)
+            os.makedirs(parent_path, exist_ok=True)  # Crear carpeta principal
+
+            for subfolder in subfolders:
+                os.makedirs(os.path.join(parent_path, subfolder), exist_ok=True)
 
     def connect_sftp(self):
         try:
@@ -154,19 +170,20 @@ class SFTPClientApp:
             self.root.update_idletasks()
             clean_name = file.replace(self.config.get("prefix", ""), "")
             if "evidencia" in file.lower():
-                dest_folder = "Evidencias"
+                dest_folder = os.path.join(BASE_DIR_DRIVE, "download-sftp")
             elif "permiso" in file.lower():
-                dest_folder = "Permisos"
+                dest_folder = os.path.join(BASE_DIR_DRIVE, "loans", "permisos")
             else:
-                dest_folder = "Generales"
-            sftp.get(file, os.path.join(BASE_DIR, dest_folder, clean_name))
+                dest_folder = os.path.join(BASE_DIR, "Generales")  # Se mantiene igual
+            sftp.get(file, os.path.join(dest_folder, clean_name))
         messagebox.showinfo("Descarga", "Descarga completada.")
 
     def upload_all(self):
         sftp = self.connect_sftp()
         if not sftp:
             return
-        files = os.listdir("ParaEnviar")
+        upload_dir = os.path.join(BASE_DIR_DRIVE, "upload-sftp")
+        files = os.listdir(upload_dir)
         progress = Progressbar(self.content_frame, mode="determinate", maximum=len(files))
         progress.pack(pady=10, fill='x')
 
@@ -178,9 +195,8 @@ class SFTPClientApp:
             progress['value'] = index + 1
             self.root.update_idletasks()
             filename = file if file.startswith(prefix) else f"{prefix}{file}"
-            sftp.put(os.path.join("ParaEnviar", file), filename)
-            os.rename(os.path.join("ParaEnviar", file), os.path.join("Enviados", filename))
-
+            sftp.put(os.path.join(BASE_DIR_DRIVE, "upload-sftp", file), filename)
+            os.rename(os.path.join(BASE_DIR_DRIVE, "upload-sftp", file), os.path.join(BASE_DIR_DRIVE, "upload-sftp", "send", filename))
 
     def show_downloads(self):
         for widget in self.content_frame.winfo_children():
@@ -201,13 +217,13 @@ class SFTPClientApp:
         ttk.Label(self.content_frame, text="Archivos para Enviar", font=("Arial", 14)).pack()
 
         # Verificar si la carpeta "ParaEnviar/" existe
-        upload_dir = os.path.join(BASE_DIR, "ParaEnviar")
+        upload_dir = os.path.join(BASE_DIR_DRIVE, "upload-sftp")
         os.makedirs(upload_dir, exist_ok=True)
 
         # Lista de archivos en "ParaEnviar/"
         files = [f for f in os.listdir(upload_dir) if os.path.isfile(os.path.join(upload_dir, f))]
 
-        print(f"Archivos encontrados en ParaEnviar: {files}")  # 🔹 Depuración en consola
+        print(f"Archivos encontrados en upload-sftp: {files}")  # 🔹 Depuración en consola
 
         if not files:
             ttk.Label(self.content_frame, text="No hay archivos para enviar.", font=("Arial", 12)).pack()
