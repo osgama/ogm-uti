@@ -163,22 +163,31 @@ class SFTPClientApp:
         if not sftp:
             return
         files = sftp.listdir_attr()
+        if not files:
+            messagebox.showinfo("Descarga", "No hay archivos disponibles en el servidor.")
+            return
+
         progress = Progressbar(self.content_frame, mode="determinate", maximum=len(files))
         progress.pack(pady=10, fill='x')
+
         for index, file in enumerate(files):
             progress['value'] = index + 1
             self.root.update_idletasks()
             clean_name = file.filename.replace(self.config.get("prefix", ""), "")
-            if "evidencia" in clean_name.lower():  # 🔹 Se debe usar `clean_name`
+
+            if "evidencia" in file.filename.lower():
                 dest_folder = os.path.join(BASE_DIR_DRIVE, "download-sftp")
-            elif "permiso" in file.lower():
+            elif "permiso" in file.filename.lower():
                 dest_folder = os.path.join(BASE_DIR_DRIVE, "loans", "permisos")
             else:
                 dest_folder = os.path.join(BASE_DIR, "Generales")  # Se mantiene igual
+
             sftp.get(file.filename, os.path.join(dest_folder, clean_name))
 
+        sftp.close()
         messagebox.showinfo("Descarga", "Descarga completada.")
-        self.show_downloads()  # 🔹 Correcto: Refresca la pantalla de descargas
+        self.show_downloads()  # 🔹 Refrescar la pantalla después de descargar
+
 
     def upload_all(self):
         sftp = self.connect_sftp()
