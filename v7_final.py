@@ -5,7 +5,7 @@ from cryptography.fernet import Fernet
 import ttkbootstrap as ttk
 from tkinter import messagebox, Toplevel, Label, StringVar
 from ttkbootstrap import Progressbar
-
+from datetime import datetime
 
 # Configuración global
 CONFIG_FILE = os.path.join(os.path.expanduser("~/Documents/sftp/"), "config.json")
@@ -162,21 +162,23 @@ class SFTPClientApp:
         sftp = self.connect_sftp()
         if not sftp:
             return
-        files = sftp.listdir()
+        files = sftp.listdir_attr()
         progress = Progressbar(self.content_frame, mode="determinate", maximum=len(files))
         progress.pack(pady=10, fill='x')
         for index, file in enumerate(files):
             progress['value'] = index + 1
             self.root.update_idletasks()
-            clean_name = file.replace(self.config.get("prefix", ""), "")
-            if "evidencia" in file.lower():
+            clean_name = file.filename.replace(self.config.get("prefix", ""), "")
+            if "evidencia" in clean_name.lower():  # 🔹 Se debe usar `clean_name`
                 dest_folder = os.path.join(BASE_DIR_DRIVE, "download-sftp")
             elif "permiso" in file.lower():
                 dest_folder = os.path.join(BASE_DIR_DRIVE, "loans", "permisos")
             else:
                 dest_folder = os.path.join(BASE_DIR, "Generales")  # Se mantiene igual
-            sftp.get(file, os.path.join(dest_folder, clean_name))
+            sftp.get(file.filename, os.path.join(dest_folder, clean_name))
+
         messagebox.showinfo("Descarga", "Descarga completada.")
+        self.show_downloads()  # 🔹 Correcto: Refresca la pantalla de descargas
 
     def upload_all(self):
         sftp = self.connect_sftp()
@@ -184,6 +186,9 @@ class SFTPClientApp:
             return
         upload_dir = os.path.join(BASE_DIR_DRIVE, "upload-sftp")
         files = os.listdir(upload_dir)
+        if not files:
+            messagebox.showinfo("Envío", "No hay archivos para enviar.")
+            return
         progress = Progressbar(self.content_frame, mode="determinate", maximum=len(files))
         progress.pack(pady=10, fill='x')
 
@@ -191,12 +196,14 @@ class SFTPClientApp:
         if not prefix:
             messagebox.showerror("Error", "El prefijo no está configurado en el JSON.")
             return
+
         for index, file in enumerate(files):
             progress['value'] = index + 1
             self.root.update_idletasks()
             filename = file if file.startswith(prefix) else f"{prefix}{file}"
             sftp.put(os.path.join(BASE_DIR_DRIVE, "upload-sftp", file), filename)
             os.rename(os.path.join(BASE_DIR_DRIVE, "upload-sftp", file), os.path.join(BASE_DIR_DRIVE, "upload-sftp", "send", filename))
+        self.show_uploads()  # 🔹 Refresca la lista después de mover los archivos
 
     def show_downloads(self):
         for widget in self.content_frame.winfo_children():
@@ -204,9 +211,24 @@ class SFTPClientApp:
         ttk.Label(self.content_frame, text="Archivos Disponibles en SFTP", font=("Arial", 14)).pack()
 
         # Lista de archivos
-        self.file_list = ttk.Treeview(self.content_frame, columns=("#1"), show='headings')
-        self.file_list.heading("#1", text="Nombre del Archivo")
+        self.file_list = ttk.Treeview(self.content_frame, columns=("Nombre", "Tamaño", "Fecha"), show='headings')
+        self.file_list.heading("Nombre", text="Nombre del Archivo")
+        self.file_list.heading("Tamaño", text="Tamaño (KB)")
+        self.file_list.heading("Fecha", text="Fecha de Modificación")
+
         self.file_list.pack(fill='both', expand=True, padx=10, pady=5)
+
+        # 🔹 Obtener archivos del servidor SFTP con detalles
+        sftp = self.connect_sftp()
+        if sftp:
+            files = sftp.listdir_attr()
+            for file in files:
+                file_name = file.filename
+                file_size = f"{file.st_size / 1024:.2f}"  # Convertir bytes a KB
+                file_date = datetime.fromtimestamp(file.st_mtime).strftime("%Y-%m-%d %H:%M:%S")  # Fecha de modificación
+
+                self.file_list.insert("", "end", values=(file_name, file_size, file_date))
+            sftp.close()
 
         # Botón de descarga
         ttk.Button(self.content_frame, text="Descargar Todo", command=self.download_all).pack(pady=10)
@@ -216,7 +238,7 @@ class SFTPClientApp:
             widget.destroy()
         ttk.Label(self.content_frame, text="Archivos para Enviar", font=("Arial", 14)).pack()
 
-        # Verificar si la carpeta "ParaEnviar/" existe
+        # Verificar si la carpeta "upload-sftp/" existe
         upload_dir = os.path.join(BASE_DIR_DRIVE, "upload-sftp")
         os.makedirs(upload_dir, exist_ok=True)
 
@@ -230,14 +252,20 @@ class SFTPClientApp:
             return
 
         # Crear lista de archivos
-        self.upload_list = ttk.Treeview(self.content_frame, columns=("#1"), show='headings')
-        self.upload_list.heading("#1", text="Nombre del Archivo")
+        self.upload_list = ttk.Treeview(self.content_frame, columns=("Nombre", "Tamaño", "Fecha"), show='headings')
+        self.upload_list.heading("Nombre", text="Nombre del Archivo")
+        self.upload_list.heading("Tamaño", text="Tamaño (KB)")
+        self.upload_list.heading("Fecha", text="Fecha de Modificación")
         self.upload_list.pack(fill='both', expand=True, padx=10, pady=5)
 
         # Agregar archivos a la lista
         for file in files:
-            if file.lower().endswith(".zip"):  # Asegurar que son .zip
-                self.upload_list.insert("", "end", values=(file,))
+            file_path = os.path.join(upload_dir, file)
+            if file.lower().endswith(".zip"):
+                file_size = f"{os.path.getsize(file_path) / 1024:.2f}"  # Tamaño en KB
+                file_date = datetime.fromtimestamp(os.path.getmtime(file_path)).strftime(
+                    "%Y-%m-%d %H:%M:%S")  # Fecha de modificación
+                self.upload_list.insert("", "end", values=(file, file_size, file_date))
 
         # Botón para enviar todo
         ttk.Button(self.content_frame, text="Enviar Todo", command=self.upload_all).pack(pady=10)
