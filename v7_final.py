@@ -11,8 +11,7 @@ from datetime import datetime
 CONFIG_FILE = os.path.join(os.path.expanduser("~/Documents/sftp/"), "config.json")
 KEY_FILE = "key.key"
 BASE_DIR = os.path.expanduser("~/Documents/sftp/")
-BASE_DIR_DRIVE = os.path.join(os.environ["USERPROFILE"], "OneDrive")  # 🔹 Apunta a OneDrive
-
+BASE_DIR_DRIVE = os.path.join(os.environ["USERPROFILE"], "OneDrive")  # Apunta a OneDrive
 
 # Generar clave de cifrado si no existe
 def generate_key():
@@ -69,7 +68,7 @@ class SFTPClientApp:
             "download-sftp": [],
             "loans": ["permisos"]
         }
-
+    
         # Crear carpetas en BASE_DIR (Documentos/sftp/)
         for folder in base_folders:
             os.makedirs(os.path.join(BASE_DIR, folder), exist_ok=True)
@@ -81,6 +80,16 @@ class SFTPClientApp:
 
             for subfolder in subfolders:
                 os.makedirs(os.path.join(parent_path, subfolder), exist_ok=True)
+    
+    def format_size(self, size_in_bytes):
+        if size_in_bytes < 1024:
+            return f"{size_in_bytes:.2f} B"
+        elif size_in_bytes < 1024**2:
+            return f"{size_in_bytes / 1024:.2f} KB"
+        elif size_in_bytes < 1024**3:
+            return f"{size_in_bytes / 1024**2:.2f} MB"
+        else:
+            return f"{size_in_bytes / 1024**3:.2f} GB"
 
     def connect_sftp(self):
         try:
@@ -186,7 +195,7 @@ class SFTPClientApp:
 
         sftp.close()
         messagebox.showinfo("Descarga", "Descarga completada.")
-        self.show_downloads()  # 🔹 Refrescar la pantalla después de descargar
+        self.show_downloads()  # Refrescar la pantalla después de descargar
 
 
     def upload_all(self):
@@ -212,7 +221,7 @@ class SFTPClientApp:
             filename = file if file.startswith(prefix) else f"{prefix}{file}"
             sftp.put(os.path.join(BASE_DIR_DRIVE, "upload-sftp", file), filename)
             os.rename(os.path.join(BASE_DIR_DRIVE, "upload-sftp", file), os.path.join(BASE_DIR_DRIVE, "upload-sftp", "send", filename))
-        self.show_uploads()  # 🔹 Refresca la lista después de mover los archivos
+        self.show_uploads()  # Refresca la lista después de mover los archivos
 
     def show_downloads(self):
         for widget in self.content_frame.winfo_children():
@@ -220,21 +229,30 @@ class SFTPClientApp:
         ttk.Label(self.content_frame, text="Archivos Disponibles en SFTP", font=("Arial", 14)).pack()
 
         # Lista de archivos
-        self.file_list = ttk.Treeview(self.content_frame, columns=("Nombre", "Tamaño", "Fecha"), show='headings')
+        self.file_list = ttk.Treeview(self.content_frame, columns=("Nombre", "Tamaño", "Fecha"), show="headings")
         self.file_list.heading("Nombre", text="Nombre del Archivo")
-        self.file_list.heading("Tamaño", text="Tamaño (KB)")
+        self.file_list.heading("Tamaño", text="Tamaño")
         self.file_list.heading("Fecha", text="Fecha de Modificación")
 
-        self.file_list.pack(fill='both', expand=True, padx=10, pady=5)
+        self.file_list.column("Nombre", anchor="w", width=300)
+        self.file_list.column("Tamaño", anchor="center", width=100)
+        self.file_list.column("Fecha", anchor="center", width=150)
 
-        # 🔹 Obtener archivos del servidor SFTP con detalles
+        # Aplicar estilo para ocultar las líneas de la tabla
+        style = ttk.Style()
+        style.configure("Treeview", rowheight=25, borderwidth=0, relief="flat")
+        style.map("Treeview", background=[("selected", "#0078D7")])  # Color de selección
+
+        self.file_list.pack(fill="both", expand=True, padx=10, pady=5)
+
+        # Obtener archivos del servidor SFTP con detalles
         sftp = self.connect_sftp()
         if sftp:
             files = sftp.listdir_attr()
             for file in files:
                 file_name = file.filename
-                file_size = f"{file.st_size / 1024:.2f}"  # Convertir bytes a KB
-                file_date = datetime.fromtimestamp(file.st_mtime).strftime("%Y-%m-%d %H:%M:%S")  # Fecha de modificación
+                file_size = self.format_size(file.st_size)
+                file_date = datetime.fromtimestamp(file.st_mtime).strftime("%Y-%m-%d %I:%M:%S %p")
 
                 self.file_list.insert("", "end", values=(file_name, file_size, file_date))
             sftp.close()
@@ -254,26 +272,36 @@ class SFTPClientApp:
         # Lista de archivos en "ParaEnviar/"
         files = [f for f in os.listdir(upload_dir) if os.path.isfile(os.path.join(upload_dir, f))]
 
-        print(f"Archivos encontrados en upload-sftp: {files}")  # 🔹 Depuración en consola
+        print(f"Archivos encontrados en upload-sftp: {files}")  # Depuración en consola
 
         if not files:
             ttk.Label(self.content_frame, text="No hay archivos para enviar.", font=("Arial", 12)).pack()
             return
 
         # Crear lista de archivos
-        self.upload_list = ttk.Treeview(self.content_frame, columns=("Nombre", "Tamaño", "Fecha"), show='headings')
+        self.upload_list = ttk.Treeview(self.content_frame, columns=("Nombre", "Tamaño", "Fecha"), show="headings")
         self.upload_list.heading("Nombre", text="Nombre del Archivo")
-        self.upload_list.heading("Tamaño", text="Tamaño (KB)")
+        self.upload_list.heading("Tamaño", text="Tamaño")
         self.upload_list.heading("Fecha", text="Fecha de Modificación")
-        self.upload_list.pack(fill='both', expand=True, padx=10, pady=5)
+
+        self.upload_list.column("Nombre", anchor="w", width=300)
+        self.upload_list.column("Tamaño", anchor="center", width=100)
+        self.upload_list.column("Fecha", anchor="center", width=150)
+
+        # Aplicar estilo para ocultar las líneas de la tabla
+        style = ttk.Style()
+        style.configure("Treeview", rowheight=25, borderwidth=0, relief="flat")
+        style.map("Treeview", background=[("selected", "#0078D7")])  # Color de selección
+
+        self.upload_list.pack(fill="both", expand=True, padx=10, pady=5)
+
 
         # Agregar archivos a la lista
         for file in files:
             file_path = os.path.join(upload_dir, file)
             if file.lower().endswith(".zip"):
-                file_size = f"{os.path.getsize(file_path) / 1024:.2f}"  # Tamaño en KB
-                file_date = datetime.fromtimestamp(os.path.getmtime(file_path)).strftime(
-                    "%Y-%m-%d %H:%M:%S")  # Fecha de modificación
+                file_size = self.format_size(os.path.getsize(file_path))
+                file_date = datetime.fromtimestamp(os.path.getmtime(file_path)).strftime("%Y-%m-%d %I:%M:%S %p")
                 self.upload_list.insert("", "end", values=(file, file_size, file_date))
 
         # Botón para enviar todo
@@ -290,24 +318,24 @@ class SFTPClientApp:
 
         ttk.Label(config_win, text="Servidor:").pack()
         self.server_entry = ttk.Entry(config_win)
-        self.server_entry.insert(0, self.config.get("server", ""))  # 🔹 Cargar valor guardado
+        self.server_entry.insert(0, self.config.get("server", ""))  # Cargar valor guardado
         self.server_entry.pack()
 
         ttk.Label(config_win, text="Puerto:").pack()
         self.port_entry = ttk.Entry(config_win)
-        self.port_entry.insert(0, self.config.get("port", ""))  # 🔹 Cargar valor guardado
+        self.port_entry.insert(0, self.config.get("port", ""))  # Cargar valor guardado
         self.port_entry.pack()
 
         ttk.Label(config_win, text="Usuario:").pack()
         self.user_entry = ttk.Entry(config_win)
-        self.user_entry.insert(0, self.config.get("user", ""))  # 🔹 Cargar valor guardado
+        self.user_entry.insert(0, self.config.get("user", ""))  # Cargar valor guardado
         self.user_entry.pack()
 
         ttk.Label(config_win, text="Contraseña:").pack()
         self.password_var = StringVar()
         decrypted_password = decrypt_password(self.config.get("password", "")) if self.config.get("password") else ""
         self.password_entry = ttk.Entry(config_win, show="*", textvariable=self.password_var)
-        self.password_entry.insert(0, decrypted_password)  # 🔹 Cargar contraseña desencriptada
+        self.password_entry.insert(0, decrypted_password)  # Cargar contraseña desencriptada
         self.password_entry.pack()
 
         self.show_password = ttk.Checkbutton(config_win, text="Mostrar contraseña", command=self.toggle_password)
@@ -315,7 +343,7 @@ class SFTPClientApp:
 
         ttk.Label(config_win, text="Prefijo de archivos:").pack()
         self.prefix_entry = ttk.Entry(config_win)
-        self.prefix_entry.insert(0, self.config.get("prefix", ""))  # 🔹 Cargar prefijo guardado
+        self.prefix_entry.insert(0, self.config.get("prefix", ""))  # Cargar prefijo guardado
         self.prefix_entry.pack()
 
         ttk.Button(config_win, text="Guardar", command=self.save_settings).pack(pady=10)
