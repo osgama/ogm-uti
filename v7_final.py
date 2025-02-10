@@ -6,6 +6,7 @@ import ttkbootstrap as ttk
 from tkinter import messagebox, Toplevel, Label, StringVar
 from ttkbootstrap import Progressbar
 from datetime import datetime
+import subprocess
 
 # Configuración global
 CONFIG_FILE = os.path.join(os.path.expanduser("~/Documents/sftp/"), "config.json")
@@ -209,10 +210,23 @@ class SFTPClientApp:
         if not sftp:
             return
         upload_dir = os.path.join(BASE_DIR_DRIVE, "upload-sftp")
-        files = os.listdir(upload_dir)
+
+        # Forzar la descarga de archivos en la nube
+        for file in os.listdir(upload_dir):
+            file_path = os.path.join(upload_dir, file)
+            if os.path.isfile(file_path):
+                subprocess.run(['attrib', '-p', '-u', file_path], shell=True)  # Forzar la descarga desde la nube
+
+        # Filtrar archivos accesibles
+        files = [
+            f for f in os.listdir(upload_dir)
+            if os.path.isfile(os.path.join(upload_dir, f)) and os.access(os.path.join(upload_dir, f), os.R_OK)
+        ]
+
         if not files:
             messagebox.showinfo("Envío", "No hay archivos para enviar.")
             return
+
         progress = Progressbar(self.content_frame, mode="determinate", maximum=len(files))
         progress.pack(pady=10, fill='x')
 
@@ -225,8 +239,9 @@ class SFTPClientApp:
             progress['value'] = index + 1
             self.root.update_idletasks()
             filename = file if file.startswith(prefix) else f"{prefix}{file}"
-            sftp.put(os.path.join(BASE_DIR_DRIVE, "upload-sftp", file), filename)
-            os.rename(os.path.join(BASE_DIR_DRIVE, "upload-sftp", file), os.path.join(BASE_DIR_DRIVE, "upload-sftp", "send", filename))
+            sftp.put(os.path.join(upload_dir, file), filename)
+            os.rename(os.path.join(upload_dir, file), os.path.join(upload_dir, "send", filename))
+
         self.show_uploads()  # Refresca la lista después de mover los archivos
 
     def show_downloads(self):
