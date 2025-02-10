@@ -13,6 +13,7 @@ KEY_FILE = "key.key"
 BASE_DIR = os.path.expanduser("~/Documents/sftp/")
 BASE_DIR_DRIVE = os.path.join(os.environ["USERPROFILE"], "OneDrive")  # Apunta a OneDrive
 
+
 # Generar clave de cifrado si no existe
 def generate_key():
     if not os.path.exists(KEY_FILE):
@@ -20,18 +21,22 @@ def generate_key():
         with open(KEY_FILE, "wb") as key_file:
             key_file.write(key)
 
+
 def load_key():
     return open(KEY_FILE, "rb").read()
+
 
 def encrypt_password(password):
     key = load_key()
     fernet = Fernet(key)
     return fernet.encrypt(password.encode()).decode()
 
+
 def decrypt_password(encrypted_password):
     key = load_key()
     fernet = Fernet(key)
     return fernet.decrypt(encrypted_password.encode()).decode()
+
 
 # Cargar configuración
 def load_config():
@@ -40,11 +45,13 @@ def load_config():
             return json.load(f)
     return {}
 
+
 # Guardar configuración
 def save_config(config):
     os.makedirs(BASE_DIR, exist_ok=True)
     with open(CONFIG_FILE, "w") as f:
         json.dump(config, f, indent=4)
+
 
 class SFTPClientApp:
     def __init__(self, root):
@@ -68,7 +75,7 @@ class SFTPClientApp:
             "download-sftp": [],
             "loans": ["permisos"]
         }
-    
+
         # Crear carpetas en BASE_DIR (Documentos/sftp/)
         for folder in base_folders:
             os.makedirs(os.path.join(BASE_DIR, folder), exist_ok=True)
@@ -80,16 +87,16 @@ class SFTPClientApp:
 
             for subfolder in subfolders:
                 os.makedirs(os.path.join(parent_path, subfolder), exist_ok=True)
-    
+
     def format_size(self, size_in_bytes):
         if size_in_bytes < 1024:
             return f"{size_in_bytes:.2f} B"
-        elif size_in_bytes < 1024**2:
+        elif size_in_bytes < 1024 ** 2:
             return f"{size_in_bytes / 1024:.2f} KB"
-        elif size_in_bytes < 1024**3:
-            return f"{size_in_bytes / 1024**2:.2f} MB"
+        elif size_in_bytes < 1024 ** 3:
+            return f"{size_in_bytes / 1024 ** 2:.2f} MB"
         else:
-            return f"{size_in_bytes / 1024**3:.2f} GB"
+            return f"{size_in_bytes / 1024 ** 3:.2f} GB"
 
     def connect_sftp(self):
         try:
@@ -197,7 +204,6 @@ class SFTPClientApp:
         messagebox.showinfo("Descarga", "Descarga completada.")
         self.show_downloads()  # Refrescar la pantalla después de descargar
 
-
     def upload_all(self):
         sftp = self.connect_sftp()
         if not sftp:
@@ -294,7 +300,6 @@ class SFTPClientApp:
         style.map("Treeview", background=[("selected", "#0078D7")])  # Color de selección
 
         self.upload_list.pack(fill="both", expand=True, padx=10, pady=5)
-
 
         # Agregar archivos a la lista
         for file in files:
