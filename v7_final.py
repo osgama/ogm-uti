@@ -184,8 +184,18 @@ class SFTPClientApp:
             messagebox.showinfo("Descarga", "No hay archivos disponibles en el servidor.")
             return
 
-        progress = Progressbar(self.content_frame, mode="determinate", maximum=len(files))
-        progress.pack(pady=10, fill='x')
+        # Crear un frame fijo para la barra de progreso
+        if not hasattr(self, "progress_frame"):
+            self.progress_frame = ttk.Frame(self.root)
+            self.progress_frame.pack(side="bottom", fill="x", padx=10, pady=5)
+
+        # Reemplazar la barra de progreso existente
+        for widget in self.progress_frame.winfo_children():
+            widget.destroy()
+
+        progress = Progressbar(self.progress_frame, mode="determinate", maximum=len(files))
+        progress.pack(fill="x", expand=True, padx=10, pady=5)
+
 
         for index, file in enumerate(files):
             progress['value'] = index + 1
@@ -227,8 +237,18 @@ class SFTPClientApp:
             messagebox.showinfo("Envío", "No hay archivos para enviar.")
             return
 
-        progress = Progressbar(self.content_frame, mode="determinate", maximum=len(files))
-        progress.pack(pady=10, fill='x')
+        # Crear un frame fijo para la barra de progreso
+        if not hasattr(self, "progress_frame"):
+            self.progress_frame = ttk.Frame(self.root)
+            self.progress_frame.pack(side="bottom", fill="x", padx=10, pady=5)
+
+        # Reemplazar la barra de progreso existente
+        for widget in self.progress_frame.winfo_children():
+            widget.destroy()
+
+        progress = Progressbar(self.progress_frame, mode="determinate", maximum=len(files))
+        progress.pack(fill="x", expand=True, padx=10, pady=5)
+
 
         prefix = self.config.get("prefix", "").strip()
         if not prefix:
