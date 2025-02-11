@@ -95,13 +95,6 @@ class ModernApp:
         self.topbar = ttk.Frame(self.root, padding=10, style="dark.TFrame")
         self.topbar.pack(side="top", fill="x")
 
-        # Consola de salida
-        self.log_frame = Frame(self.root, bg="#1b1b1b")
-        self.log_frame.pack(side="bottom", fill="x", padx=10, pady=10)
-
-        self.log_box = Text(self.log_frame, height=8, width=100, bg="#1b1b1b", fg="white", insertbackground="white")
-        self.log_box.pack(fill="both", expand=True)
-
     def update_sidebar(self):
         """Actualiza la barra lateral con los servidores configurados"""
         for widget in self.sidebar.winfo_children()[1:-1]:  # No borra el label ni el botón de configuración
@@ -115,8 +108,15 @@ class ModernApp:
 
     def set_server(self, server):
         """Selecciona un servidor y actualiza la barra de opciones"""
-        self.selected_server.set(f"{server['name']} ({server['environment']})")
+        self.selected_server.set(f"{server['environment']}")
         self.update_topbar(server)
+
+        # Crear la consola de log solo si no existe
+        if not hasattr(self, "log_frame"):
+            self.log_frame = Frame(self.root, bg="#1b1b1b")
+            self.log_frame.pack(side="right", fill="both", padx=10, pady=5, expand=True)
+            self.log_box = Text(self.log_frame, bg="#1b1b1b", fg="white", insertbackground="white")
+            self.log_box.pack(fill="both", expand=True)
 
     def update_topbar(self, server):
         """Actualiza la barra superior con las opciones del servidor seleccionado"""
@@ -188,7 +188,6 @@ class ModernApp:
             pady=10)
 
     def edit_server(self):
-        """Edita el servidor seleccionado"""
         selected_server = self.servers_list.get()
         if not selected_server:
             messagebox.showerror("Error", "Seleccione un servidor para editar.")
@@ -196,16 +195,39 @@ class ModernApp:
 
         for server in self.config["servers"]:
             if f"{server['name']} ({server['environment']})" == selected_server:
-                server["name"] = simpledialog.askstring("Editar Servidor", "Nuevo nombre del servidor:",
-                                                        initialvalue=server["name"])
-                server["environment"] = simpledialog.askstring("Editar Ambiente", "Nuevo ambiente:",
-                                                               initialvalue=server["environment"])
-                server_type = messagebox.askyesno("Tipo de Servidor", "¿Habilitar todas las opciones?")
-                server["type"] = "Todos" if server_type else "Compilador"
-                save_config(self.config)
-                self.update_sidebar()
-                messagebox.showinfo("Configuración", "Servidor editado exitosamente.")
+                edit_win = Toplevel(self.root)
+                edit_win.title("Editar Servidor")
+                edit_win.geometry("300x300")
+                edit_win.resizable(False, False)
+
+                ttk.Label(edit_win, text="Nombre del Servidor:").pack(pady=5)
+                name_entry = ttk.Entry(edit_win)
+                name_entry.insert(0, server["name"])
+                name_entry.pack()
+
+                ttk.Label(edit_win, text="Ambiente:").pack(pady=5)
+                environment_entry = ttk.Entry(edit_win)
+                environment_entry.insert(0, server["environment"])
+                environment_entry.pack()
+
+                ttk.Label(edit_win, text="Tipo de Servidor:").pack(pady=5)
+                type_var = StringVar(value="Todos" if server["type"] == "Todos" else "Compilador")
+                ttk.Radiobutton(edit_win, text="Todos", variable=type_var, value="Todos").pack(anchor="w")
+                ttk.Radiobutton(edit_win, text="Compilador", variable=type_var, value="Compilador").pack(anchor="w")
+
+                ttk.Button(edit_win, text="Guardar", bootstyle="success",
+                           command=lambda: self.save_edited_server(edit_win, server, name_entry, environment_entry,
+                                                                   type_var)).pack(pady=10)
                 return
+
+    def save_edited_server(self, window, server, name_entry, environment_entry, type_var):
+        server["name"] = name_entry.get()
+        server["environment"] = environment_entry.get()
+        server["type"] = type_var.get()
+        save_config(self.config)
+        self.update_sidebar()
+        window.destroy()
+        messagebox.showinfo("Configuración", "Servidor editado exitosamente.")
 
     def add_server(self):
         server_name = simpledialog.askstring("Nuevo Servidor", "Ingrese el nombre del servidor:")
