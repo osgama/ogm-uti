@@ -80,15 +80,16 @@ class ModernApp:
         self.create_ui()
 
     def create_ui(self):
-        # Barra lateral estilo OpenShift (rojo/negro)
-        self.sidebar = ttk.Frame(self.root, width=150, style="danger.TFrame")
+        # Barra lateral estilo OpenShift (rojo más oscuro)
+        self.sidebar = ttk.Frame(self.root, width=150, style="danger.TFrame", bootstyle="inverse-danger")
+        self.sidebar.configure(style="TFrame")  # Estilo personalizado
         self.sidebar.pack(side="left", fill="y")
 
-        ttk.Label(self.sidebar, text="Servidores", font=("Arial", 12, "bold"), foreground="white").pack(pady=10)
+        ttk.Label(self.sidebar, text="Servidores", font=("Arial", 13, "bold"), foreground="white").pack(pady=5)
         self.update_sidebar()
 
-        self.config_btn = ttk.Button(self.sidebar, text="⚙", bootstyle="danger-outline", command=self.show_config)
-        self.config_btn.pack(side="bottom", fill="x", pady=0)  # Sin espacios, ajustado al borde
+        self.config_btn = ttk.Button(self.sidebar, text="⚙", bootstyle="danger", command=self.show_config)
+        self.config_btn.pack(side="bottom", fill="x", pady=0)  # Ajustado al borde inferior, sin espacios
 
         # Barra de opciones superior
         self.topbar = ttk.Frame(self.root, padding=10, style="dark.TFrame")
@@ -109,9 +110,8 @@ class ModernApp:
         for server in self.config["servers"]:
             server_name = server["name"]
             environment = server["environment"]
-            button_text = f"{server_name} ({environment})"
-            ttk.Button(self.sidebar, text=button_text, bootstyle="danger",
-                       command=lambda s=server: self.set_server(s)).pack(fill="x", pady=5)
+            button_text = f"{server_name}"
+            ttk.Button(self.sidebar, text=button_text, bootstyle="danger",command=lambda s=server: self.set_server(s)).pack(fill="x", pady=2)
 
     def set_server(self, server):
         """Selecciona un servidor y actualiza la barra de opciones"""
@@ -161,30 +161,51 @@ class ModernApp:
     def show_config(self):
         config_win = Toplevel(self.root)
         config_win.title("Configuración")
-        config_win.geometry("500x500")
+        config_win.geometry("300x350")
         config_win.resizable(False, False)
 
-        ttk.Label(config_win, text="📡 Servidores Configurados:", font=("Arial", 12, "bold")).pack(pady=5)
-        self.servers_list = ttk.Combobox(config_win,
-                                         values=[f"{s['name']} ({s['environment']})" for s in self.config["servers"]])
-        self.servers_list.pack()
-
-        ttk.Button(config_win, text="➕ Agregar Nuevo Servidor", bootstyle="danger", command=self.add_server).pack(
-            pady=10)
-
-        ttk.Label(config_win, text="👤 Usuario Global:").pack(pady=5)
+        ttk.Label(config_win, text="👤 Usuario:").pack(pady=5)
         self.user_entry = ttk.Entry(config_win)
         self.user_entry.insert(0, self.config.get("user", ""))
         self.user_entry.pack()
 
-        ttk.Label(config_win, text="🔑 Contraseña Global:").pack(pady=5)
+        ttk.Label(config_win, text="🔑 Contraseña:").pack(pady=5)
         self.password_var = StringVar(value=decrypt_password(self.config.get("password", "")))
         self.password_entry = ttk.Entry(config_win, textvariable=self.password_var, show="*")
         self.password_entry.pack()
 
         ttk.Checkbutton(config_win, text="👁 Mostrar Contraseña", command=self.toggle_password).pack()
-        ttk.Button(config_win, text="💾 Guardar Configuración", bootstyle="danger", command=self.save_settings).pack(
+        ttk.Label(config_win, text="📡 Servidores Configurados:", font=("Arial", 12, "bold")).pack(pady=5)
+        self.servers_list = ttk.Combobox(config_win,
+                                         values=[f"{s['name']} ({s['environment']})" for s in self.config["servers"]])
+        self.servers_list.pack()
+
+        ttk.Button(config_win, text="✏️ Editar Servidor", bootstyle="danger", command=self.edit_server).pack(pady=5)
+        ttk.Button(config_win, text="➕ Agregar Servidor", bootstyle="danger", command=self.add_server).pack(
             pady=10)
+
+        ttk.Button(config_win, text="💾 Guardar", bootstyle="danger", command=self.save_settings).pack(
+            pady=10)
+
+    def edit_server(self):
+        """Edita el servidor seleccionado"""
+        selected_server = self.servers_list.get()
+        if not selected_server:
+            messagebox.showerror("Error", "Seleccione un servidor para editar.")
+            return
+
+        for server in self.config["servers"]:
+            if f"{server['name']} ({server['environment']})" == selected_server:
+                server["name"] = simpledialog.askstring("Editar Servidor", "Nuevo nombre del servidor:",
+                                                        initialvalue=server["name"])
+                server["environment"] = simpledialog.askstring("Editar Ambiente", "Nuevo ambiente:",
+                                                               initialvalue=server["environment"])
+                server_type = messagebox.askyesno("Tipo de Servidor", "¿Habilitar todas las opciones?")
+                server["type"] = "Todos" if server_type else "Compilador"
+                save_config(self.config)
+                self.update_sidebar()
+                messagebox.showinfo("Configuración", "Servidor editado exitosamente.")
+                return
 
     def add_server(self):
         server_name = simpledialog.askstring("Nuevo Servidor", "Ingrese el nombre del servidor:")
