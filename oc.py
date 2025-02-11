@@ -1,9 +1,10 @@
 import os
 import json
 import subprocess
+from datetime import datetime
 from cryptography.fernet import Fernet
 import ttkbootstrap as ttk
-from tkinter import StringVar, messagebox, Frame, Text, Toplevel, simpledialog
+from tkinter import StringVar, messagebox, Frame, Text, Toplevel, simpledialog, END
 from ttkbootstrap import Window
 
 # Configuración de rutas
@@ -62,41 +63,42 @@ def execute_command(command):
     try:
         result = subprocess.run(command, shell=True, capture_output=True, text=True)
         if result.returncode == 0:
-            return result.stdout
-        return result.stderr
+            return ("success", result.stdout.strip())
+        return ("error", result.stderr.strip())
     except Exception as e:
-        return str(e)
+        return ("error", str(e))
 
 
 class ModernApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Ultra Modern App")
+        self.root.title("OpenShift Style App")
         self.root.geometry("900x600")
+        self.root.configure(bg="#1b1b1b")  # Fondo negro
         self.config = load_config()
         self.selected_server = StringVar()
         self.create_ui()
 
     def create_ui(self):
-        # Barra lateral con servidores
-        self.sidebar = ttk.Frame(self.root, width=150, style="secondary.TFrame")
+        # Barra lateral estilo OpenShift (rojo/negro)
+        self.sidebar = ttk.Frame(self.root, width=150, style="danger.TFrame")
         self.sidebar.pack(side="left", fill="y")
 
-        ttk.Label(self.sidebar, text="Servidores", font=("Arial", 12, "bold")).pack(pady=10)
-        self.update_sidebar()  # Inicializa la barra con los servidores actuales
+        ttk.Label(self.sidebar, text="Servidores", font=("Arial", 12, "bold"), foreground="white").pack(pady=10)
+        self.update_sidebar()
 
-        self.config_btn = ttk.Button(self.sidebar, text="⚙", bootstyle="link", command=self.show_config)
-        self.config_btn.pack(side="bottom", padx=10, pady=5)
+        self.config_btn = ttk.Button(self.sidebar, text="⚙", bootstyle="danger-outline", command=self.show_config)
+        self.config_btn.pack(side="bottom", fill="x", pady=0)  # Sin espacios, ajustado al borde
 
         # Barra de opciones superior
-        self.topbar = ttk.Frame(self.root, padding=10, style="light.TFrame")
+        self.topbar = ttk.Frame(self.root, padding=10, style="dark.TFrame")
         self.topbar.pack(side="top", fill="x")
 
         # Consola de salida
-        self.log_frame = Frame(self.root)
+        self.log_frame = Frame(self.root, bg="#1b1b1b")
         self.log_frame.pack(side="bottom", fill="x", padx=10, pady=10)
 
-        self.log_box = Text(self.log_frame, height=8, width=100)
+        self.log_box = Text(self.log_frame, height=8, width=100, bg="#1b1b1b", fg="white", insertbackground="white")
         self.log_box.pack(fill="both", expand=True)
 
     def update_sidebar(self):
@@ -108,8 +110,8 @@ class ModernApp:
             server_name = server["name"]
             environment = server["environment"]
             button_text = f"{server_name} ({environment})"
-            ttk.Button(self.sidebar, text=button_text, bootstyle="primary",
-                       command=lambda s=server: self.set_server(s)).pack(fill="x", pady=5, padx=10)
+            ttk.Button(self.sidebar, text=button_text, bootstyle="danger",
+                       command=lambda s=server: self.set_server(s)).pack(fill="x", pady=5)
 
     def set_server(self, server):
         """Selecciona un servidor y actualiza la barra de opciones"""
@@ -137,9 +139,24 @@ class ModernApp:
         options = menu_options["Compilador"] if server["type"] == "Compilador" else menu_options["Todos"]
 
         for icon, option in options:
-            btn = ttk.Button(self.topbar, text=f"{icon}", bootstyle="success",
+            btn = ttk.Button(self.topbar, text=f"{icon}", bootstyle="danger",
                              command=lambda cmd=f"echo {option} ejecutado": self.run_command(cmd))
             btn.pack(side="left", padx=5)
+
+    def run_command(self, command):
+        """Limpia la consola y ejecuta un comando con logs de timestamp y colores"""
+        self.log_box.delete("1.0", END)
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        status, output = execute_command(command)
+
+        if status == "success":
+            self.log_box.insert(END, f"[{timestamp}] ✅ {output}\n", "success")
+            self.log_box.tag_config("success", foreground="green")
+        else:
+            self.log_box.insert(END, f"[{timestamp}] ❌ {output}\n", "error")
+            self.log_box.tag_config("error", foreground="red")
+
+        self.log_box.see(END)
 
     def show_config(self):
         config_win = Toplevel(self.root)
@@ -152,8 +169,7 @@ class ModernApp:
                                          values=[f"{s['name']} ({s['environment']})" for s in self.config["servers"]])
         self.servers_list.pack()
 
-        ttk.Button(config_win, text="✏️ Editar Servidor", bootstyle="info", command=self.edit_server).pack(pady=5)
-        ttk.Button(config_win, text="➕ Agregar Nuevo Servidor", bootstyle="success", command=self.add_server).pack(
+        ttk.Button(config_win, text="➕ Agregar Nuevo Servidor", bootstyle="danger", command=self.add_server).pack(
             pady=10)
 
         ttk.Label(config_win, text="👤 Usuario Global:").pack(pady=5)
@@ -167,54 +183,19 @@ class ModernApp:
         self.password_entry.pack()
 
         ttk.Checkbutton(config_win, text="👁 Mostrar Contraseña", command=self.toggle_password).pack()
-        ttk.Button(config_win, text="💾 Guardar Configuración", bootstyle="primary", command=self.save_settings).pack(
+        ttk.Button(config_win, text="💾 Guardar Configuración", bootstyle="danger", command=self.save_settings).pack(
             pady=10)
 
-    def edit_server(self):
-        """Edita un servidor seleccionado en la lista"""
-        selected_server = self.servers_list.get()
-        if not selected_server:
-            messagebox.showerror("Error", "Seleccione un servidor para editar.")
-            return
-
-        for server in self.config["servers"]:
-            if f"{server['name']} ({server['environment']})" == selected_server:
-                server["name"] = simpledialog.askstring("Editar Servidor", "Ingrese el nuevo nombre del servidor:",
-                                                        initialvalue=server["name"])
-                server["environment"] = simpledialog.askstring("Editar Ambiente", "Ingrese el nuevo ambiente:",
-                                                               initialvalue=server["environment"])
-                server_type = messagebox.askyesno("Tipo de Servidor",
-                                                  "¿Desea habilitar todas las opciones (Sí) o solo las de compilador (No)?")
-                server["type"] = "Todos" if server_type else "Compilador"
-                save_config(self.config)
-                self.update_sidebar()
-                messagebox.showinfo("Configuración", "Servidor editado exitosamente.")
-                return
-
     def add_server(self):
-        """Agrega un nuevo servidor con detalles adicionales"""
         server_name = simpledialog.askstring("Nuevo Servidor", "Ingrese el nombre del servidor:")
-        if not server_name:
-            return
-
         environment = simpledialog.askstring("Ambiente", "Ingrese el ambiente (Compilador, DEV, SIT, UAT):")
-        if not environment:
-            return
+        server_type = "Todos" if messagebox.askyesno("Tipo de Servidor",
+                                                     "¿Habilitar todas las opciones?") else "Compilador"
 
-        server_type = messagebox.askyesno("Tipo de Servidor",
-                                          "¿Desea habilitar todas las opciones (Sí) o solo las de compilador (No)?")
-        server_type = "Todos" if server_type else "Compilador"
-
-        new_server = {
-            "name": server_name,
-            "environment": environment,
-            "type": server_type
-        }
-
+        new_server = {"name": server_name, "environment": environment, "type": server_type}
         self.config["servers"].append(new_server)
         save_config(self.config)
         self.update_sidebar()
-        messagebox.showinfo("Configuración", "Servidor agregado exitosamente.")
 
     def toggle_password(self):
         if self.password_entry.cget('show') == '*':
@@ -227,18 +208,10 @@ class ModernApp:
         self.config["password"] = encrypt_password(self.password_var.get())
         save_config(self.config)
         messagebox.showinfo("Configuración", "Configuración guardada exitosamente.")
-        self.update_sidebar()
-
-    def run_command(self, command):
-        """Limpia la consola y ejecuta un comando, mostrando la nueva salida"""
-        self.log_box.delete("1.0", "end")
-        command_output = execute_command(command)
-        self.log_box.insert("end", f"{command_output}\n")
-        self.log_box.see("end")
 
 
 if __name__ == "__main__":
     generate_key()
-    root = Window(themename="superhero")
+    root = Window(themename="darkly")
     app = ModernApp(root)
     root.mainloop()
