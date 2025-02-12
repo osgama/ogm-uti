@@ -1,9 +1,9 @@
 import subprocess
-import pkg_resources
+import importlib.metadata
 
 def actualizar_librerias():
     # Obtener la lista de todas las librerías instaladas
-    paquetes = [dist.project_name for dist in pkg_resources.working_set]
+    paquetes = [dist.metadata['Name'] for dist in importlib.metadata.distributions()]
     
     for paquete in paquetes:
         try:
