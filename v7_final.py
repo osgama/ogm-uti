@@ -269,8 +269,12 @@ class SFTPClientApp:
             widget.destroy()
         ttk.Label(self.content_frame, text="Archivos Disponibles en SFTP", font=("Arial", 14)).pack()
 
-        # Lista de archivos
-        self.file_list = ttk.Treeview(self.content_frame, columns=("Nombre", "Tamaño", "Fecha"), show="headings")
+        # Frame para la tabla y scrollbars
+        table_frame = ttk.Frame(self.content_frame)
+        table_frame.pack(fill="both", expand=True, padx=10, pady=5)
+
+        # Crear tabla con tamaño fijo
+        self.file_list = ttk.Treeview(table_frame, columns=("Nombre", "Tamaño", "Fecha"), show="headings", height=10)
         self.file_list.heading("Nombre", text="Nombre del Archivo")
         self.file_list.heading("Tamaño", text="Tamaño")
         self.file_list.heading("Fecha", text="Fecha de Modificación")
@@ -279,12 +283,14 @@ class SFTPClientApp:
         self.file_list.column("Tamaño", anchor="center", width=100)
         self.file_list.column("Fecha", anchor="center", width=150)
 
-        # Aplicar estilo para ocultar las líneas de la tabla
-        style = ttk.Style()
-        style.configure("Treeview", rowheight=25, borderwidth=0, relief="flat")
-        style.map("Treeview", background=[("selected", "#0078D7")])  # Color de selección
+        # Scrollbars
+        vsb = ttk.Scrollbar(table_frame, orient="vertical", command=self.file_list.yview)
+        hsb = ttk.Scrollbar(table_frame, orient="horizontal", command=self.file_list.xview)
+        self.file_list.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
 
-        self.file_list.pack(fill="both", expand=True, padx=10, pady=5)
+        vsb.pack(side="right", fill="y")
+        hsb.pack(side="bottom", fill="x")
+        self.file_list.pack(fill="both", expand=True)
 
         # Obtener archivos del servidor SFTP con detalles
         sftp = self.connect_sftp()
@@ -294,7 +300,6 @@ class SFTPClientApp:
                 file_name = file.filename
                 file_size = self.format_size(file.st_size)
                 file_date = datetime.fromtimestamp(file.st_mtime).strftime("%Y-%m-%d %I:%M:%S %p")
-
                 self.file_list.insert("", "end", values=(file_name, file_size, file_date))
             sftp.close()
 
@@ -310,17 +315,18 @@ class SFTPClientApp:
         upload_dir = os.path.join(BASE_DIR_DRIVE, "upload-sftp")
         os.makedirs(upload_dir, exist_ok=True)
 
-        # Lista de archivos en "ParaEnviar/"
+        # Lista de archivos
         files = [f for f in os.listdir(upload_dir) if os.path.isfile(os.path.join(upload_dir, f))]
-
-        print(f"Archivos encontrados en upload-sftp: {files}")  # Depuración en consola
-
         if not files:
             ttk.Label(self.content_frame, text="No hay archivos para enviar.", font=("Arial", 12)).pack()
             return
 
-        # Crear lista de archivos
-        self.upload_list = ttk.Treeview(self.content_frame, columns=("Nombre", "Tamaño", "Fecha"), show="headings")
+        # Frame para la tabla y scrollbars
+        table_frame = ttk.Frame(self.content_frame)
+        table_frame.pack(fill="both", expand=True, padx=10, pady=5)
+
+        # Crear tabla con tamaño fijo
+        self.upload_list = ttk.Treeview(table_frame, columns=("Nombre", "Tamaño", "Fecha"), show="headings", height=10)
         self.upload_list.heading("Nombre", text="Nombre del Archivo")
         self.upload_list.heading("Tamaño", text="Tamaño")
         self.upload_list.heading("Fecha", text="Fecha de Modificación")
@@ -329,12 +335,14 @@ class SFTPClientApp:
         self.upload_list.column("Tamaño", anchor="center", width=100)
         self.upload_list.column("Fecha", anchor="center", width=150)
 
-        # Aplicar estilo para ocultar las líneas de la tabla
-        style = ttk.Style()
-        style.configure("Treeview", rowheight=25, borderwidth=0, relief="flat")
-        style.map("Treeview", background=[("selected", "#0078D7")])  # Color de selección
+        # Scrollbars
+        vsb = ttk.Scrollbar(table_frame, orient="vertical", command=self.upload_list.yview)
+        hsb = ttk.Scrollbar(table_frame, orient="horizontal", command=self.upload_list.xview)
+        self.upload_list.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
 
-        self.upload_list.pack(fill="both", expand=True, padx=10, pady=5)
+        vsb.pack(side="right", fill="y")
+        hsb.pack(side="bottom", fill="x")
+        self.upload_list.pack(fill="both", expand=True)
 
         # Agregar archivos a la lista
         for file in files:
@@ -346,6 +354,7 @@ class SFTPClientApp:
 
         # Botón para enviar todo
         ttk.Button(self.content_frame, text="Enviar Todo", command=self.upload_all).pack(pady=10)
+
 
     def show_config(self):
         config_win = ttk.Toplevel(self.root)
