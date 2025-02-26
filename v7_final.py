@@ -10,7 +10,8 @@ import subprocess
 
 # Configuración global
 CONFIG_FILE = os.path.join(os.path.expanduser("~/Documents/sftp/"), "config.json")
-KEY_FILE = "key.key"
+#KEY_FILE = "key.key"
+KEY_FILE = os.path.join(os.path.expanduser("~/Documents/sftp/"), "key.key")
 BASE_DIR = os.path.expanduser("~/Documents/sftp/")
 BASE_DIR_DRIVE = os.path.join(os.environ["USERPROFILE"], "OneDrive")  # Apunta a OneDrive
 
@@ -221,6 +222,11 @@ class SFTPClientApp:
             return
         upload_dir = os.path.join(BASE_DIR_DRIVE, "upload-sftp")
 
+        # Verificar si OneDrive está accesible
+        if not os.path.exists(upload_dir):
+            messagebox.showerror("Error", "La carpeta de OneDrive no está accesible. Asegúrate de que OneDrive esté sincronizado.")
+            return
+
         # Forzar la descarga de archivos en la nube
         for file in os.listdir(upload_dir):
             file_path = os.path.join(upload_dir, file)
@@ -387,8 +393,8 @@ class SFTPClientApp:
         self.password_entry.insert(0, decrypted_password)  # Cargar contraseña desencriptada
         self.password_entry.pack()
 
-        self.show_password = ttk.Checkbutton(config_win, text="Mostrar contraseña", command=self.toggle_password)
-        self.show_password.pack()
+        #self.show_password = ttk.Checkbutton(config_win, text="Mostrar contraseña", command=self.toggle_password)
+        #self.show_password.pack()
 
         ttk.Label(config_win, text="Prefijo de archivos:").pack()
         self.prefix_entry = ttk.Entry(config_win)
