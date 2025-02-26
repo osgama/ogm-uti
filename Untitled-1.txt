@@ -83,3 +83,9 @@ Ahora que tienes la versión exacta resuelta en ${ogm.app.version}, pásala al p
         </plugin>
     </plugins>
 </build>
+
+
+
+
+
+pip install paramiko cryptography ttkbootstrap
