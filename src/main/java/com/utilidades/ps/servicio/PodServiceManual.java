@@ -1,6 +1,6 @@
 package com.utilidades.ps.servicio;
 
-import io.fabric8.openshift.api.model.DeploymentConfig;
+import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.client.*;
@@ -35,7 +35,6 @@ public class PodServiceManual {
         List<String> listaDePodsDown = seleccionarListaPods(opcion, emitter);
         try (OpenShiftClient openShiftClient = createOpenShiftClient(usuario, password, servidor, emitter)) {
             escalarPods(openShiftClient, listaDePodsDown, 0, emitter);
-            //waitForPodsToTerminate(openShiftClient, listaDePodsDown, emitter);
             openShiftClient.close();
         } catch (Exception e) {
             emitter.send(SseEmitter.event().name("error")
@@ -156,30 +155,24 @@ public class PodServiceManual {
             SseEmitter emitter) throws IOException {
 
         try {
-            String servidorSeleccionado = "";
-            if (servidor.equals("dev-server")) {
-                emitter.send(SseEmitter.event().name("message").data("Seleccionando servidor de DEV"));
-                logger.info("Seleccionando servidor de DEV");
-                servidorSeleccionado = System.getenv("CLUSTER1");
-
-            } else if (servidor.equals("dev-server")) {
-                emitter.send(SseEmitter.event().name("message").data("Seleccionando servidor de DEV"));
-                logger.info("Seleccionando servidor de DEV");
-                servidorSeleccionado = System.getenv("CLUSTER1");
-
-            } else if (servidor.equals("dev-server")) {
-                emitter.send(SseEmitter.event().name("message").data("Seleccionando servidor de DEV"));
-                logger.info("Seleccionando servidor de DEV");
-                servidorSeleccionado = System.getenv("CLUSTER1");
-
-            } else if (servidor.equals("dev-server")) {
-                emitter.send(SseEmitter.event().name("message").data("Seleccionando servidor de DEV"));
-                logger.info("Seleccionando servidor de DEV");
-                servidorSeleccionado = System.getenv("CLUSTER2");
-
+            String servidorSeleccionado;
+            Map<String, String> servidorClusterMap = Map.of(
+                    "dev-server", System.getenv("CLUSTER1"),
+                    "sit-server", System.getenv("CLUSTER2"),
+                    "uat-server", System.getenv("CLUSTER1"),
+                    "prod-server", System.getenv("CLUSTER1"),
+                    "cob-server", System.getenv("CLUSTER2")
+            );
+            if (servidorClusterMap.containsKey(servidor)) {
+                servidorSeleccionado = servidorClusterMap.get(servidor);
+                String msg = "Seleccionando servidor de " + servidor.toUpperCase();
+                emitter.send(SseEmitter.event().name("message").data(msg));
+                logger.info(msg);
             } else {
-                emitter.send(SseEmitter.event().name("error").data("Opción de servidor inválida: " + servidor));
-                logger.error("Opción de servidor inválida: {}", servidor);
+                String errorMsg = "Opción de servidor inválida: " + servidor;
+                emitter.send(SseEmitter.event().name("error").data(errorMsg));
+                logger.error(errorMsg);
+                throw new IllegalArgumentException(errorMsg);
             }
 
             emitter.send(SseEmitter.event().name("message").data("Obteniendo token, por favor espere..."));
@@ -245,12 +238,12 @@ public class PodServiceManual {
             throws IOException {
         for (String podName : podNames) {
             try {
-                DeploymentConfig dc = openShiftClient.deploymentConfigs()
+                Deployment deployment = openShiftClient.apps().deployments()
                         .inNamespace(namespace)
                         .withName(podName)
                         .get();
-                if (dc != null && dc.getSpec() != null) {
-                    openShiftClient.deploymentConfigs()
+                if (deployment != null && deployment.getSpec() != null) {
+                    openShiftClient.apps().deployments()
                             .inNamespace(namespace)
                             .withName(podName)
                             .scale(replicas);
@@ -317,43 +310,4 @@ public class PodServiceManual {
             throw new IllegalArgumentException(errorMessage);
         }
     }
-
-   /*private void waitForPodsToTerminate(OpenShiftClient openShiftClient, List<String> podNames, SseEmitter emitter)
-            throws IOException {
-        boolean allTerminated = false;
-        int retryCount = 0;
-        while (!allTerminated && retryCount < 20) {
-            try {
-                Thread.sleep(20000);
-                allTerminated = podNames.stream().allMatch(podName -> {
-                    List<Pod> pods = openShiftClient.pods()
-                            .inNamespace(namespace)
-                            .withLabel("name", podName)
-                            .list()
-                            .getItems();
-                    return pods.isEmpty()
-                            || pods.stream().allMatch(pod -> "Terminating".equals(pod.getStatus().getPhase()));
-                });
-                logger.info("Revisión {} de terminación de pods." + retryCount);
-                emitter.send(SseEmitter.event().name("message")
-                        .data("Revisión " + retryCount + " de terminación de pods" + retryCount));
-            } catch (InterruptedException e) {
-                emitter.send(SseEmitter.event().name("error")
-                        .data("Interrupción durante la espera de la terminación de los pods."));
-                logger.error("Interrupción durante la espera de la terminación de los pods.");
-                Thread.currentThread().interrupt();
-                return;
-            } catch (Exception e) {
-                emitter.send(SseEmitter.event().name("error")
-                        .data("Fallor al comprobar el estado de terminación de los pods."));
-                logger.error("Fallor al comprobar el estado de terminación de los pods: {}", e.getMessage(), e);
-                return;
-            }
-        }
-        if (!allTerminated) {
-            emitter.send(SseEmitter.event().name("error")
-                    .data("Algunos pods no se han detenido correctamente después de los intentos máximos"));
-            logger.error("Algunos pods no se han detenido correctamente después de los intentos máximos");
-        }
-    }*/
 }
