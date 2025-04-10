@@ -1,0 +1,33 @@
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Contact;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.info.License;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class SwaggerConfig {
+
+    @Bean
+    public OpenAPI customOpenAPI(ApiValues apiValues) {
+        return new OpenAPI()
+                .info(new Info()
+                        .title(apiValues.getTitle())
+                        .version(apiValues.getVersion())
+                        .description(apiValues.getDescriptionApi())
+                        .contact(new Contact()
+                                .name(apiValues.getNameDeveloper())
+                                .email(apiValues.getEmailDeveloper())
+                                .url(apiValues.getContactUrl()) // si tienes una
+                        )
+                );
+    }
+}
+
+
+
+<dependency>
+  <groupId>org.springdoc</groupId>
+  <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+  <version>2.5.0</version>
+</dependency>
