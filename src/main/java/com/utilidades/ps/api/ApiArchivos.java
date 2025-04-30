@@ -7,6 +7,7 @@ import java.util.zip.*; // Para compresión sin encriptación
 import java.text.SimpleDateFormat;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import net.lingala.zip4j.ZipFile; // Para compresión con encriptación
 import net.lingala.zip4j.model.ZipParameters;
@@ -109,8 +110,9 @@ public class ApiArchivos {
         
     
         File file = new File(directorioFinal, archivo);
-        if (!file.exists()) {
+        if (!file.exists() || !file.isFile()) {
             logger.error(": : : : ERROR EN DESCARGA DE ARCHIVO");
+            logger.error("Archivo no válido para descarga directa");
             return ResponseEntity.notFound().build();
         }
     
@@ -150,6 +152,11 @@ public class ApiArchivos {
 
         List<File> archivosParaDescargar = new ArrayList<>();
         long totalSize = 0;
+
+        if (archivosSeleccionados == null || archivosSeleccionados.isEmpty()) {
+            logger.warn("No se proporcionaron archivos para comprimir");
+            return ResponseEntity.badRequest().body(null);
+        }
 
         for (String nombreArchivo : archivosSeleccionados) {
             nombreArchivo = nombreArchivo.replaceAll("[\"\\[\\]]", "").trim();
@@ -210,7 +217,7 @@ public class ApiArchivos {
                 zipOut.finish(); // Termina la compresión
             } catch (IOException e) {
                 logger.error(": : : : ERROR AL COMPRIMIR Y TRANSMITIR ARCHIVO GRANDE", e);
-                throw new UncheckedIOException(e);
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Fallo al generar ZIP", e);
             }
         };
 
@@ -290,14 +297,34 @@ public class ApiArchivos {
     }
 
     private String obtenerDirectorioFinal(String directorio, String tipo) {
+        String base = System.getenv("BASE_DIRECTORIO_LOGS");
+
+        if (base == null || base.isBlank()) {
+            logger.error("Variable de entorno BASE_DIRECTORIO_LOGS no está definida");
+            return null;
+        }
+
         if ("1".equals(tipo)) {
             String directoriotmp = detalleArchivos.getDirectorio(Integer.parseInt(directorio));
-            return System.getenv("BASE_DIRECTORIO_LOGS") + directoriotmp;
+            if (directoriotmp == null || directoriotmp.isBlank()) {
+                logger.error("El método detalleArchivos.getDirectorio() devolvió null o vacío para id: {}", directorio);
+                return null;
+            }
+            return base + directoriotmp;
+
         } else if ("2".equals(tipo)) {
-            return System.getenv("BASE_DIRECTORIO_LOGS") + directorio;
+            if (directorio == null || directorio.isBlank()) {
+                logger.error("El parámetro directorio es null o vacío para tipo 2");
+                return null;
+            }
+            return base + directorio;
+
+        } else {
+            logger.error("Tipo de directorio no válido: {}", tipo);
+            return null;
         }
-        return null;
     }
+
 
     private String getFormattedFileDetails(File file) {
         String nombre = file.getName();
@@ -321,17 +348,18 @@ public class ApiArchivos {
     private ContentDisposition generarNombreZip(String directorio, String tipo, String envir) {
         if ("1".equals(tipo)) {
             Set<String> valoresPermitidos = new HashSet<>();
-            if (!"prod".equalsIgnoreCase(envir)) {
-                for (int i = 1; i <= 23; i++) {
-                    valoresPermitidos.add(String.valueOf(i));
-                }
-            } else {
-                for (int i = 7; i <= 23; i++) {
-                    valoresPermitidos.add(String.valueOf(i));
-                }
+            int inicio = "prod".equalsIgnoreCase(envir) ? 7 : 1;
+            for (int i = inicio; i <= 23; i++) {
+                valoresPermitidos.add(String.valueOf(i));
             }
             if (valoresPermitidos.contains(directorio)) {
                 String nombretmp = detalleArchivos.getNombreArchivo(Integer.parseInt(directorio));
+                if (nombretmp == null || nombretmp.isBlank()) {
+                    logger.warn("El nombre obtenido para el directorio {} es null o vacío", directorio);
+                    return ContentDisposition.attachment().filename("Archivos-" + envir + ".zip").build();
+                }
+                nombretmp = nombretmp.replaceAll("[\\\\/:*?\"<>|]", "_");
+
                 return ContentDisposition.attachment().filename("Logs-" + nombretmp + "-" + envir + ".zip").build();
             } else {
                 return ContentDisposition.attachment().filename("Archivos-" + envir + ".zip").build();
@@ -339,7 +367,7 @@ public class ApiArchivos {
         } else if ("2".equals(tipo)) {
             return ContentDisposition.attachment().filename("Archivos-" + envir + ".zip").build();
         } else {
-            logger.info(": : : : Nombre Archivo No Valido");
+            logger.warn(": : : : Tipo no válido para generar nombre de archivo ZIP: {}", tipo);
             return ContentDisposition.attachment().filename("Archivo-Desconocido.zip").build();
         }
     }

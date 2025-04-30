@@ -44,7 +44,6 @@ public class ApiAmbiente {
         }
     }
 
-
     @GetMapping("/app-name")
     public ResponseEntity<String> obtenerNombreApp() {
         return ResponseEntity.ok(appName);

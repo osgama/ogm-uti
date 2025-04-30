@@ -144,6 +144,7 @@
     };
 
     function listarArchivos() {
+      archivosSeleccionados = [];
       mostrarMensaje("info", "Por favor espera, buscando archivos...");
       const directorio = document.getElementById("directorio").value;
       const filtro = document.getElementById("filtro").value;
@@ -161,6 +162,7 @@
         })
         .then(data => {
           if (data.length === 0) {
+            mostrarArchivos([]); // LIMPIA la tabla anterior
             mostrarMensaje("warning", "¡No se encontraron archivos!");
           } else {
             mostrarArchivos(data);
@@ -178,6 +180,7 @@
 
 
     function mostrarArchivos(archivos) {
+      archivosSeleccionados = [];
       const archivosDiv = document.getElementById("archivos");
       archivosDiv.innerHTML = "";
       let html = "<table><tr><th>Nombre</th><th>Tamaño</th><th>Fecha</th><th>Seleccionar</th></tr>";
@@ -240,17 +243,17 @@
             return;
           }
 
-          if (ambiente.trim().toUpperCase() === "PROD") {
+          if (["PROD", "COB"].includes(ambiente.trim().toUpperCase())) {
             password = prompt("Introduce la contraseña para el archivo ZIP:");
             if (!password) {
               mostrarMensaje("error", "Debes proporcionar una contraseña.");
               console.log("Descarga cancelada: No se proporcionó contraseña.");
               return;
             }
-            console.log("Contraseña ingresada para ambiente PROD.");
+            console.log("Contraseña ingresada para ambiente PROD/COB.");
           }
 
-          if (archivosSeleccionados.length === 1 && ambiente.trim().toUpperCase() !== "PROD") {
+          if (archivosSeleccionados.length === 1 && ambiente.trim().toUpperCase() !== "PROD" && ambiente.trim().toUpperCase() !== "COB") {
             const archivo = archivosSeleccionados[0];
             console.log("Descarga directa de un solo archivo:", archivo);
             window.location.href = `${BASE_URL}/api/descargar?directorio=${encodeURIComponent(directorio)}&archivo=${encodeURIComponent(archivo)}&tipo=${tipo}`;
@@ -320,6 +323,8 @@
       const checkboxes = document.querySelectorAll("input[type='checkbox']");
       checkboxes.forEach(checkbox => (checkbox.checked = false));
       archivosSeleccionados = [];
+      document.getElementById("archivos").innerHTML = "";
+      document.getElementById("totalArchivosInfo").innerHTML = "";
     }
 
     function mostrarMensaje(tipo, mensaje) {
