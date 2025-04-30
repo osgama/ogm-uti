@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Codificación Token v1.4</title>
+  <title>Codificación Token</title>
   <link id="themeStylesheet" rel="stylesheet" href="../css/neutral-light-v1.css">
 </head>
 
@@ -79,11 +79,15 @@
 
 
   <script>
-    const BASE_URL = "http://localhost:9093"; // URL base
+    const BASE_URL = "http://localhost:9093/api";
 
-    // Obtener el ambiente
+    window.onload = function () {
+      obtenerAmbiente();
+      aplicarTemaGuardado();
+    };
+
     function obtenerAmbiente() {
-      fetch(`${BASE_URL}/api/ambiente`)
+      fetch(`${BASE_URL}/ambiente`)
         .then(response => {
           if (!response.ok) {
             throw new Error("Error al verificar el ambiente.");
@@ -96,7 +100,6 @@
         .catch(error => handleFetchError(error, "Error al obtener el ambiente."));
     }
 
-    // Manejo centralizado de errores
     function handleFetchError(error, customMessage) {
       if (error.message === "Failed to fetch") {
         mostrarMensaje("error", "Sin conexión. Verifica tu red o el backend.");
@@ -106,11 +109,10 @@
       console.error("Fetch error:", error);
     }
 
-    // Mostrar mensajes dinámicos
     function mostrarMensaje(tipo, mensaje) {
       const mensajeDiv = document.getElementById("mensajeDinamico");
       mensajeDiv.style.display = "block";
-      mensajeDiv.className = `mensaje ${tipo}`; // Clase dinámica
+      mensajeDiv.className = `mensaje ${tipo}`;
       mensajeDiv.innerHTML = `
         <img src="../icons/${tipo}.png" alt="${tipo}" class="mensaje-icon">
         ${mensaje}
@@ -123,11 +125,10 @@
       }
     }
 
-    // Encriptar datos
     document.getElementById("encryptForm").addEventListener("submit", function (event) {
       event.preventDefault();
       const data = document.getElementById("passwordEncrypt").value;
-      fetch(`${BASE_URL}/api/crypto/encrypt`, {
+      fetch(`${BASE_URL}/crypto/encrypt`, {
         method: "POST",
         headers: { "Content-Type": "text/plain" },
         body: data,
@@ -143,11 +144,10 @@
         .catch(error => handleFetchError(error, "Error en la encriptación."));
     });
 
-    // Desencriptar datos
     document.getElementById("decryptForm").addEventListener("submit", function (event) {
       event.preventDefault();
       const data = document.getElementById("passwordDecrypt").value;
-      fetch(`${BASE_URL}/api/crypto/decrypt`, {
+      fetch(`${BASE_URL}/crypto/decrypt`, {
         method: "POST",
         headers: { "Content-Type": "text/plain" },
         body: data,
@@ -163,11 +163,10 @@
         .catch(error => handleFetchError(error, "Error en la desencriptación."));
     });
 
-    // Codificar Token para URL
     document.getElementById("urlEncodeForm").addEventListener("submit", function (event) {
       event.preventDefault();
       const data = document.getElementById("encodedData").value;
-      fetch(`${BASE_URL}/api/crypto/urlEncode`, {
+      fetch(`${BASE_URL}/crypto/urlEncode`, {
         method: "POST",
         headers: { "Content-Type": "text/plain" },
         body: data,
@@ -182,9 +181,6 @@
         })
         .catch(error => handleFetchError(error, "Error en la codificación URL."));
     });
-
-    // Inicializar al cargar
-    window.onload = obtenerAmbiente;
 
     function aplicarTemaGuardado() {
       const tema = localStorage.getItem("temaSeleccionado");

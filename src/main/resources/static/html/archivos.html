@@ -39,6 +39,8 @@
       <option value="19">logs 19</option>
       <option value="20">logs 20</option>
       <option value="21">logs 21</option>
+      <option value="22">logs 22</option>
+      <option value="23">logs 23</option>
     </select>
 
     <label for="filtro" title="Escribe el filtro para los archivos">
@@ -113,11 +115,16 @@
   </footer>
 
   <script>
-    const BASE_URL = "http://localhost:9093";
+    const BASE_URL = "http://localhost:9093/api";
     let archivosSeleccionados = [];
 
+    window.onload = function () {
+      obtenerAmbiente();
+      aplicarTemaGuardado();
+    };
+
     function obtenerAmbiente() {
-      fetch(`${BASE_URL}/api/ambiente`)
+      fetch(`${BASE_URL}/ambiente`)
         .then(response => {
           if (!response.ok) {
             throw new Error("Error al obtener el ambiente.");
@@ -137,19 +144,13 @@
         });
     }
 
-
-    window.onload = function () {
-      obtenerAmbiente();
-      aplicarTemaGuardado();
-    };
-
     function listarArchivos() {
       archivosSeleccionados = [];
       mostrarMensaje("info", "Por favor espera, buscando archivos...");
       const directorio = document.getElementById("directorio").value;
       const filtro = document.getElementById("filtro").value;
 
-      fetch(`${BASE_URL}/api/lista`, {
+      fetch(`${BASE_URL}/lista`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ directorio, filtro, tipo: "1" })
@@ -162,7 +163,7 @@
         })
         .then(data => {
           if (data.length === 0) {
-            mostrarArchivos([]); // LIMPIA la tabla anterior
+            mostrarArchivos([]);
             mostrarMensaje("warning", "¡No se encontraron archivos!");
           } else {
             mostrarArchivos(data);
@@ -222,7 +223,7 @@
       const directorio = document.getElementById("directorio").value;
 
       console.log("Iniciando descarga...");
-      fetch(`${BASE_URL}/api/ambiente`)
+      fetch(`${BASE_URL}/ambiente`)
         .then(response => {
           if (!response.ok) {
             const errorMessage = response.headers.get("X-Error-Message") || "Error al verificar el ambiente.";
@@ -256,7 +257,7 @@
           if (archivosSeleccionados.length === 1 && ambiente.trim().toUpperCase() !== "PROD" && ambiente.trim().toUpperCase() !== "COB") {
             const archivo = archivosSeleccionados[0];
             console.log("Descarga directa de un solo archivo:", archivo);
-            window.location.href = `${BASE_URL}/api/descargar?directorio=${encodeURIComponent(directorio)}&archivo=${encodeURIComponent(archivo)}&tipo=${tipo}`;
+            window.location.href = `${BASE_URL}/descargar?directorio=${encodeURIComponent(directorio)}&archivo=${encodeURIComponent(archivo)}&tipo=${tipo}`;
             return;
           }
 
@@ -270,7 +271,7 @@
 
           console.log("Enviando solicitud de descarga de ZIP con archivos:", archivosSeleccionados);
 
-          fetch(`${BASE_URL}/api/descargar-zip`, {
+          fetch(`${BASE_URL}/descargar-zip`, {
             method: "POST",
             body: formData,
           })
