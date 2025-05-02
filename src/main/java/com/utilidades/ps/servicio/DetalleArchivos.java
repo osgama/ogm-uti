@@ -49,6 +49,10 @@ public class DetalleArchivos {
             "directorio20";
             case 21: return
             "directorio21";
+            case 22: return
+            "directorio22";
+            case 23: return
+            "directorio23";
             default:
                 return null;
         }
@@ -86,6 +90,10 @@ public class DetalleArchivos {
             "archivo20";
             case 21: return
             "archivo21";
+            case 22: return
+            "archivo22";
+            case 23: return
+            "archivo23";
             default:
                 return null;
         }

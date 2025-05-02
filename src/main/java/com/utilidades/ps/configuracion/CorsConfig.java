@@ -12,7 +12,7 @@ public class CorsConfig implements WebMvcConfigurer {
                 .allowedOrigins("*")
                 .allowedMethods("GET","POST","PUT","DELETE")
                 .allowedHeaders("*")
-                .exposedHeaders("Content-Disposition") // Permitir el acceso a Content-Disposition
+                .exposedHeaders("Content-Disposition")
                 .allowCredentials(false);
     }
 }

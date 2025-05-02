@@ -8,6 +8,7 @@ import java.io.*;
 import com.utilidades.ps.servicio.PodServiceManual;
 
 @RestController
+@RequestMapping("/api")
 public class ApiPodManual {
 
     private static final Logger logger = LoggerFactory.getLogger(ApiPodManual.class);

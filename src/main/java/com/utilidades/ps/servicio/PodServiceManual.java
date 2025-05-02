@@ -100,7 +100,7 @@ public class PodServiceManual {
                         emitter.send(SseEmitter.event().name("message").data(
                                 "Bloque de pods activo. Pausa de 2 minutos antes de continuar con el siguiente bloque..."));
                         logger.info(
-                                "Bloque de pods activo. Pausa de 2 minutos antes de continuar con el siguiente bloque...");
+                                "Bloque de pods activo. Pausa de 1 minutos antes de continuar con el siguiente bloque...");
                         Thread.sleep(60000); // 60000 milisegundos = 1 minutos
                     }
                 }
@@ -261,27 +261,53 @@ public class PodServiceManual {
 
     private boolean checkPodsReady(OpenShiftClient openShiftClient, List<String> podNames, SseEmitter emitter)
             throws IOException {
-        return podNames.stream().allMatch(podName -> {
+        for (String podName : podNames) {
             try {
-                return openShiftClient.pods()
+                Deployment deployment = openShiftClient.apps().deployments()
                         .inNamespace(namespace)
-                        .withLabel("name", podName)
-                        .list()
-                        .getItems()
-                        .stream()
-                        .allMatch(pod -> "Running".equals(pod.getStatus().getPhase()));
-            } catch (Exception e) {
-                try {
+                        .withName(podName)
+                        .get();
+
+                if (deployment == null || deployment.getSpec() == null || deployment.getSpec().getSelector() == null) {
                     emitter.send(SseEmitter.event().name("error")
-                            .data("Fallo al comprobar la operatividad de los pods: " + e.getMessage()));
-                    logger.error("Fallo al comprobar la operatividad de los pods: {}", e.getMessage(), e);
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
+                            .data("No se pudo obtener el Deployment o su configuración de selector para: " + podName));
+                    logger.error("No se pudo obtener el Deployment o su configuración de selector para: {}", podName);
+                    return false;
                 }
+
+                Map<String, String> matchLabels = deployment.getSpec().getSelector().getMatchLabels();
+                if (matchLabels == null || matchLabels.isEmpty()) {
+                    emitter.send(SseEmitter.event().name("error")
+                            .data("El Deployment no tiene matchLabels definidos: " + podName));
+                    logger.error("El Deployment no tiene matchLabels definidos: {}", podName);
+                    return false;
+                }
+
+                List<Pod> pods = openShiftClient.pods()
+                        .inNamespace(namespace)
+                        .withLabels(matchLabels)
+                        .list()
+                        .getItems();
+
+                for (Pod pod : pods) {
+                    String podNameActual = pod.getMetadata().getName();
+                    String podPhase = pod.getStatus().getPhase();
+                    logger.info("Verificando pod: {} - Estado: {}", podNameActual, podPhase);
+                    if (!"Running".equalsIgnoreCase(podPhase)) {
+                        return false;
+                    }
+                }
+
+            } catch (Exception e) {
+                emitter.send(SseEmitter.event().name("error")
+                        .data("Fallo al comprobar la operatividad de los pods para " + podName + ": " + e.getMessage()));
+                logger.error("Fallo al comprobar la operatividad de los pods para {}: {}", podName, e.getMessage(), e);
                 return false;
             }
-        });
+        }
+        return true;
     }
+
 
     private List<String> seleccionarListaPods(String opcion, SseEmitter emitter) throws IOException {
         String envVar = (opcion.equals("1")) ? "LISTAA" : "LISTAB";

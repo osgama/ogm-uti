@@ -131,8 +131,6 @@ public class ApiArchivos {
             return descargarArchivoDirecto(file, null, archivo);
         }
     }
-    
-    
 
     @PostMapping("/descargar-zip")
     public ResponseEntity<StreamingResponseBody> downloadFilesAsZip(
@@ -167,17 +165,14 @@ public class ApiArchivos {
                 return ResponseEntity.notFound().build();
             } else {
                 archivosParaDescargar.add(file);
-                totalSize += file.length(); // Acumular el tamaño total de los archivos seleccionados
+                totalSize += file.length();
             }
         }
 
-        // Genera el nombre del ZIP utilizando el método generarNombreZip
         ContentDisposition nombreZip = generarNombreZip(directorio, tipo, envir);
 
-        // Verifica si el tamaño total excede 100 MB (100 MB = 104,857,600 bytes)
         final long ONE_HUNDRED_MB = 104_857_600L;
 
-        // Si el tamaño total es mayor a 100 MB, comprimimos a ZIP
         if (totalSize > ONE_HUNDRED_MB) {
             logger.info("El tamaño total de los archivos es mayor a 100 MB, se comprimirá en un ZIP.");
             return comprimirYTransmitirZip(archivosParaDescargar, password, envir, nombreZip.getFilename());
@@ -187,17 +182,13 @@ public class ApiArchivos {
         }        
     }
 
-    // Método para comprimir y transmitir el archivo ZIP
     private ResponseEntity<StreamingResponseBody> comprimirYTransmitirZip(List<File> archivosParaComprimir,
             String password, String envir, String nombreZip) {
-        // Si el ambiente es PROD y tenemos una contraseña, utilizamos Zip4j para
-        // encriptar el ZIP
+
         if ("PROD".equalsIgnoreCase(envir) && password != null) {
             return comprimirConEncriptacion(archivosParaComprimir, password, envir, nombreZip);
         }
 
-        // Para otros entornos, usamos `ZipOutputStream` para compresión sin
-        // encriptación
         StreamingResponseBody stream = outputStream -> {
             try (ZipOutputStream zipOut = new ZipOutputStream(outputStream)) {
                 for (File file : archivosParaComprimir) {
@@ -205,16 +196,16 @@ public class ApiArchivos {
                         ZipEntry zipEntry = new ZipEntry(file.getName());
                         zipOut.putNextEntry(zipEntry);
 
-                        byte[] buffer = new byte[BUFFER_SIZE]; // Buffer para transmitir en chunks
+                        byte[] buffer = new byte[BUFFER_SIZE];
                         int length;
                         while ((length = fis.read(buffer)) >= 0) {
-                            zipOut.write(buffer, 0, length); // Enviar chunks al cliente
-                            outputStream.flush(); // Forzar el envío inmediato de cada chunk
+                            zipOut.write(buffer, 0, length);
+                            outputStream.flush();
                         }
                         zipOut.closeEntry();
                     }
                 }
-                zipOut.finish(); // Termina la compresión
+                zipOut.finish();
             } catch (IOException e) {
                 logger.error(": : : : ERROR AL COMPRIMIR Y TRANSMITIR ARCHIVO GRANDE", e);
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Fallo al generar ZIP", e);
@@ -229,7 +220,6 @@ public class ApiArchivos {
 
     }
 
-    // Método para comprimir archivos con encriptación usando Zip4j
     private ResponseEntity<StreamingResponseBody> comprimirConEncriptacion(List<File> archivosParaComprimir,
             String password, String envir, String nombreZip) {
         StreamingResponseBody stream = outputStream -> {
@@ -237,7 +227,7 @@ public class ApiArchivos {
             try (ZipFile zipFile = new ZipFile(tempZip)) {
                 ZipParameters parameters = new ZipParameters();
                 parameters.setCompressionMethod(CompressionMethod.DEFLATE);
-                parameters.setEncryptFiles(true); // Encriptar archivos
+                parameters.setEncryptFiles(true);
                 parameters.setEncryptionMethod(EncryptionMethod.AES);
                 parameters.setAesKeyStrength(AesKeyStrength.KEY_STRENGTH_256);
                 zipFile.setPassword(password.toCharArray());
@@ -246,13 +236,12 @@ public class ApiArchivos {
                     zipFile.addFile(file, parameters);
                 }
 
-                // Transmitir el archivo ZIP encriptado en chunks
                 try (InputStream is = new FileInputStream(tempZip)) {
-                    byte[] buffer = new byte[BUFFER_SIZE]; // Buffer de chunks
+                    byte[] buffer = new byte[BUFFER_SIZE];
                     int bytesRead;
                     while ((bytesRead = is.read(buffer)) != -1) {
-                        outputStream.write(buffer, 0, bytesRead); // Enviar chunks al cliente
-                        outputStream.flush(); // Forzar el envío inmediato de cada chunk
+                        outputStream.write(buffer, 0, bytesRead);
+                        outputStream.flush();
                     }
                 }
             } catch (IOException e) {
@@ -260,7 +249,7 @@ public class ApiArchivos {
                 throw new UncheckedIOException(e);
             } finally {
                 if (tempZip.exists()) {
-                    tempZip.delete(); // Eliminar archivo temporal después de la transmisión
+                    tempZip.delete();
                 }
             }
         };
@@ -268,11 +257,9 @@ public class ApiArchivos {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         headers.setContentDisposition(ContentDisposition.attachment().filename(nombreZip).build());
-
         return new ResponseEntity<>(stream, headers, HttpStatus.OK);
     }
 
-    // Método para descargar un archivo individual directamente
     private ResponseEntity<StreamingResponseBody> descargarArchivoDirecto(File file, String envir,
             String nombreArchivo) {
         StreamingResponseBody stream = outputStream -> {
@@ -280,7 +267,7 @@ public class ApiArchivos {
                 byte[] buffer = new byte[BUFFER_SIZE];
                 int bytesRead;
                 while ((bytesRead = fis.read(buffer)) != -1) {
-                    outputStream.write(buffer, 0, bytesRead); // Se transmite directamente al cliente
+                    outputStream.write(buffer, 0, bytesRead);
                 }
             } catch (IOException e) {
                 logger.error(": : : : ERROR AL DESCARGAR ARCHIVO DIRECTO", e);
@@ -324,7 +311,6 @@ public class ApiArchivos {
             return null;
         }
     }
-
 
     private String getFormattedFileDetails(File file) {
         String nombre = file.getName();
