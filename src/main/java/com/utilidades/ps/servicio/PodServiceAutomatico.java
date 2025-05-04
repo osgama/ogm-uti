@@ -245,7 +245,6 @@ public class PodServiceAutomatico {
         return true;
     }
 
-
     private List<String> seleccionarListaPods(String opcion) throws IOException {
         String envVar = (opcion.equals("1")) ? "LISTAA" : "LISTAB";
         logger.info("Seleccionando configuración de pods para el arranque/detención: Grupo {}",

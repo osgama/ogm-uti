@@ -97,11 +97,6 @@
   <script>
     const BASE_URL = "http://localhost:9093/api";
 
-    window.onload = function () {
-      obtenerAmbiente();
-      aplicarTemaGuardado();
-    };
-
     document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("btnStopPods").addEventListener("click", connectStopPods);
       document.getElementById("btnStartPods").addEventListener("click", connectStartPods);
@@ -124,6 +119,11 @@
           mostrarMensaje('error', "Error al obtener el ambiente: " + error.message);
         });
     }
+
+    window.onload = function () {
+      obtenerAmbiente();
+      aplicarTemaGuardado();
+    };
 
     function connectStopPods() {
       limpiarMensajes();

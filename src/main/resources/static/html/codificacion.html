@@ -80,11 +80,6 @@
   <script>
     const BASE_URL = "http://localhost:9093/api";
 
-    window.onload = function () {
-      obtenerAmbiente();
-      aplicarTemaGuardado();
-    };
-
     function obtenerAmbiente() {
       fetch(`${BASE_URL}/ambiente`)
         .then(response => {
@@ -98,6 +93,11 @@
         })
         .catch(error => handleFetchError(error, "Error al obtener el ambiente."));
     }
+
+    window.onload = function () {
+      obtenerAmbiente();
+      aplicarTemaGuardado();
+    };
 
     function handleFetchError(error, customMessage) {
       if (error.message === "Failed to fetch") {

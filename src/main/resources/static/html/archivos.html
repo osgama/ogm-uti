@@ -118,11 +118,6 @@
     const BASE_URL = "http://localhost:9093/api";
     let archivosSeleccionados = [];
 
-    window.onload = function () {
-      obtenerAmbiente();
-      aplicarTemaGuardado();
-    };
-
     function obtenerAmbiente() {
       fetch(`${BASE_URL}/ambiente`)
         .then(response => {
@@ -143,6 +138,11 @@
           console.error("Error al obtener el ambiente:", error);
         });
     }
+
+    window.onload = function () {
+      obtenerAmbiente();
+      aplicarTemaGuardado();
+    };
 
     function listarArchivos() {
       archivosSeleccionados = [];
