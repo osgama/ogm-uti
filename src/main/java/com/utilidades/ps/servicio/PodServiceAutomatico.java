@@ -173,8 +173,7 @@ public class PodServiceAutomatico {
                 logger.info("Validación con el servidor " + servidor + " de OpenShift OK ...");
             }
 
-            logger.info("Conexión exitosa con el servidor " + servidor
-                    + " de OpenShift. Preparado para gestionar APP.");
+            logger.info("Conexión exitosa con el servidor " + servidor + " de OpenShift. Preparado para gestionar APP.");
             return kubernetesClient.adapt(OpenShiftClient.class);
         } catch (Exception e) {
             logger.error("Fallo al conectar con OpenShift para gestión APP: {}", e.getMessage(), e);

@@ -1,6 +1,5 @@
 package com.utilidades.ps.api;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -8,12 +7,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api")
 public class ApiAmbiente {
-
-    @Value("${info.app.name}")
-    private String appName;
-
-    @Value("${info.app.version}")
-    private String appVersion;
 
     @GetMapping("/ambiente")
     public ResponseEntity<String> obtenerAmbiente() {
@@ -42,16 +35,5 @@ public class ApiAmbiente {
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("SINAMBIENTE");
         }
-    }
-
-    @GetMapping("/app-name")
-    public ResponseEntity<String> obtenerNombreApp() {
-        return ResponseEntity.ok(appName);
-    }
-
-
-    @GetMapping("/app-version")
-    public ResponseEntity<String> obtenerVersionApp() {
-        return ResponseEntity.ok(appVersion);
     }
 }
