@@ -1,0 +1,60 @@
+# Configura estos valores
+$branchBase = "release/sit"
+$nuevoBranch = "release/dev"
+$reposFile = "repos.txt"
+$tempDir = "$env:TEMP\git-release-temp"
+
+# Crear carpeta temporal si no existe
+New-Item -ItemType Directory -Force -Path $tempDir | Out-Null
+
+# Leer todos los repos
+$repos = Get-Content $reposFile
+
+foreach ($repoUrl in $repos) {
+    $repoName = ($repoUrl -split '/' | Select-Object -Last 1) -replace '.git$',''
+    $localPath = Join-Path $tempDir $repoName
+
+    Write-Host "`n🚀 Procesando: $repoName" -ForegroundColor Cyan
+
+    # Clonar completo el repo
+    git clone $repoUrl $localPath
+
+    if (Test-Path "$localPath\.git") {
+        Set-Location $localPath
+
+        # Verificar si la rama ya existe en remoto
+        $existeRemoto = git ls-remote --heads origin $nuevoBranch
+        if ($existeRemoto) {
+            Write-Host "⚠️ Rama '$nuevoBranch' ya existe en remoto. Eliminando..." -ForegroundColor Yellow
+
+            # Borrar rama remota
+            git push origin --delete $nuevoBranch
+
+            # Borrar rama local si existe
+            $existeLocal = git branch --list $nuevoBranch
+            if ($existeLocal) {
+                git branch -D $nuevoBranch
+            }
+        }
+
+        # Checkout al branch base
+        git checkout $branchBase
+        git pull origin $branchBase
+
+        # Crear nuevo branch local
+        git checkout -b $nuevoBranch
+
+        # Subir nuevo branch al remoto
+        git push -u origin $nuevoBranch
+
+        Write-Host "✅ Branch '$nuevoBranch' recreado correctamente en $repoName." -ForegroundColor Green
+
+        # Limpiar carpeta temporal
+        Remove-Item -Recurse -Force $localPath
+    } else {
+        Write-Host "❌ Error al clonar $repoName" -ForegroundColor Red
+    }
+}
+
+# Volver al path original
+Set-Location $PSScriptRoot
