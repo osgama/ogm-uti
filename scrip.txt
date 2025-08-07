@@ -49,12 +49,15 @@ foreach ($repoUrl in $repos) {
 
         Write-Host "✅ Branch '$nuevoBranch' recreado correctamente en $repoName." -ForegroundColor Green
 
-        # Limpiar carpeta temporal
+        # Cambiar de carpeta antes de eliminar el temporal
+        Set-Location $PSScriptRoot
+
+        # Eliminar carpeta temporal del repo
         Remove-Item -Recurse -Force $localPath
     } else {
         Write-Host "❌ Error al clonar $repoName" -ForegroundColor Red
     }
 }
 
-# Volver al path original
+# Fin del script
 Set-Location $PSScriptRoot
