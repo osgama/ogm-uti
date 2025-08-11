@@ -27,13 +27,13 @@ isnum(){ [[ "$1" =~ ^[0-9]+$ ]]; }
 ENV="$1"
 [[ -r "$INI" ]] || { echo "No se puede leer $INI" >&2; exit 10; }
 
-# ---------- Leer credenciales/endpoint ----------
+# ---------- Credenciales/endpoint ----------
 OC_SERVER="$(ini_get "$ENV" OC_SERVER "$INI")"
 USERNAME="$(ini_get "$ENV" USERNAME  "$INI")"
 PASSWORD_RAW="$(ini_get "$ENV" PASSWORD  "$INI")"
 [[ -z "$OC_SERVER" || -z "$USERNAME" || -z "$PASSWORD_RAW" ]] && { echo "Faltan OC_SERVER/USERNAME/PASSWORD para [$ENV]" >&2; exit 10; }
 
-# ---------- Leer settings (con defaults si faltan) ----------
+# ---------- Settings ----------
 BLOCK_SIZE="$(settings_get "$ENV" BLOCK_SIZE "$INI")";     [[ -z "$BLOCK_SIZE" ]] && BLOCK_SIZE=4
 BLOCK_DELAY="$(settings_get "$ENV" BLOCK_DELAY "$INI")";   [[ -z "$BLOCK_DELAY" ]] && BLOCK_DELAY=120
 TIMEOUT_DOWN="$(settings_get "$ENV" TIMEOUT_DOWN "$INI")"; [[ -z "$TIMEOUT_DOWN" ]] && TIMEOUT_DOWN=180
@@ -45,11 +45,16 @@ LOG_DIR="$(settings_get "$ENV" LOG_DIR "$INI")";           [[ -z "$LOG_DIR" ]] &
 LOG_VERBOSITY="$(settings_get "$ENV" LOG_VERBOSITY "$INI")"; [[ -z "$LOG_VERBOSITY" ]] && LOG_VERBOSITY="INFO"
 COLLECT_DIAG="$(settings_get "$ENV" COLLECT_DIAG "$INI")"; [[ -z "$COLLECT_DIAG" ]] && COLLECT_DIAG="true"
 
-# NAMESPACE: env -> settings -> pods (fallback)
+# SECRET_KEY_FILE: del INI (ambiente > settings). Env puede override si quieres.
+SECRET_KEY_FILE_CFG="$(settings_get "$ENV" SECRET_KEY_FILE "$INI")"
+SECRET_KEY_FILE="${SECRET_KEY_FILE:-$SECRET_KEY_FILE_CFG}"
+[[ -z "$SECRET_KEY_FILE" ]] && { echo "SECRET_KEY_FILE no definido para [$ENV] ni en [settings]" >&2; exit 10; }
+
+# Namespace: env -> settings -> pods
 NAMESPACE="$(settings_get "$ENV" NAMESPACE "$INI")"
 [[ -z "$NAMESPACE" ]] && NAMESPACE="$(ini_get pods NAMESPACE "$INI")"
 
-# ---------- Leer lista de deployments ----------
+# ---------- Deployments ----------
 DEPLOY_LINE="$(ini_get pods DEPLOYMENTS "$INI")"
 IFS=',' read -r -a DEPLOYMENTS <<< "$DEPLOY_LINE"
 for i in "${!DEPLOYMENTS[@]}"; do DEPLOYMENTS[$i]="$(echo "${DEPLOYMENTS[$i]}" | xargs)"; done
@@ -59,15 +64,11 @@ for i in "${!DEPLOYMENTS[@]}"; do DEPLOYMENTS[$i]="$(echo "${DEPLOYMENTS[$i]}" |
 for n in "$BLOCK_SIZE" "$BLOCK_DELAY" "$TIMEOUT_DOWN" "$TIMEOUT_UP" "$SLEEP_INT"; do
   isnum "$n" || { echo "Parámetro no numérico en INI: $n" >&2; exit 10; }
 done
-if [[ "$ROLLOUT_MODE" != "simple" && "$ROLLOUT_MODE" != "redeploy" ]]; then
-  echo "ROLLOUT_MODE debe ser simple|redeploy" >&2; exit 10
-fi
+[[ "$ROLLOUT_MODE" == "simple" || "$ROLLOUT_MODE" == "redeploy" ]] || { echo "ROLLOUT_MODE debe ser simple|redeploy" >&2; exit 10; }
 command -v oc >/dev/null 2>&1 || { echo "No se encontró 'oc' en PATH" >&2; exit 10; }
-
-# Si hay ENC: requerimos openssl y SECRET_KEY_FILE
 if [[ "$PASSWORD_RAW" == ENC:* ]]; then
   command -v openssl >/dev/null 2>&1 || { echo "Se requiere 'openssl' para descifrar PASSWORD=ENC:" >&2; exit 10; }
-  [[ -n "${SECRET_KEY_FILE:-}" && -r "${SECRET_KEY_FILE}" ]] || { echo "Define SECRET_KEY_FILE apuntando a la clave de descifrado" >&2; exit 10; }
+  [[ -r "$SECRET_KEY_FILE" ]] || { echo "No puedo leer SECRET_KEY_FILE=$SECRET_KEY_FILE" >&2; exit 10; }
 fi
 
 # ---------- Logging ----------
@@ -76,20 +77,13 @@ mkdir -p "$LOG_DIR" >/dev/null 2>&1 || true
 LOG_FILE="$LOG_DIR/oc-restart_${ENV}_${RUN_ID}.log"
 
 ts(){ date +'%Y-%m-%dT%H:%M:%S%z'; }
-_log(){ # _log <LEVEL> <msg...>
-  local lvl="$1"; shift; local msg="$*"
-  printf '%s [%s] %s\n' "$(ts)" "$lvl" "$msg" >&2
-  printf '%s [%s] %s\n' "$(ts)" "$lvl" "$msg" >>"$LOG_FILE"
-}
+_log(){ local lvl="$1"; shift; local msg="$*"; printf '%s [%s] %s\n' "$(ts)" "$lvl" "$msg" | tee -a "$LOG_FILE" >&2; }
 logi(){ _log INFO "$*"; }
 logw(){ _log WARN "$*"; }
 loge(){ _log ERROR "$*"; }
 
-DEBUG_TRACE=0
-if [[ "$LOG_VERBOSITY" == "DEBUG" ]]; then
-  DEBUG_TRACE=1
-  # NO activamos set -x aún: lo haremos tras el login para no filtrar secretos
-fi
+# DEBUG: evita exponer secretos; activamos set -x sólo tras el login
+DEBUG_TRACE=0; [[ "$LOG_VERBOSITY" == "DEBUG" ]] && DEBUG_TRACE=1
 
 # ---------- KUBECONFIG temporal ----------
 KUBECONFIG="$(mktemp)"; export KUBECONFIG
@@ -103,27 +97,23 @@ cleanup(){
 }
 trap cleanup EXIT
 
-# ---------- Descifrar password (si aplica) y login (SIN TRACES) ----------
+# ---------- Login seguro (descifrado previo) ----------
 logi "Inicio runId=$RUN_ID env=$(echo "$ENV" | tr a-z A-Z) server=$OC_SERVER ns=${NAMESPACE:-'(context default)'}"
 logi "Settings: BLOCK_SIZE=$BLOCK_SIZE BLOCK_DELAY=${BLOCK_DELAY}s TIMEOUT_DOWN=${TIMEOUT_DOWN}s TIMEOUT_UP=${TIMEOUT_UP}s SLEEP_INT=${SLEEP_INT}s ROLLOUT_MODE=$ROLLOUT_MODE"
 logi "oc client: $(oc version --client=true --short 2>/dev/null || echo 'desconocido')"
 
-# Apagamos xtrace temporalmente por seguridad
-prev_xtrace_state="$(set -o | awk '/xtrace/ {print $2}')"
-set +x
+# Silenciar xtrace antes de manejar secretos
+prev_xtrace_state="$(set -o | awk '/xtrace/ {print $2}')"; set +x
 
 if [[ "$PASSWORD_RAW" == ENC:* ]]; then
   PASS_B64="${PASSWORD_RAW#ENC:}"
-  # Descifrar a texto plano SOLO en memoria
   PASSWORD_PLAIN="$(printf '%s' "$PASS_B64" | openssl enc -aes-256-cbc -d -a -pbkdf2 -md sha256 -pass file:"$SECRET_KEY_FILE")" || {
     loge "Fallo al descifrar PASSWORD (ENC:)"
-    unset PASSWORD_PLAIN PASS_B64
-    # Restaurar xtrace si estaba activado por el usuario
+    unset PASS_B64 PASSWORD_PLAIN
     [[ "$prev_xtrace_state" == "on" && $DEBUG_TRACE -eq 1 ]] && set -x
     exit 10
   }
 else
-  # Texto plano (solo dev/sit/uat si así lo decides)
   PASSWORD_PLAIN="$PASSWORD_RAW"
 fi
 
@@ -134,9 +124,8 @@ if ! oc login "$OC_SERVER" --username="$USERNAME" --password="$PASSWORD_PLAIN" -
   exit 11
 fi
 unset PASSWORD_PLAIN PASS_B64
-
-# Reactivar xtrace si se pidió DEBUG
-if [[ $DEBUG_TRACE -eq 1 ]]; then set -x; fi
+# Reactiva xtrace si procede
+[[ $DEBUG_TRACE -eq 1 ]] && set -x
 
 oc whoami >/dev/null 2>&1 && logi "whoami=$(oc whoami 2>/dev/null)"
 
@@ -145,49 +134,35 @@ NS_ARG=()
 
 # ---------- Funciones ----------
 scale_to(){ local replicas="$1"; shift; oc "${NS_ARG[@]}" scale "$@" --replicas="$replicas"; }
-
 wait_down(){
   local res="$1" t=0 desired ready available
   while :; do
     desired="$(oc "${NS_ARG[@]}" get "$res" -o jsonpath='{.spec.replicas}' 2>/dev/null || echo "")"
     ready="$(oc "${NS_ARG[@]}"   get "$res" -o jsonpath='{.status.readyReplicas}' 2>/dev/null || echo "")"
     available="$(oc "${NS_ARG[@]}" get "$res" -o jsonpath='{.status.availableReplicas}' 2>/dev/null || echo "")"
-    # Considera 0 o vacío como "en 0"
     [[ "$desired" == "0" && "${ready:-0}" == "0" && "${available:-0}" == "0" ]] && return 0
     (( t+=SLEEP_INT, t >= TIMEOUT_DOWN )) && return 1
     sleep "$SLEEP_INT"
   done
 }
-
 rollout_up(){ local res="$1"; oc "${NS_ARG[@]}" rollout status "$res" --timeout="${TIMEOUT_UP}s"; }
-
 collect_diag(){
-  local res="$1"
-  [[ "$COLLECT_DIAG" != "true" ]] && return 0
+  local res="$1"; [[ "$COLLECT_DIAG" != "true" ]] && return 0
   logw "Recolectando diagnósticos de $res"
   {
-    echo "----- oc describe $res -----"
-    oc "${NS_ARG[@]}" describe "$res" || true
-    echo
-    echo "----- Últimos eventos (50) -----"
-    oc "${NS_ARG[@]}" get events --sort-by=.lastTimestamp | tail -n 50 || true
+    echo "----- oc describe $res -----"; oc "${NS_ARG[@]}" describe "$res" || true
+    echo; echo "----- Últimos eventos (50) -----"; oc "${NS_ARG[@]}" get events --sort-by=.lastTimestamp | tail -n 50 || true
   } >>"$LOG_FILE" 2>&1
 }
-
 start_item(){
   local res="$1"
   if [[ "$ROLLOUT_MODE" == "redeploy" ]]; then
-    oc "${NS_ARG[@]}" rollout restart "$res" \
-      || { loge "Fallo en rollout restart: $res"; collect_diag "$res"; exit 30; }
-    scale_to 1 "$res" \
-      || { loge "Fallo al escalar a 1 (redeploy): $res"; collect_diag "$res"; exit 30; }
-    oc "${NS_ARG[@]}" rollout status "$res" --timeout="${TIMEOUT_UP}s" \
-      || { loge "Timeout en rollout (redeploy): $res"; collect_diag "$res"; exit 31; }
+    oc "${NS_ARG[@]}" rollout restart "$res" || { loge "Fallo en rollout restart: $res"; collect_diag "$res"; exit 30; }
+    scale_to 1 "$res"                        || { loge "Fallo al escalar a 1 (redeploy): $res"; collect_diag "$res"; exit 30; }
+    oc "${NS_ARG[@]}" rollout status "$res" --timeout="${TIMEOUT_UP}s" || { loge "Timeout en rollout (redeploy): $res"; collect_diag "$res"; exit 31; }
   else
-    scale_to 1 "$res" \
-      || { loge "Fallo al escalar a 1: $res"; collect_diag "$res"; exit 30; }
-    rollout_up "$res" \
-      || { loge "Timeout en rollout: $res"; collect_diag "$res"; exit 31; }
+    scale_to 1 "$res" || { loge "Fallo al escalar a 1: $res"; collect_diag "$res"; exit 30; }
+    rollout_up "$res" || { loge "Timeout en rollout: $res"; collect_diag "$res"; exit 31; }
   fi
 }
 
@@ -208,57 +183,30 @@ done
 
 # ---------- START por bloques ----------
 logi "[START] Subiendo en bloques de $BLOCK_SIZE con pausa de ${BLOCK_DELAY}s entre bloques"
-count=0
-block=1
-declare -a block_items=()
+count=0; block=1; declare -a block_items=()
 
 flush_block(){
-  local -a arr=( "$@" )
-  [[ ${#arr[@]} -eq 0 ]] && return 0
+  local -a arr=( "$@" ); [[ ${#arr[@]} -eq 0 ]] && return 0
   logi "  > Bloque #$block (${#arr[@]})"
-
   if [[ "$ROLLOUT_MODE" == "simple" ]]; then
-    # Simple: escalar todos y luego esperar rollout de cada uno
-    for r in "${arr[@]}"; do
-      logi "    + $r -> 1"
-      scale_to 1 "$r" || { loge "Fallo al escalar a 1: $r"; collect_diag "$r"; exit 30; }
-    done
-    for r in "${arr[@]}"; do
-      logi "      esperando rollout: $r"
-      rollout_up "$r" || { loge "Timeout en rollout: $r"; collect_diag "$r"; exit 31; }
-      (( ok_count++ ))
-    done
+    for r in "${arr[@]}"; do logi "    + $r -> 1"; scale_to 1 "$r" || { loge "Fallo al escalar a 1: $r"; collect_diag "$r"; exit 30; }; done
+    for r in "${arr[@]}"; do logi "      esperando rollout: $r"; rollout_up "$r" || { loge "Timeout en rollout: $r"; collect_diag "$r"; exit 31; }; (( ok_count++ )); done
   else
-    # Redeploy: restart + scale + status (secuencial por ítem)
-    for r in "${arr[@]}"; do
-      logi "    + redeploy $r"
-      start_item "$r"
-      (( ok_count++ ))
-    done
+    for r in "${arr[@]}"; do logi "    + redeploy $r"; start_item "$r"; (( ok_count++ )); done
   fi
-
-  logi "  < Bloque #$block OK"
-  (( block++ ))
+  logi "  < Bloque #$block OK"; (( block++ ))
 }
 
 total=${#DEPLOYMENTS[@]}
 for idx in "${!DEPLOYMENTS[@]}"; do
   d="${DEPLOYMENTS[$idx]}"; [[ -z "$d" ]] && continue
-  block_items+=( "$d" )
-  (( count++ ))
+  block_items+=( "$d" ); (( count++ ))
   if (( count % BLOCK_SIZE == 0 )); then
-    flush_block "${block_items[@]}"
-    block_items=()
-    if (( idx < total-1 )); then
-      logi "  .. esperando ${BLOCK_DELAY}s antes del siguiente bloque"
-      sleep "$BLOCK_DELAY"
-    fi
+    flush_block "${block_items[@]}"; block_items=()
+    if (( idx < total-1 )); then logi "  .. esperando ${BLOCK_DELAY}s antes del siguiente bloque"; sleep "$BLOCK_DELAY"; fi
   fi
 done
-# Último bloque (si quedó incompleto)
-if (( ${#block_items[@]} > 0 )); then
-  flush_block "${block_items[@]}"
-fi
+(( ${#block_items[@]} > 0 )) && flush_block "${block_items[@]}"
 
 # ---------- Resumen ----------
 logi "Resumen: ok=${ok_count} fail=0"
