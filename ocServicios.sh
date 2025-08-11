@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # Reinicio de Deployments vía oc leyendo /opt/miapp/Autosys/oc-envs.ini
-# Uso: ./oc-restart-from-ini.sh <dev|sit|uat|prod|cob>
-# Exit codes:
-#   0 OK; 10 cfg/uso; 11 login; 20 scale STOP; 21 wait STOP; 30 scale START; 31 rollout START
+# Uso:    ./oc-restart-from-ini.sh <dev|sit|uat|prod|cob>
+# RCs:    0 OK; 10 cfg/uso; 11 login; 20 scale STOP; 21 wait STOP; 30 scale START; 31 rollout START
 
 set -uo pipefail
 
@@ -21,6 +20,7 @@ settings_get(){ # settings_get <env> <key> <file>
   [[ -z "$v" ]] && v="$(ini_get settings "$2" "$3")"
   printf '%s' "$v"
 }
+isnum(){ [[ "$1" =~ ^[0-9]+$ ]]; }
 
 # ---------- Args ----------
 [[ $# -ne 1 ]] && { echo "Uso: $0 <dev|sit|uat|prod|cob>" >&2; exit 10; }
@@ -30,8 +30,8 @@ ENV="$1"
 # ---------- Leer credenciales/endpoint ----------
 OC_SERVER="$(ini_get "$ENV" OC_SERVER "$INI")"
 USERNAME="$(ini_get "$ENV" USERNAME  "$INI")"
-PASSWORD="$(ini_get "$ENV" PASSWORD  "$INI")"
-[[ -z "$OC_SERVER" || -z "$USERNAME" || -z "$PASSWORD" ]] && { echo "Faltan OC_SERVER/USERNAME/PASSWORD para [$ENV]" >&2; exit 10; }
+PASSWORD_RAW="$(ini_get "$ENV" PASSWORD  "$INI")"
+[[ -z "$OC_SERVER" || -z "$USERNAME" || -z "$PASSWORD_RAW" ]] && { echo "Faltan OC_SERVER/USERNAME/PASSWORD para [$ENV]" >&2; exit 10; }
 
 # ---------- Leer settings (con defaults si faltan) ----------
 BLOCK_SIZE="$(settings_get "$ENV" BLOCK_SIZE "$INI")";     [[ -z "$BLOCK_SIZE" ]] && BLOCK_SIZE=4
@@ -55,13 +55,19 @@ IFS=',' read -r -a DEPLOYMENTS <<< "$DEPLOY_LINE"
 for i in "${!DEPLOYMENTS[@]}"; do DEPLOYMENTS[$i]="$(echo "${DEPLOYMENTS[$i]}" | xargs)"; done
 [[ ${#DEPLOYMENTS[@]} -eq 0 ]] && { echo "DEPLOYMENTS vacío en [pods]" >&2; exit 10; }
 
-# ---------- Validaciones numéricas ----------
-isnum(){ [[ "$1" =~ ^[0-9]+$ ]]; }
+# ---------- Validaciones ----------
 for n in "$BLOCK_SIZE" "$BLOCK_DELAY" "$TIMEOUT_DOWN" "$TIMEOUT_UP" "$SLEEP_INT"; do
   isnum "$n" || { echo "Parámetro no numérico en INI: $n" >&2; exit 10; }
 done
 if [[ "$ROLLOUT_MODE" != "simple" && "$ROLLOUT_MODE" != "redeploy" ]]; then
   echo "ROLLOUT_MODE debe ser simple|redeploy" >&2; exit 10
+fi
+command -v oc >/dev/null 2>&1 || { echo "No se encontró 'oc' en PATH" >&2; exit 10; }
+
+# Si hay ENC: requerimos openssl y SECRET_KEY_FILE
+if [[ "$PASSWORD_RAW" == ENC:* ]]; then
+  command -v openssl >/dev/null 2>&1 || { echo "Se requiere 'openssl' para descifrar PASSWORD=ENC:" >&2; exit 10; }
+  [[ -n "${SECRET_KEY_FILE:-}" && -r "${SECRET_KEY_FILE}" ]] || { echo "Define SECRET_KEY_FILE apuntando a la clave de descifrado" >&2; exit 10; }
 fi
 
 # ---------- Logging ----------
@@ -79,12 +85,13 @@ logi(){ _log INFO "$*"; }
 logw(){ _log WARN "$*"; }
 loge(){ _log ERROR "$*"; }
 
-[[ "$LOG_VERBOSITY" == "DEBUG" ]] && set -x
+DEBUG_TRACE=0
+if [[ "$LOG_VERBOSITY" == "DEBUG" ]]; then
+  DEBUG_TRACE=1
+  # NO activamos set -x aún: lo haremos tras el login para no filtrar secretos
+fi
 
-# ---------- Prerrequisitos ----------
-command -v oc >/dev/null 2>&1 || { loge "No se encontró 'oc' en PATH"; exit 10; }
-
-# KUBECONFIG temporal
+# ---------- KUBECONFIG temporal ----------
 KUBECONFIG="$(mktemp)"; export KUBECONFIG
 chmod 600 "$KUBECONFIG"
 cleanup(){
@@ -96,15 +103,41 @@ cleanup(){
 }
 trap cleanup EXIT
 
-# ---------- Login ----------
+# ---------- Descifrar password (si aplica) y login (SIN TRACES) ----------
 logi "Inicio runId=$RUN_ID env=$(echo "$ENV" | tr a-z A-Z) server=$OC_SERVER ns=${NAMESPACE:-'(context default)'}"
 logi "Settings: BLOCK_SIZE=$BLOCK_SIZE BLOCK_DELAY=${BLOCK_DELAY}s TIMEOUT_DOWN=${TIMEOUT_DOWN}s TIMEOUT_UP=${TIMEOUT_UP}s SLEEP_INT=${SLEEP_INT}s ROLLOUT_MODE=$ROLLOUT_MODE"
 logi "oc client: $(oc version --client=true --short 2>/dev/null || echo 'desconocido')"
 
-if ! oc login "$OC_SERVER" --username="$USERNAME" --password="$PASSWORD" --insecure-skip-tls-verify=true >/dev/null 2>&1; then
+# Apagamos xtrace temporalmente por seguridad
+prev_xtrace_state="$(set -o | awk '/xtrace/ {print $2}')"
+set +x
+
+if [[ "$PASSWORD_RAW" == ENC:* ]]; then
+  PASS_B64="${PASSWORD_RAW#ENC:}"
+  # Descifrar a texto plano SOLO en memoria
+  PASSWORD_PLAIN="$(printf '%s' "$PASS_B64" | openssl enc -aes-256-cbc -d -a -pbkdf2 -md sha256 -pass file:"$SECRET_KEY_FILE")" || {
+    loge "Fallo al descifrar PASSWORD (ENC:)"
+    unset PASSWORD_PLAIN PASS_B64
+    # Restaurar xtrace si estaba activado por el usuario
+    [[ "$prev_xtrace_state" == "on" && $DEBUG_TRACE -eq 1 ]] && set -x
+    exit 10
+  }
+else
+  # Texto plano (solo dev/sit/uat si así lo decides)
+  PASSWORD_PLAIN="$PASSWORD_RAW"
+fi
+
+if ! oc login "$OC_SERVER" --username="$USERNAME" --password="$PASSWORD_PLAIN" --insecure-skip-tls-verify=true >/dev/null 2>&1; then
   loge "oc login falló"
+  unset PASSWORD_PLAIN PASS_B64
+  [[ "$prev_xtrace_state" == "on" && $DEBUG_TRACE -eq 1 ]] && set -x
   exit 11
 fi
+unset PASSWORD_PLAIN PASS_B64
+
+# Reactivar xtrace si se pidió DEBUG
+if [[ $DEBUG_TRACE -eq 1 ]]; then set -x; fi
+
 oc whoami >/dev/null 2>&1 && logi "whoami=$(oc whoami 2>/dev/null)"
 
 NS_ARG=()
