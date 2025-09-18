@@ -1,0 +1,4 @@
+# PowerShell
+Test-NetConnection -ComputerName world.tr.teams.microsoft.com -Port 443
+Test-NetConnection -ComputerName world.tr.teams.microsoft.com -Port 3478
+Test-NetConnection -ComputerName world.tr.teams.microsoft.com -Port 3481
